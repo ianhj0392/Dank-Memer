@@ -38,6 +38,8 @@ module.exports = new GenericCommand(
     // const sfxCount = await exec('$(find /home/memer/Dank-Memer/src/assets/audio/custom/ -type f | wc -l)').catch(() => 0)
     // const sfxSize = await exec('$(du -sh /home/memer/Dank-Memer/src/assets/audio/custom/ | cut -f1)').catch(() => 0)
     const stats = await Memer.db.getStats();
+    const clusterCount = Memer.config.sharder.clusters || os.cpus().length;
+
     let users = await Memer.r.table('users').count();
     let guilds = await Memer.r.table('guilds').count();
     let cd = await Memer.r.table('cooldowns').count();
@@ -62,7 +64,7 @@ module.exports = new GenericCommand(
     `  [Average] ${(Memer.stats.commands / stats.guilds).toFixed(4)}\n` +
     `[MEMORY] ${(stats.totalRam / 1000).toFixed(1)}/${(os.totalmem() / 1073741824).toFixed(1)}gb (${((stats.totalRam / 1000) / (os.totalmem() / 1073741824)).toFixed(1)}%)\n` +
     `  [System] ${((os.totalmem() - os.freemem()) / 1073741824).toFixed(1)}/${(os.totalmem() / 1073741824).toFixed(1)}gb (${(((os.totalmem() - os.freemem()) / os.totalmem()) * 100).toFixed(1)}%)\n` +
-    `  [Cluster] ${(stats.totalRam / 1000).toFixed(1) / Memer.config.sharder.clusters}gb\n` +
+    `  [Cluster] ${((stats.totalRam / 1000) / clusterCount).toFixed(1)}gb\n` +
     `[UPTIME] ${Memer.parseTime(process.uptime())}\n` +
     `  [System] ${Memer.parseTime(os.uptime())}\n` +
     `[CPU] ${CPUUsage.toFixed(1)}%\n` +

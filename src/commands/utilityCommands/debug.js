@@ -38,7 +38,7 @@ module.exports = new GenericCommand(
     // const sfxCount = await exec('$(find /home/memer/Dank-Memer/src/assets/audio/custom/ -type f | wc -l)').catch(() => 0)
     // const sfxSize = await exec('$(du -sh /home/memer/Dank-Memer/src/assets/audio/custom/ | cut -f1)').catch(() => 0)
     const stats = await Memer.db.getStats();
-    const clusterCount = Memer.config.sharder.clusters || os.cpus().length;
+    const clusterCount = stats.clusters.length;
 
     let users = await Memer.r.table('users').count();
     let guilds = await Memer.r.table('guilds').count();

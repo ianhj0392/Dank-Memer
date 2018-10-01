@@ -6,7 +6,8 @@ module.exports = {
 
       const choice = await Memer.MessageCollector.awaitMessage(msg.channel.id, msg.author.id, 5e4);
       if (!choice || choice.content.toLowerCase() !== 'y') {
-        return m.edit('whew, dodged a bullet');
+        m.edit('whew, dodged a bullet');
+        return;
       }
     }
 

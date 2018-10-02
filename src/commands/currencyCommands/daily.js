@@ -23,7 +23,7 @@ module.exports = new GenericCommand(
 
     return {
       title: `Here are your daily coins, ${msg.author.username}`,
-      description: `**${coinsEarned} coins** were placed in your pocket.\n\nYou can get another 250 coins by voting! ([Click Here](https://discordbots.org/bot/memes/vote) and [here](https://discordbotlist.com/bots/270904126974590976))`,
+      description: `**${coinsEarned} coins** were placed in your pocket.\n\nYou can get another 250 coins by voting! ([Click Here](https://discordbotlist.com/bots/270904126974590976))`,
       thumbnail: {url: 'http://www.dank-memer-is-lots-of.fun/coin.png'},
       footer: {text: `Streak: ${streak} days (+${streakBonus} coins)`}
     };
@@ -31,7 +31,7 @@ module.exports = new GenericCommand(
   {
     triggers: ['daily', '24hr'],
     cooldown: 864e5,
-    donorBlocked: true,
+    donorCD: 864e5,
     cooldownMessage: 'I\'m not made of money dude, wait ',
     description: 'Get your daily injection of meme coins'
   }

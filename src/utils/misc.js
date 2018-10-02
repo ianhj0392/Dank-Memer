@@ -46,9 +46,9 @@ const errors = {
 module.exports = {
   errorMessages: async (e) => errors[Object.keys(errors).find((error) => e.message.includes(error))] || false,
 
-  intro: `Sup nerds. My name is **Dank Memer**.\n\nTo get started, send \`${config.options.prefix} help\`. All commands are run this way, for example, pls meme.\n`,
+  intro: `Sup nerds. My name is **Dank Memer**.\n\nTo get started, send \`${config.options.prefix} help\`. All commands are run this way, for example, pls meme.\n\nIf you're interested in autoposting memes, nsfw, extra currency, and more... Check out our [PREMIUM SERVER](https://www.patreon.com/bePatron?c=362724) option or [check this out](https://github.com/Dank-Memer/Dank-Memer/wiki/Donor-Rewards) to read about all the powerups you can get!`,
 
-  links: '<:technicalsupport:471490462968971264> [Support Server](https://discord.gg/Wejhbd4) - Get help for the bot and meme around\n<:twitter:471490461454827530> [Official Twitter](https://twitter.com/dankmemerbot) - Sometimes win free stuff and meme around\n<:coininhand:471490461467410463> [Patreon Page](https://www.patreon.com/dankmemerbot) - Help support the bot development, and get some sweet perks!\n<:discordlogo:471490461396369409> [Invite Link](https://goo.gl/BPWvB9) - Add the bot to another server and meme around',
+  links: '[Official Twitter](https://twitter.com/dankmemerbot) - Sometimes win free stuff and get bot support\n[Patreon Page](https://www.patreon.com/dankmemerbot) - Help support the bot development, and get some sweet perks!\n[Invite Link](https://goo.gl/BPWvB9) - Add the bot to another server and meme around\n[Official Website](https://dankmemer.lol/) - See all the bot commands and learn more about the developers!',
 
   /**
    * @function randomColor
@@ -144,7 +144,7 @@ module.exports = {
     if (user.username.toLowerCase().includes('dank')) {
       total += 0.5;
     }
-    if (msg.channel.guild.id === '397472167631257600') {
+    if (msg.channel.guild.id === '470337009886429194') {
       total += 0.5;
     }
     if (date.getMinutes() === 20 && date.getHours() === 4) {
@@ -198,10 +198,6 @@ module.exports = {
       end.unlocked.total += 1;
       end.unlocked.list.push('[Channel is dank-memer](http://your-stupidity.needs-to-s.top/9bf273.png)');
     }
-    if (userDB.upvoted) {
-      end.unlocked.total += 1;
-      end.unlocked.list.push('[Voted for the bot](https://discordbots.org/bot/memes/vote)');
-    }
     if (userDB.dblUpvoted) {
       end.unlocked.total += 1;
       end.unlocked.list.push('[Voted for the bot on DBL](https://discordbotlist.com/bots/270904126974590976)');
@@ -229,7 +225,7 @@ module.exports = {
       end.unlocked.total += 1;
       end.unlocked.list.push('Username is dank');
     }
-    if (msg.channel.guild.id === '397472167631257600') {
+    if (msg.channel.guild.id === '470337009886429194') {
       end.unlocked.total += 1;
       end.unlocked.list.push('In support server');
     }
@@ -284,7 +280,7 @@ module.exports = {
       min = 0;
       max = 100;
     }
-    return Math.floor(Math.random() * max) + min;
+    return Math.floor(Math.random() * (max - min + 1) + min);
   },
 
   /**
@@ -458,5 +454,16 @@ module.exports = {
     let seconds2 = Math.floor(seconds % 60);
 
     return `${pad(hours)}:${pad(minutes)}:${pad(seconds2)}`;
+  },
+
+  getRateTarget (msg, args) {
+    let target = !args[0] || args[0].toLowerCase() === 'me'
+      ? 'You are'
+      : (
+        msg.mentions[0]
+          ? `${msg.mentions[0].nick || msg.mentions[0].username} is`
+          : `${args.join(' ')} is`
+      );
+    return target;
   }
 };

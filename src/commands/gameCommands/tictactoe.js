@@ -76,12 +76,12 @@ module.exports = new GenericCommand(
 
     const layoutBoard = (space) => {
       if (!space) {
-        return ' *•* ';
+        return '  :black_large_square:  ';
       } else {
         if (space === author) {
-          return ' **X** ';
+          return '  :x:  ';
         } else {
-          return ' **O** ';
+          return '  :o:  ';
         }
       }
     };
@@ -95,16 +95,16 @@ module.exports = new GenericCommand(
         oppturn = [turn, turn = oppturn][0];
         return play();
       }
-      msg.channel.createMessage({
+      msg.channel.createMessage({ embed: {
         title: `Tic Tac Toe - ${oppturn.username} vs ${turn.username}`,
-        description: `${board[0].map(layoutBoard)}\n${board[1].map(layoutBoard)}\n${board[2].map(layoutBoard)}`,
-        footer: { text: `It is currently ${turn.username}'s turn` }
-      });
+        description: `${board[0].map(layoutBoard).join(' ')}\n${board[1].map(layoutBoard).join(' ')}\n${board[2].map(layoutBoard).join(' ')}`,
+        footer: { text: `${turn.username}'s turn` }
+      }});
       if (!checkMatch()) {
         oppturn = [turn, turn = oppturn][0];
         return play();
       } else {
-        return `congrats ${turn.username} won!!!`;
+        msg.channel.createMessage(`congrats ${turn.username} won!!!`);
       }
     };
     play();

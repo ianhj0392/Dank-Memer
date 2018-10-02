@@ -19,6 +19,11 @@ module.exports = new GenericCommand(
       [null, null, null],
       [null, null, null]
     ];
+    const positions = {
+      a: 0,
+      b: 1,
+      c: 2
+    };
 
     // Randomly select starting user
     if (Math.random() >= 0.50) {
@@ -32,15 +37,27 @@ module.exports = new GenericCommand(
         msg.channel.createMessage(`${player.username} didn't answer in time, what a noob. ${opponent.username} wins`);
       } else {
         let markers = prompt.content.toLowerCase().split('');
-        let row = markers[0];
-        let column = Number(markers[1]);
+        let row = positions[markers[0]];
+        let column = Number(markers[1]) - 1;
 
-        if (row === 'a' && column) {
-          return board[0].splice(column - 1, 1, player);
-        } else if (row === 'b' && column) {
-          return board[1].splice(column - 1, 1, player);
-        } else if (row === 'c' && column) {
-          return board[2].splice(column - 1, 1, player);
+        if (row !== undefined && column) {
+          if (board[row][column]) {
+            msg.channel.createMessage(`that spot is already being occupied by ${oppturn.username}, don't be so greedy`);
+            if (!retry) {
+              return performTurn(player, opponent, !retry);
+            } else {
+              return false; // Skip turn if they keep messing up
+            }
+          } else if (board[row][column] === undefined) {
+            msg.channel.createMessage(`ur an idiot, that spot doesn't even exist on the board :facepalm:`);
+            if (!retry) {
+              return performTurn(player, opponent, !retry);
+            } else {
+              return false; // Skip turn if they keep messing up
+            }
+          } else {
+            return board[row].splice(column, 1, player);
+          }
         } else if (prompt.content.toLowerCase() === 'end') {
           msg.channel.createMessage(`**${player.username}** has ended the game what a wimp`);
         } else {
@@ -96,15 +113,15 @@ module.exports = new GenericCommand(
         return play();
       }
       msg.channel.createMessage({ embed: {
-        title: `Tic Tac Toe - ${oppturn.username} vs ${turn.username}`,
-        description: `${board[0].map(layoutBoard).join(' ')}\n${board[1].map(layoutBoard).join(' ')}\n${board[2].map(layoutBoard).join(' ')}`,
+        title: `Tic Tac Toe`,
+        description: `**${oppturn.username} vs ${turn.username}**\n${board[0].map(layoutBoard).join(' ')}\n${board[1].map(layoutBoard).join(' ')}\n${board[2].map(layoutBoard).join(' ')}`,
         footer: { text: `${turn.username}'s turn` }
       }});
       if (!checkMatch()) {
         oppturn = [turn, turn = oppturn][0];
         return play();
       } else {
-        msg.channel.createMessage(`congrats ${turn.username} won!!!`);
+        msg.channel.createMessage(`yahoo good one ${turn.username}, you won!!! :sunglasses:`);
       }
     };
     play();

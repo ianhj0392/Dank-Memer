@@ -144,7 +144,7 @@ module.exports = {
     if (user.username.toLowerCase().includes('dank')) {
       total += 0.5;
     }
-    if (msg.channel.guild.id === '397472167631257600') {
+    if (msg.channel.guild.id === '470337009886429194') {
       total += 0.5;
     }
     if (date.getMinutes() === 20 && date.getHours() === 4) {
@@ -198,10 +198,6 @@ module.exports = {
       end.unlocked.total += 1;
       end.unlocked.list.push('[Channel is dank-memer](http://your-stupidity.needs-to-s.top/9bf273.png)');
     }
-    if (userDB.upvoted) {
-      end.unlocked.total += 1;
-      end.unlocked.list.push('[Voted for the bot](https://discordbots.org/bot/memes/vote)');
-    }
     if (userDB.dblUpvoted) {
       end.unlocked.total += 1;
       end.unlocked.list.push('[Voted for the bot on DBL](https://discordbotlist.com/bots/270904126974590976)');
@@ -229,7 +225,7 @@ module.exports = {
       end.unlocked.total += 1;
       end.unlocked.list.push('Username is dank');
     }
-    if (msg.channel.guild.id === '397472167631257600') {
+    if (msg.channel.guild.id === '470337009886429194') {
       end.unlocked.total += 1;
       end.unlocked.list.push('In support server');
     }

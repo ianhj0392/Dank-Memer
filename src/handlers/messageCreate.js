@@ -2,18 +2,37 @@ const gifs = require('../assets/arrays/permGifs.json');
 const ArgParser = require('../utils/ArgParser.js');
 
 exports.handle = async function (msg) {
+  this.ddog.increment('global.seen');
   if (
     !msg.channel.guild ||
-    msg.author.bot ||
-    await this.db.checkBlocked(msg.author.id, msg.channel.guild.id)
+    msg.author.bot
   ) {
     return;
   }
 
   if (this.config.options.dev && !this.config.options.developers.includes(msg.author.id)) { return; }
 
+  let ar = ['im', 'i\'m', 'i am', 'no u', 'sec', 'one sec', 'ree'];
+
+  let slicedMessage = msg.content.split(/\s+/g);
+  let passed;
   this.stats.messages++;
   cacheMessage.bind(this)(msg);
+  if (ar.find(a => msg.content.toLowerCase().startsWith(a))) {
+    passed = true;
+  } else {
+    if (slicedMessage.length > 1) {
+      for (const command of slicedMessage) {
+        if (this.cmds.find(c => c.props.triggers.includes(command.toLowerCase())) || this.tags[command.toLowerCase()]) {
+          passed = true;
+        }
+      }
+    }
+  }
+  if (!passed || await this.db.checkBlocked(msg.author.id, msg.channel.guild.id)) {
+    return;
+  }
+
   const gConfig = await this.db.getGuild(msg.channel.guild.id) || {
     prefix: this.config.options.prefix,
     disabledCommands: [],
@@ -140,6 +159,10 @@ exports.handle = async function (msg) {
 
   updateStats.bind(this)(msg, command, lastCmd);
 
+  this.ddog.increment('total.commands');
+  this.ddog.increment(`category.${command.category}`, 1, ['tag:one']);
+  this.ddog.increment(`cmd.${command.cmdProps.triggers[0]}`, 1, ['tag:two']);
+
   const isInCooldown = await checkCooldowns.bind(this)(msg, command, isDonor, isGlobalPremiumGuild);
   if (isInCooldown) { return; }
 
@@ -175,11 +198,13 @@ function cacheMessage (msg) {
   if (!msg.content) { // Ignore attachments without content
     return;
   }
+  this.ddog.increment('messagesCached');
   this.redis.set(`msg-${msg.id}`, JSON.stringify({ userID: msg.author.id, content: msg.content, timestamp: msg.timestamp, guildID: msg.channel.guild.id, channelID: msg.channel.id }), 'EX', 20 * 60);
 }
 
 async function updateStats (msg, command, lastCmd) {
   if (Date.now() - lastCmd < 500) {
+    this.ddog.increment('spam500');
     await this.db.addSpam(msg.author.id);
   }
 
@@ -210,6 +235,7 @@ async function checkCooldowns (msg, command, isDonor, isGlobalPremiumGuild) {
       }
     };
     msg.channel.createMessage(isDonor || isGlobalPremiumGuild ? donorMessage : cooldownMessage);
+    this.ddog.increment('cooldown');
     return true;
   }
   return false;
@@ -217,6 +243,7 @@ async function checkCooldowns (msg, command, isDonor, isGlobalPremiumGuild) {
 
 function checkPerms (command, permissions, msg) {
   const neededPerms = command.props.perms.filter(perm => !permissions.has(perm));
+  this.ddog.increment('noPerms');
   if (permissions.has('sendMessages')) {
     if (permissions.has('embedLinks')) {
       msg.channel.createMessage({
@@ -281,6 +308,7 @@ async function runCommand (command, msg, args, cleanArgs, updateCooldowns, isGlo
 }
 
 async function reportError (e, msg, command, cleanArgs) {
+  this.ddog.increment('function.reportError');
   let date = new Date();
   this.stats.errReported++;
   let message = await this.errorMessages(e);

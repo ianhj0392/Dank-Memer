@@ -78,15 +78,18 @@ module.exports = class GenericVoiceCommand {
       msg.channel.createMessage({ embed: { title: 'Now Playing...', description: song.info.title } });
     } else if (this.cmdProps.message) {
       msg.channel.createMessage(this.cmdProps.message);
-    } else {
-      msg.addReaction(this.cmdProps.reaction);
     }
 
     music.channel = msg.channel.id;
-    await music.addSong(song, false, music.queue.length < 1 ? 0 : 1);
-    await music.stop();
-    await Memer.sleep(100);
+    if (!music.queue.length) {
+      await music.addSong(song, true);
+    } else {
+      await music.addSong(song, false, 1);
+      await music.stop();
+    }
+    await Memer.sleep(150);
     await music.player.join(msg.member.voiceState.channelID);
+    await Memer.sleep(150);
     await music._play();
   }
 
@@ -95,8 +98,7 @@ module.exports = class GenericVoiceCommand {
       null,
       Object.assign({
         cooldown: 3000,
-        donorCD: 1000,
-        perms: ['addReactions']
+        donorCD: 1000
       }, this.cmdProps)
     ).props;
   }

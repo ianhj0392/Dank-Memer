@@ -18,7 +18,7 @@
  * @prop {Boolean} dblUpvoted Whether the user upvoted the bot on discordbotlist.com
  */
 
-/** @typedef {UserEntry & UserData} ExtendedUserEntry */
+/** @typedef {UserEntry} ExtendedUserEntry */
 
 /**
  * - An interface for user entries, all methods except `update()` updates the data on this `UserEntry` instance, and convert the changes into ReQL queries in the background
@@ -34,7 +34,8 @@ class UserEntry {
    * @param {Memer} Memer The Memer instance
    */
   constructor (userData, Memer) {
-    Object.assign(this, userData);
+    /** @type {UserData} The entry's properties */
+    this.props = userData;
     /** @type {Memer} The Memer instance */
     this._client = Memer;
     this._changes = {};
@@ -60,8 +61,8 @@ class UserEntry {
       throw new Error('Missing mandatory "amount" parameter');
     }
     amount = typeof amount !== 'number' ? Number(amount) : amount;
-    this.pocket = this.pocket + amount;
-    this.won = this.won + amount;
+    this.props.pocket = this.props.pocket + amount;
+    this.props.won = this.props.won + amount;
     this.update({pocket: this._client.r.row('pocket').add(amount), won: this._client.r.row('won').add(amount)});
     return this;
   }
@@ -76,8 +77,8 @@ class UserEntry {
       throw new Error('Missing mandatory "amount" parameter');
     }
     amount = typeof amount !== 'number' ? Number(amount) : amount;
-    this.pocket = Math.max(this.pocket - amount, 0);
-    this.lost = this.lost + amount;
+    this.props.pocket = Math.max(this.props.pocket - amount, 0);
+    this.props.lost = this.props.lost + amount;
     this.update({pocket: this._client.r.expr([this._client.r.row('pocket').sub(amount), 0]).max(), lost: this._client.r.row('lost').add(amount)});
     return this;
   }
@@ -93,10 +94,10 @@ class UserEntry {
       throw new Error('Missing mandatory "amount" parameter');
     }
     amount = typeof amount !== 'number' ? Number(amount) : amount;
-    this.bank = this.bank + amount;
+    this.props.bank = this.props.bank + amount;
     let changes = { bank: this._client.r.row('bank').add(amount) };
     if (transfer) {
-      this.pocket = Math.max(this.pocket - amount, 0);
+      this.props.pocket = Math.max(this.props.pocket - amount, 0);
       changes['pocket'] = this._client.r.expr([this._client.r.row('pocket').sub(amount), 0]).max();
     }
     this.update(changes);
@@ -114,10 +115,10 @@ class UserEntry {
       throw new Error('Missing mandatory "amount" parameter');
     }
     amount = typeof amount !== 'number' ? Number(amount) : amount;
-    this.bank = Math.max(this.bank - amount, 0);
+    this.props.bank = Math.max(this.bank - amount, 0);
     let changes = { bank: this._client.r.expr([this._client.r.row('bank').sub(amount), 0]).max() };
     if (transfer) {
-      this.pocket = this.pocket + amount;
+      this.props.pocket = this.props.pocket + amount;
       changes['pocket'] = this._client.r.row('pocket').add(amount);
     }
     this.update(changes);
@@ -131,7 +132,7 @@ class UserEntry {
    * @returns {ExtendedUserEntry} The user entry, so calls can be chained
    */
   updateStreak (timestamp = Date.now(), streak = this.streak.streak + 1) {
-    this.streak = { time: timestamp, streak };
+    this.props.streak = { time: timestamp, streak };
     this.update({ streak: { time: timestamp, streak: this._client.r.row('streak')('streak').add(1) } });
     return this;
   }
@@ -141,7 +142,7 @@ class UserEntry {
   * @returns {ExtendedUserEntry} The user entry, so calls can be chained
   */
   resetStreak () {
-    this.streak.streak = 0;
+    this.props.streak.streak = 0;
     this.update({ streak: { streak: 0 } });
     return this;
   }
@@ -152,7 +153,7 @@ class UserEntry {
    * @returns {ExtendedUserEntry} The user entry, so calls can be chained
    */
   addPls (amount = 1) {
-    this.pls = this.pls + amount;
+    this.props.pls = this.props.pls + amount;
     this.update({ pls: this._client.r.row('pls').add(amount) });
     return this;
   }
@@ -163,7 +164,7 @@ class UserEntry {
    * @returns {ExtendedUserEntry} The user entry, so calls can be chained
    */
   addSpam (amount = 1) {
-    this.spam = this.spam + amount;
+    this.props.spam = this.props.spam + amount;
     this.update({ spam: this._client.r.row('spam').add(amount) });
     return this;
   }
@@ -175,8 +176,8 @@ class UserEntry {
    * @returns {ExtendedUserEntry} The user entry, so calls can be chained
    */
   setLastCmd (cmd = 'nothing', timestamp = Date.now()) {
-    this.lastRan = cmd;
-    this.lastCmd = timestamp;
+    this.props.lastRan = cmd;
+    this.props.lastCmd = timestamp;
     this.update({ lastCmd: timestamp, lastRan: cmd });
     return this;
   }

@@ -1,6 +1,6 @@
 /** @typedef {import('eris').Message} Message
  * @typedef {import('../utils/misc')} Utils
- * @typedef {import('./UserEntry').ExtendedUserEntry} UserEntry
+ * @typedef {import('./UserEntry')} UserEntry
  */
 
 /** @typedef {Object} ExtendedMessage

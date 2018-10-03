@@ -16,7 +16,7 @@ class Memer extends Base {
     this.secrets = require('./secrets.json');
     this.r = require('rethinkdbdash')();
     this.ddog = new StatsD();
-    this.db = require('./utils/dbFunctions.js')(this);
+    this.db = new (require('./utils/dbFunctions.js'))(this);
     this.http = require('./utils/http');
     this.cmds = [];
     this.tags = {};

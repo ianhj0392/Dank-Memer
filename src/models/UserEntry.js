@@ -18,13 +18,11 @@
  * @prop {Boolean} dblUpvoted Whether the user upvoted the bot on discordbotlist.com
  */
 
-/** @typedef {UserEntry} ExtendedUserEntry */
-
 /**
  * - An interface for user entries, all methods except `update()` updates the data on this `UserEntry` instance, and convert the changes into ReQL queries in the background
  * - The changes won't be saved unless `save()` is called
  * - If you want to return the updated data to the user, it is recommended to use the `UserEntry` instance returned by the `save()` method, as it is guaranteed to be what has been inserted into the database
- * - Changes directly done on the `UserEntry` instance **won't be saved**, the `update()` method should be used for changes that aren't covered by the other methods
+ * - Changes directly done on `UserEntry.props` **won't be saved**, the `update()` method should be used for changes that aren't covered by the other methods
  * - While chaining calls is possible, chaining calls that update the same value (e.g: `addBank()` followed by `removeBank()`) won't work as intended, as the query for this field will be overwritten
  */
 class UserEntry {
@@ -35,7 +33,7 @@ class UserEntry {
    */
   constructor (userData, Memer) {
     /** @type {UserData} The entry's properties */
-    this.props = userData;
+    this.props = { ...Memer.db.getDefaultUser(userData.id), ...userData };
     /** @type {Memer} The Memer instance */
     this._client = Memer;
     this._changes = {};
@@ -44,17 +42,21 @@ class UserEntry {
   /**
    * Manually update the user entry with the given data, note that the changes won't be reflected in the object
    * @param {Object} object The data to update this user with, rethink queries such as `r.row()` can be used in the object properties
-   * @returns {ExtendedUserEntry} The user entry, so calls can be chained
+   * @example UserEntry.update({ pocket: 2500 }) //This is an example, `addPocket()` should be used for that
+   * @returns {UserEntry} The user entry, so calls can be chained
    */
   update (object) {
-    this._changes = this._deepMerge(this._changes, object);
+    if (typeof object !== 'object') {
+      throw new Error('Expected "object" parameter to be an object');
+    }
+    this._changes = this._client.deepMerge(this._changes, object);
     return this;
   }
 
   /**
    * Add coins to the user's pocket, this updates the `won` property too
    * @param {Number} amount The amount of coins to add to this user's pocket
-   * @returns {ExtendedUserEntry} The user entry, so calls can be chained
+   * @returns {UserEntry} The user entry, so calls can be chained
    */
   addPocket (amount) {
     if (!amount) {
@@ -70,7 +72,7 @@ class UserEntry {
   /**
    * Remove coins from the user's pocket, this updates the `lost` property too
    * @param {Number} amount The amount of coins to remove from this user's pocket
-   * @returns {ExtendedUserEntry} The user entry, so calls can be chained
+   * @returns {UserEntry} The user entry, so calls can be chained
    */
   removePocket (amount) {
     if (!amount) {
@@ -87,7 +89,7 @@ class UserEntry {
    * Add coins to the user's bank, this can also be used to transfer coins from the user's pocket to their bank vault
    * @param {Number} amount The amount of coins to add to the user's bank vault
    * @param {Boolean} [transfer=true] Whether to transfer the coins from the user's pocket to their bank vault, defaults to `true`
-   * @returns {ExtendedUserEntry} The user entry, so calls can be chained
+   * @returns {UserEntry} The user entry, so calls can be chained
    */
   addBank (amount, transfer = true) {
     if (!amount) {
@@ -108,7 +110,7 @@ class UserEntry {
    * Remove coins from the user's bank, this can also be used to transfer coins from the user's bank vault to their pocket
    * @param {Number} amount The amount of coins to remove from the user's bank vault
    * @param {Boolean} [transfer=true] Whether to transfer the coins from the user's bank vault to their pocket, defaults to `true`
-   * @returns {ExtendedUserEntry} The user entry, so calls can be chained
+   * @returns {UserEntry} The user entry, so calls can be chained
    */
   removeBank (amount, transfer = true) {
     if (!amount) {
@@ -129,7 +131,7 @@ class UserEntry {
    * Updates the user's `daily` streak
    * @param {Number} [timestamp=Date.now()] The unix epoch timestamp of when the user last ran `daily`, defaults to `Date.now()`
    * @param {Number} [streak=this.streak.streak + 1] The user's streak, defaults to their current streak + 1
-   * @returns {ExtendedUserEntry} The user entry, so calls can be chained
+   * @returns {UserEntry} The user entry, so calls can be chained
    */
   updateStreak (timestamp = Date.now(), streak = this.streak.streak + 1) {
     this.props.streak = { time: timestamp, streak };
@@ -139,7 +141,7 @@ class UserEntry {
 
   /**
   * Reset the user's `daily` streak
-  * @returns {ExtendedUserEntry} The user entry, so calls can be chained
+  * @returns {UserEntry} The user entry, so calls can be chained
   */
   resetStreak () {
     this.props.streak.streak = 0;
@@ -150,7 +152,7 @@ class UserEntry {
   /**
    * Increase the user's `pls` count
    * @param {Number} [amount=1] The amount to add to `pls`, defaults to `1`
-   * @returns {ExtendedUserEntry} The user entry, so calls can be chained
+   * @returns {UserEntry} The user entry, so calls can be chained
    */
   addPls (amount = 1) {
     this.props.pls = this.props.pls + amount;
@@ -161,7 +163,7 @@ class UserEntry {
   /**
    * Increase the user's `spam` count
    * @param {Number} [amount=1] The amount to add to `spam`, defaults to `1`
-   * @returns {ExtendedUserEntry} The user entry, so calls can be chained
+   * @returns {UserEntry} The user entry, so calls can be chained
    */
   addSpam (amount = 1) {
     this.props.spam = this.props.spam + amount;
@@ -173,7 +175,7 @@ class UserEntry {
    * Update the data about the user's last ran command
    * @param {String} [cmd="nothing"] The name of the last command ran by this user, defaults to `nothing`
    * @param {Number} [timestamp=Date.now()] The unix epoch timestamp of when the user last ran a cmd, defauls to `Date.now()`
-   * @returns {ExtendedUserEntry} The user entry, so calls can be chained
+   * @returns {UserEntry} The user entry, so calls can be chained
    */
   setLastCmd (cmd = 'nothing', timestamp = Date.now()) {
     this.props.lastRan = cmd;
@@ -184,7 +186,7 @@ class UserEntry {
 
   /**
    * Saves the user into the database
-   * @returns {Promise<ExtendedUserEntry>} The freshly updated entry
+   * @returns {Promise<UserEntry>} The freshly updated entry
    */
   async save () {
     return this._client.r.table('users')
@@ -197,49 +199,7 @@ class UserEntry {
    * @returns {String} This entry stringified
    */
   toJSON () {
-    return JSON.stringify(this);
-  }
-
-  /**
-   * Returns this as a plain object, without the methods
-   * @returns {Object}
-   */
-  toPlainObject () {
-    return (() => {
-      const obj = {};
-      for (const key of Object.getOwnPropertyNames(this)) {
-        if (typeof this[key] !== 'function' && !['_client', '_changes'].includes(key)) {
-          obj[key] = this[key];
-        }
-      }
-      return obj;
-    })();
-  }
-
-  /**
-   * Performs a deep merge of the two given object, the behavior of this merge being the same as RethinkDB's `update`/`merge` methods
-   * @param {Object} target - The object that should be updated with the source
-   * @param {Object} source - The object that will be merged on the `target` object
-   * @returns {Object} The merged object
-   */
-  _deepMerge (target, source) {
-    let destination = {};
-    for (const key of Object.keys(target)) {
-      destination[key] = typeof target[key] === 'object' ? { ...target[key] } : target[key];
-    }
-
-    for (const key of Object.keys(source)) {
-      if (!target[key] || typeof target[key] !== 'object') {
-        destination[key] = source[key];
-      } else {
-        if (typeof source[key] !== 'object') {
-          destination[key] = source[key];
-        } else {
-          destination[key] = this._deepMerge(target[key], source[key]);
-        }
-      }
-    }
-    return destination;
+    return JSON.stringify(this.props);
   }
 }
 

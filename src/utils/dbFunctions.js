@@ -586,8 +586,24 @@ module.exports = Bot => ({
     };
   },
 
+  getDefaultGuild: function getDefaultGuild (id) {
+    return {
+      id,
+      prefix: Bot.config.options.prefix,
+      modlog: '',
+      disabledCategories: [],
+      disabledCommands: [],
+      enabledCommands: []
+    };
+  },
+
   getRefUser: function getRefUser (id) {
     const User = require('../models/UserEntry');
     return Bot.r.table('users').get(id).default(this.getDefaultUser(id)).run().then(u => new User(u, Bot));
+  },
+
+  getRefGuild: function getRefGuild (id) {
+    const Guild = require('../models/GuildEntry');
+    return Bot.r.table('users').get(id).default(this.getDefaultGuild(id)).run().then(g => new Guild(g, Bot));
   }
 });

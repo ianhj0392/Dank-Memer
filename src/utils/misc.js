@@ -2,6 +2,9 @@
  * @typedef {import('eris').User} User
  * @typedef {import('eris').Message} Message
  * @typedef {import('eris').Member} Member
+ * @typedef {import('eris').EmbedBase} EmbedBase
+ * @typedef {import('../models/UserEntry').UserData} UserData
+ * @typedef {import('../utils/dbFunctions').DonorData} DonorData
  */
 
 const config = require('../config.json');
@@ -43,23 +46,35 @@ const errors = {
   'DiscordRESTError [10003]: Unknown Channel': `Something broke!\n\nI am currently not sure why this bug is happening, but if you report this bug in the support server, you will get paid for it in meme coins.\nJoin (<https://discord.gg/Wejhbd4>) and tell support it is error \`hunt1\`.`
 };
 
-module.exports = {
-  errorMessages: async (e) => errors[Object.keys(errors).find((error) => e.message.includes(error))] || false,
+class MiscFunctions {
+  /**
+   *
+   * @param {Memer} client The Memer instance
+   */
+  constructor (client) {
+    this.client = client;
+  }
 
-  intro: `Sup nerds. My name is **Dank Memer**.\n\nTo get started, send \`${config.options.prefix} help\`. All commands are run this way, for example, pls meme.\n\nIf you're interested in autoposting memes, nsfw, extra currency, and more... Check out our [PREMIUM SERVER](https://www.patreon.com/bePatron?c=362724) option or [check this out](https://github.com/Dank-Memer/Dank-Memer/wiki/Donor-Rewards) to read about all the powerups you can get!`,
+  errorMessages (e) {
+    return errors[Object.keys(errors).find((error) => e.message.includes(error))] || false;
+  }
 
-  links: '[Official Twitter](https://twitter.com/dankmemerbot) - Sometimes win free stuff and get bot support\n[Patreon Page](https://www.patreon.com/dankmemerbot) - Help support the bot development, and get some sweet perks!\n[Invite Link](https://goo.gl/BPWvB9) - Add the bot to another server and meme around\n[Official Website](https://dankmemer.lol/) - See all the bot commands and learn more about the developers!',
+  get intro () {
+    return `Sup nerds. My name is **Dank Memer**.\n\nTo get started, send \`${config.options.prefix} help\`. All commands are run this way, for example, pls meme.\n\nIf you're interested in autoposting memes, nsfw, extra currency, and more... Check out our [PREMIUM SERVER](https://www.patreon.com/bePatron?c=362724) option or [check this out](https://github.com/Dank-Memer/Dank-Memer/wiki/Donor-Rewards) to read about all the powerups you can get!`;
+  }
+
+  get links () {
+    return '[Official Twitter](https://twitter.com/dankmemerbot) - Sometimes win free stuff and get bot support\n[Patreon Page](https://www.patreon.com/dankmemerbot) - Help support the bot development, and get some sweet perks!\n[Invite Link](https://goo.gl/BPWvB9) - Add the bot to another server and meme around\n[Official Website](https://dankmemer.lol/) - See all the bot commands and learn more about the developers!';
+  }
 
   /**
-   * @function randomColor
    * @returns {Number} A random color code
    */
   randomColor () {
     return Math.floor(Math.random() * 0xFFFFFF);
-  },
+  }
 
   /**
-   * @function inviteRemoval
    * @param {String} args The string to remove invites from
    * @returns {String} The given string, with invites replaced by `invite`
    */
@@ -71,11 +86,10 @@ module.exports = {
     } else {
       return args;
     }
-  },
+  }
 
   /**
-   * @function unembedify
-   * @param {Object} embed The embed object to turn into a regular string
+   * @param {{embed: EmbedBase}} embed The embed object to turn into a regular string
    * @returns {String} String that contains all of the embed elements
    */
   unembedify (embed) {
@@ -89,18 +103,16 @@ module.exports = {
     }
     if (em.footer) embedString += `\n${em.footer.text}`;
     return `${embed.content || ''}\n${(embedString || 'Empty embed')}`; // Returns a string
-  },
+  }
 
   /**
-   * @function calcMultiplier
-   * @param {Memer} Memer The string to remove invites from
    * @param {User} user The user
-   * @param {Object} userDB The user database entry
-   * @param {Object} [donor] The donor object, if any
+   * @param {UserData} userDB The user database entry
+   * @param {DonorData} [donor] The donor object, if any
    * @param {Message} msg The message
    * @returns {Number} The total multiplier for this user
    */
-  calcMultiplier (Memer, user, userDB, donor, msg, isGlobalPremiumGuild) {
+  calcMultiplier (user, userDB, donor, msg, isGlobalPremiumGuild) {
     // calculates total multiplier based on multiple variables
     let guildMember = msg.channel.guild.members.get(msg.author.id);
     let date = new Date(msg.timestamp);
@@ -108,7 +120,7 @@ module.exports = {
     let time;
     let total;
     total = userDB.upgrades ? userDB.upgrades.multi : 0;
-    if (Memer.config.options.developers.includes(user.id)) {
+    if (this.client.config.options.developers.includes(user.id)) {
       total += 5;
     }
     if (guildMember.game && guildMember.game.name.toLowerCase().includes('dank memer')) {
@@ -159,18 +171,16 @@ module.exports = {
       total += 420;
     }
     return total;
-  },
+  }
 
   /**
-   * @function showMultiplier
-   * @param {Memer} Memer The string to remove invites from
    * @param {User} user The user
-   * @param {Object} userDB The user database entry
-   * @param {Object} [donor] The donor object, if any
+   * @param {UserData} userDB The user database entry
+   * @param {DonorData} [donor] The donor object, if any
    * @param {Message} msg The message
    * @returns {String} A list of all the active multipliers for this user
    */
-  showMultiplier (Memer, user, userDB, donor, msg, isGlobalPremiumGuild) {
+  showMultiplier (user, userDB, donor, msg, isGlobalPremiumGuild) {
     // calculates total multiplier based on multiple variables
     let guildMember = msg.channel.guild.members.get(msg.author.id);
     let date = new Date(msg.timestamp);
@@ -182,7 +192,7 @@ module.exports = {
       unlocked: { total: 0, list: [] },
       bought: userDB.upgrades ? userDB.upgrades.multi : 0
     };
-    if (Memer.config.options.developers.includes(user.id)) {
+    if (this.client.config.options.developers.includes(user.id)) {
       end.unlocked.total += 1;
       end.unlocked.list.push('[Developer](https://github.com/Dank-Memer/Dank-Memer)');
     }
@@ -249,10 +259,9 @@ module.exports = {
     }
     end.locked = count - end.unlocked.total;
     return end;
-  },
+  }
 
   /**
-   * @function decodeHtmlEntity
    * @param {String} str The string to decode html entities from
    * @returns {String} The given string, with html entities decoded
    */
@@ -260,20 +269,18 @@ module.exports = {
     return str.replace(/&#(\d+);/g, function (match, dec) {
       return String.fromCharCode(dec);
     });
-  },
+  }
 
   /**
-   * @function randomInArray
    * @param {Array} array The array to get a random element from
    * @returns {any} A random element that was in the given array
    */
   randomInArray (array) {
     return array[Math.floor(Math.random() * array.length)];
-  },
+  }
 
   /**
    * If no minimum and maximum is passed, the range defaults to 0-100
-   * @function randomNumber
    * @param {Number} [min] The minimum
    * @param {Number} [max] The maximum
    * @returns {Number} A random number between the given range
@@ -285,34 +292,33 @@ module.exports = {
       max = 100;
     }
     return Math.floor(Math.random() * (max - min + 1) + min);
-  },
+  }
 
   /**
-   * @function sleep
    * @param {Number} ms The amount of milliseconds to wait
    * @returns {Promise<void>} An empty promise that will be resolved when the given ms are elapsed
    */
-  sleep (ms) { return new Promise(resolve => setTimeout(resolve, ms)); },
+  sleep (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
   /**
-   * @function removeDuplicates
    * @param {Array} array The array to remove duplicates from
    * @returns {Array} The given array, with all (exact) duplicates removed
    */
   removeDuplicates (array) {
     return Array.from(new Set(array).values());
-  },
+  }
 
   /**
    * Creates a codeblock from the given string and language
-   * @function codeblock
    * @param {String} str The text to put in the codeblock
    * @param {String} lang The language to use for this codeblock
    * @returns {String} A codeblock
    */
   codeblock (str, lang) {
     return `${'```'}${lang || ''}\n${str}\n${'```'}`;
-  },
+  }
 
   /**
    * Get the highest role position of the given member
@@ -321,10 +327,9 @@ module.exports = {
    */
   getHighestRolePos (member) {
     return member.roles[0] ? member.guild.roles.filter(r => member.roles.includes(r.id)).sort((a, b) => b.position - a.position)[0].position : 0;
-  },
+  }
 
   /**
-   * @function parseTime
    * @param {Number} time The time in seconds to parse
    * @returns {String} A string representing the given time
    */
@@ -342,9 +347,9 @@ module.exports = {
     }
 
     return timeStr.filter(g => !g.startsWith('0')).join(', ');
-  },
+  }
 
-  async punish (Memer, id, type, reason, optionalBlock = true, optionalWipe = true) {
+  async punish (id, type, reason, optionalBlock = true, optionalWipe = true) {
     if (!reason) {
       reason = 'No reason given.';
     }
@@ -354,14 +359,14 @@ module.exports = {
     let name;
     let object;
     if (type === 'user') {
-      object = await Memer.ipc.fetchUser(id);
+      object = await this.client.ipc.fetchUser(id);
       if (!object) {
         name = 'not sure of the username...';
       } else {
         name = `${object.username}#${object.discriminator}`;
       }
     } else {
-      object = await Memer.ipc.fetchGuild(id);
+      object = await this.client.ipc.fetchGuild(id);
       if (!object) {
         name = 'not sure of the server name';
       } else {
@@ -369,27 +374,26 @@ module.exports = {
       }
     }
     if (optionalBlock) {
-      Memer.db.createBlock(id);
+      this.client.db.createBlock(id);
     }
     if (optionalWipe) {
       switch (type) {
         case 'user':
-          await Memer.db.removeUser(id);
+          await this.client.db.removeUser(id);
           break;
         case 'guild':
         case 'server':
-          await Memer.db.deletePls(id);
-          await Memer.db.deleteGuild(id);
+          await this.client.db.deletePls(id);
+          await this.client.db.deleteGuild(id);
           break;
       }
     }
-    const channel = Memer.config.options.spamReportChannel || '397477232240754698';
-    await Memer.bot.createMessage(channel, `The ${type} **${name}** (*${id}*) was blacklisted.\n**Reason**: ${reason}`);
-  },
+    const channel = this.client.config.options.spamReportChannel || '397477232240754698';
+    await this.client.bot.createMessage(channel, `The ${type} **${name}** (*${id}*) was blacklisted.\n**Reason**: ${reason}`);
+  }
 
   /**
    * Creates an array of strings from a given string, each string being at most 2000 characters/the given limit
-   * @function paginate
    * @param {String} text The text to create an array of "pages" from
    * @param {Number} [limit=2000] The limit of characters for a page, defaults to `2000`
    * @returns {Array<String>} The given text, paginated into an array according to the specified limit
@@ -424,7 +428,7 @@ module.exports = {
     }
 
     return pages;
-  },
+  }
 
   /**
    * Splits a given array into multiple arrays, each array being as big as the given size at most
@@ -440,11 +444,10 @@ module.exports = {
       j = j + (size || 10);
     }
     return result;
-  },
+  }
 
   /**
    * Format the given seconds into a hours:minutes:seconds string format
-   * @function format
    * @param {Number} seconds The seconds to format
    * @returns {String} A hours:minutes:seconds string format
    */
@@ -458,7 +461,7 @@ module.exports = {
     let seconds2 = Math.floor(seconds % 60);
 
     return `${pad(hours)}:${pad(minutes)}:${pad(seconds2)}`;
-  },
+  }
 
   /**
    * Performs a deep merge of the two given object, the behavior of this merge being the same as RethinkDB's `update`/`merge` methods
@@ -484,7 +487,7 @@ module.exports = {
       }
     }
     return destination;
-  },
+  }
 
   getRateTarget (msg, args) {
     let target = !args[0] || args[0].toLowerCase() === 'me'
@@ -496,4 +499,6 @@ module.exports = {
       );
     return target;
   }
-};
+}
+
+module.exports = MiscFunctions;

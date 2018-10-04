@@ -1,6 +1,6 @@
-const GenericCommand = require('../../models/GenericCommand');
+const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
-module.exports = new GenericCommand(
+module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, addCD }) => {
     let { bank, pocket, pls } = await Memer.db.getUser(msg.author.id);
     const amount = Number(msg.args.args[1]);

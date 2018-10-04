@@ -1,4 +1,4 @@
-const GenericCommand = require('../../models/GenericCommand');
+const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 let min = 500;
 
 const dmStolenUser = async (Memer, user, msg, worth) => {
@@ -12,7 +12,7 @@ const dmStolenUser = async (Memer, user, msg, worth) => {
   }
 };
 
-module.exports = new GenericCommand(
+module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, args, addCD }) => {
     let user = msg.args.resolveUser(true);
     if (!user) {

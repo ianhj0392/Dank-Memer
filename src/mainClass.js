@@ -55,7 +55,7 @@ class Memer extends Base {
     };
     this.cooldowns = new Map();
     this._cooldownsSweep = setInterval(this._sweepCooldowns.bind(this), 1000 * 60 * 30);
-    Object.assign(this, require('./utils/misc.js'));
+    Object.assign(this, new (require('./utils/misc.js'))(this));
   }
 
   async launch () {

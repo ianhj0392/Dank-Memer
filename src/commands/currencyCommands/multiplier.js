@@ -5,8 +5,8 @@ module.exports = new GenericCommand(
     let user = msg.author;
     let userDB = await Memer.db.getUser(user.id);
     let donor = await Memer.db.checkDonor(user.id);
-    let total = await Memer.calcMultiplier(Memer, user, userDB, donor, msg, isGlobalPremiumGuild);
-    let show = await Memer.showMultiplier(Memer, user, userDB, donor, msg, isGlobalPremiumGuild);
+    let total = await Memer.calcMultiplier(user, userDB, donor, msg, isGlobalPremiumGuild);
+    let show = await Memer.showMultiplier(user, userDB, donor, msg, isGlobalPremiumGuild);
     await addCD();
     return {
       title: `Here is some info about your Multipliers, ${user.username}`,

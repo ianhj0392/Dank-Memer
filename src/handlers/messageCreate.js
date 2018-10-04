@@ -168,7 +168,7 @@ exports.handle = async function (msg) {
 
   if (spam > 1e4) {
     let reason = 'Blacklisted for spamming over 10,000 times.';
-    await this.punish(this, msg.author.id, 'user', reason);
+    await this.punish(msg.author.id, 'user', reason);
     return;
   }
 

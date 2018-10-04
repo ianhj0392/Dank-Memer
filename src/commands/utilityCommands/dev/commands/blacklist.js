@@ -13,6 +13,6 @@ module.exports = {
     } else {
       reason = reason.join(' ') + `\nBlacklisted by ${msg.author.username}`;
     }
-    Memer.punish(Memer, id, type, reason, true, false);
+    Memer.punish(id, type, reason, true, false);
   }
 };

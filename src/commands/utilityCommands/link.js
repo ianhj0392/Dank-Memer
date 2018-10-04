@@ -27,7 +27,7 @@ module.exports = new GenericCommand(
     await loopThroughPatrons();
 
     if (!patrons) {
-      return 'There wass an error whilst trying to obtain patron data. Please try again later.';
+      return 'There was an error whilst trying to obtain patron data. Please try again later.';
     }
     await addCD();
 

@@ -2,6 +2,8 @@
  * @typedef {import('../utils/misc')} Utils
  * @typedef {import('./UserEntry')} UserEntry
  * @typedef {import('../utils/misc')} MiscFunctions
+ * @typedef {import('./GuildEntry')} GuildEntry
+ * @typedef {import('../utils/dbFunctions').DonorData} DonorData
  */
 
 /** @typedef {Object} ExtendedMessage
@@ -49,6 +51,8 @@
  * @prop {Array<String>} cleanArgs The raw sliced arguments, but with mentions nullified
  * @prop {Boolean} isGlobalPremiumGuild Whether this guild is a premium guild redeemed by a 20$+ donator
  * @prop {UserEntry} userEntry The message author user entry
+ * @prop {GuildEntry} guildEntry The guild settings entry
+ * @prop {DonorData} [donor] The donor data of the author, may be `null`
  */
 
 module.exports = class GenericCommand {
@@ -62,7 +66,7 @@ module.exports = class GenericCommand {
     this.cmdProps = props;
   }
 
-  async run ({ Memer, msg, args, addCD, cleanArgs, isGlobalPremiumGuild, userEntry }) {
+  async run ({ Memer, msg, args, addCD, cleanArgs, guildEntry, userEntry, donor, isGlobalPremiumGuild }) {
     if (this.props.missingArgs && !args[0]) {
       return this.props.missingArgs;
     }
@@ -72,7 +76,7 @@ module.exports = class GenericCommand {
     if (this.props.requiresPremium && !await Memer.db.checkPremiumGuild(msg.channel.guild.id)) {
       return 'This command is only available on **Premium** servers.\nTo learn more about how to redeem a premium server, visit our Patreon https://www.patreon.com/dankmemerbot';
     }
-    return this.fn({ Memer, msg, args, addCD, cleanArgs, isGlobalPremiumGuild, userEntry });
+    return this.fn({ Memer, msg, args, addCD, cleanArgs, guildEntry, userEntry, donor, isGlobalPremiumGuild });
   }
 
   get props () {

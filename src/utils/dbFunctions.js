@@ -314,16 +314,10 @@ class DatabaseFunctions {
    * @returns {Promise<PlsData>}
    */
   async getPls (guildID) {
-    let res = await this.client.r.table('guildUsage')
+    return this.client.r.table('guildUsage')
       .get(guildID)
+      .default({ id: guildID, pls: 0 })
       .run();
-    if (!res) {
-      res = {
-        id: guildID,
-        pls: 0
-      };
-    }
-    return res;
   }
 
   /**
@@ -668,7 +662,7 @@ class DatabaseFunctions {
         streak: 0 // Total current streak
       },
       upvoted: false, // DBL voter status
-      dblUpvoted: false // discordthis.clientlist.com voter status
+      dblUpvoted: false // discordbotlist.com voter status
     };
   }
 
@@ -684,7 +678,14 @@ class DatabaseFunctions {
       modlog: '',
       disabledCategories: [],
       disabledCommands: [],
-      enabledCommands: []
+      enabledCommands: [],
+      autoResponse: {
+        dad: false,
+        ree: false,
+        sec: false,
+        nou: false
+      },
+      swearFilter: false
     };
   }
 

@@ -7,6 +7,12 @@
  * @prop {Array<String>} disabledCategories An array of disabled command categories on this guild
  * @prop {Array<String>} disabledCommands An array of disabled commands on this guild
  * @prop {Array<String>} enabledCommands An array of commands enabled on this guild, overrides the disabled categories
+ * @prop {Object} autoResponse The autoresponse settings
+ * @prop {Boolean} autoResponse.dad Whether dad mode is enabled
+ * @prop {Boolean} autoResponse.ree Whether auto responses to "ree+" are enabled
+ * @prop {Boolean} autoResponse.nou Whether auto responses to "no u+" are enabled
+ * @prop {Boolean} autoResponse.sec Whether auto responses to "sec", "one sec" and "one second" are enabled
+ * @prop {Boolean} swearFilter Whether the swear filter is enabled
  */
 
 /**

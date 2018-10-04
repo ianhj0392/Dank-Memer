@@ -50,6 +50,68 @@ class GuildEntry {
   }
 
   /**
+   *
+   * @param {String} prefix The new prefix to use
+   * @returns {GuildEntry} The guild entry, so calls can be chained
+   */
+  setPrefix (prefix) {
+    if (!prefix) {
+      throw new Error('Missing mandatory "prefix" argument');
+    }
+    this.props.prefix = prefix;
+    this.update({ prefix });
+    return this;
+  }
+
+  /**
+   * Sets a new mod log channel
+   * @param {String} id The ID of the channel to use
+   * @returns {GuildEntry} The guild entry, so calls can be chained
+   */
+  setModlogChannel (id) {
+    if (!id) {
+      throw new Error('Missing mandatory "prefix" argument');
+    }
+    this.props.modlog = id;
+    this.update({ modlog: id });
+    return this;
+  }
+
+  /**
+   * Toggles the swear filter
+   * @returns {GuildEntry} The guild entry, so calls can be chained
+   */
+  toggleSwearFilter () {
+    this.props.swearFilter = !this.props.swearFilter;
+    this.update({ swearFilter: !this.props.swearFilter });
+    return this;
+  }
+
+  /**
+   * Toggles the given autoresponse
+   * @param {String} type The autoresponse to toggle, can be either `nou`, `sec`, `dadmode` or `ree`
+   * @returns {GuildEntry} The guild entry, so calls can be chained
+   */
+  toggleAutoResponse (type) {
+    if (!type) {
+      throw new Error('Missing mandatory "type" argument');
+    }
+    this.props.autoResponse[type] = !this.props.autoResponse[type];
+    this.update({ autoResponse: this._client.row('autoResponse').default(this._client.db.getDefaultGuild().autoResponse).merge({ [type]: !this.props.autoResponse[type] }) });
+    return this;
+  }
+
+  /**
+   * Reset the prefix of this guild to the default one set in the bot config
+   * @returns {GuildEntry} The guild entry, so calls can be chained
+   */
+  resetPrefix () {
+    this.props.prefix = this._client.config.options.prefix;
+    this.update({ prefix: this._client.config.options.prefix });
+    return this;
+  }
+
+  /**
    * Disable a command category
    * @param {String} category The category to disable
    * @returns {GuildEntry} The guild entry, so calls can be chained
@@ -83,7 +145,7 @@ class GuildEntry {
    */
   async save () {
     return this._client.r.table('guilds')
-      .insert(this._client.r.table('guilds').get(this.id).default(this._client.db.getDefaultGuild(this.id)).merge(this._changes), { conflict: 'update', returnChanges: 'always' }).run()
+      .insert(this._client.r.table('guilds').get(this.props.id).default(this._client.db.getDefaultGuild(this.props.id)).merge(this._changes), { conflict: 'update', returnChanges: 'always' }).run()
       .then(c => new GuildEntry(c.changes[0].new_val, this._client));
   }
 

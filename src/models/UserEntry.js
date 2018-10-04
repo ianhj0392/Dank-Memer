@@ -191,7 +191,7 @@ class UserEntry {
    */
   async save () {
     return this._client.r.table('users')
-      .insert(this._client.r.table('users').get(this.id).default(this._client.db.getDefaultUser(this.id)).merge(this._changes), { conflict: 'update', returnChanges: 'always' }).run()
+      .insert(this._client.r.table('users').get(this.props.id).default(this._client.db.getDefaultUser(this.props.id)).merge(this._changes), { conflict: 'update', returnChanges: 'always' }).run()
       .then(c => {
         this._saved = this._saved + 1;
         return new UserEntry(c.changes[0].new_val, this._client);

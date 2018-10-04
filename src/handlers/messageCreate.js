@@ -150,10 +150,10 @@ exports.handle = async function (msg) {
   }
 
   let userEntry = await this.db.getUser(msg.author.id);
-  userEntry.addPls().setLastCmd(command);
+  userEntry.addPls().setLastCmd(command.props.triggers[0]);
 
   if (userEntry.props.spam > 1e4) {
-    await this.punish(msg.author.id, 'user', 'Blacklisted for spamming over 10,000 times.');
+    await this.punish(this, msg.author.id, 'user', 'Blacklisted for spamming over 10,000 times.');
     return;
   }
 

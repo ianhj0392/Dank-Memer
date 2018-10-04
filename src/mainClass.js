@@ -55,6 +55,13 @@ class Memer extends Base {
     };
     this.cooldowns = new Map();
     this._cooldownsSweep = setInterval(this._sweepCooldowns.bind(this), 1000 * 60 * 30);
+    // work-around to benefit from nice documentation and still have misc functions assigned on the Memer instance
+    const MiscFunctions = new (require('./utils/misc.js'))();
+    for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(MiscFunctions))) {
+      if (key !== 'constructor') {
+        this[key] = MiscFunctions[key];
+      }
+    }
     Object.assign(this, new (require('./utils/misc.js'))(this));
   }
 

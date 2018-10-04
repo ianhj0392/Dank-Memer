@@ -47,14 +47,6 @@ const errors = {
 };
 
 class MiscFunctions {
-  /**
-   *
-   * @param {Memer} client The Memer instance
-   */
-  constructor (client) {
-    this.client = client;
-  }
-
   errorMessages (e) {
     return errors[Object.keys(errors).find((error) => e.message.includes(error))] || false;
   }
@@ -106,13 +98,14 @@ class MiscFunctions {
   }
 
   /**
+   * @param {Memer} Memer The Memer instance
    * @param {User} user The user
    * @param {UserData} userDB The user database entry
    * @param {DonorData} [donor] The donor object, if any
    * @param {Message} msg The message
    * @returns {Number} The total multiplier for this user
    */
-  calcMultiplier (user, userDB, donor, msg, isGlobalPremiumGuild) {
+  calcMultiplier (Memer, user, userDB, donor, msg, isGlobalPremiumGuild) {
     // calculates total multiplier based on multiple variables
     let guildMember = msg.channel.guild.members.get(msg.author.id);
     let date = new Date(msg.timestamp);
@@ -120,7 +113,7 @@ class MiscFunctions {
     let time;
     let total;
     total = userDB.upgrades ? userDB.upgrades.multi : 0;
-    if (this.client.config.options.developers.includes(user.id)) {
+    if (Memer.config.options.developers.includes(user.id)) {
       total += 5;
     }
     if (guildMember.game && guildMember.game.name.toLowerCase().includes('dank memer')) {
@@ -174,13 +167,14 @@ class MiscFunctions {
   }
 
   /**
+   * @param {Memer} Memer The Memer instance
    * @param {User} user The user
    * @param {UserData} userDB The user database entry
    * @param {DonorData} [donor] The donor object, if any
    * @param {Message} msg The message
    * @returns {String} A list of all the active multipliers for this user
    */
-  showMultiplier (user, userDB, donor, msg, isGlobalPremiumGuild) {
+  showMultiplier (Memer, user, userDB, donor, msg, isGlobalPremiumGuild) {
     // calculates total multiplier based on multiple variables
     let guildMember = msg.channel.guild.members.get(msg.author.id);
     let date = new Date(msg.timestamp);
@@ -192,7 +186,7 @@ class MiscFunctions {
       unlocked: { total: 0, list: [] },
       bought: userDB.upgrades ? userDB.upgrades.multi : 0
     };
-    if (this.client.config.options.developers.includes(user.id)) {
+    if (Memer.config.options.developers.includes(user.id)) {
       end.unlocked.total += 1;
       end.unlocked.list.push('[Developer](https://github.com/Dank-Memer/Dank-Memer)');
     }
@@ -349,7 +343,7 @@ class MiscFunctions {
     return timeStr.filter(g => !g.startsWith('0')).join(', ');
   }
 
-  async punish (id, type, reason, optionalBlock = true, optionalWipe = true) {
+  async punish (Memer, id, type, reason, optionalBlock = true, optionalWipe = true) {
     if (!reason) {
       reason = 'No reason given.';
     }
@@ -359,14 +353,14 @@ class MiscFunctions {
     let name;
     let object;
     if (type === 'user') {
-      object = await this.client.ipc.fetchUser(id);
+      object = await Memer.ipc.fetchUser(id);
       if (!object) {
         name = 'not sure of the username...';
       } else {
         name = `${object.username}#${object.discriminator}`;
       }
     } else {
-      object = await this.client.ipc.fetchGuild(id);
+      object = await Memer.ipc.fetchGuild(id);
       if (!object) {
         name = 'not sure of the server name';
       } else {
@@ -374,22 +368,22 @@ class MiscFunctions {
       }
     }
     if (optionalBlock) {
-      this.client.db.createBlock(id);
+      Memer.db.createBlock(id);
     }
     if (optionalWipe) {
       switch (type) {
         case 'user':
-          await this.client.db.removeUser(id);
+          await Memer.db.removeUser(id);
           break;
         case 'guild':
         case 'server':
-          await this.client.db.deletePls(id);
-          await this.client.db.deleteGuild(id);
+          await Memer.db.deletePls(id);
+          await Memer.db.deleteGuild(id);
           break;
       }
     }
-    const channel = this.client.config.options.spamReportChannel || '397477232240754698';
-    await this.client.bot.createMessage(channel, `The ${type} **${name}** (*${id}*) was blacklisted.\n**Reason**: ${reason}`);
+    const channel = Memer.config.options.spamReportChannel || '397477232240754698';
+    await Memer.bot.createMessage(channel, `The ${type} **${name}** (*${id}*) was blacklisted.\n**Reason**: ${reason}`);
   }
 
   /**

@@ -89,7 +89,7 @@ class GuildEntry {
 
   /**
    * Toggles the given autoresponse
-   * @param {String} type The autoresponse to toggle, can be either `nou`, `sec`, `dadmode` or `ree`
+   * @param {String} type The autoresponse to toggle, can be either `nou`, `sec`, `dad` or `ree`
    * @returns {GuildEntry} The guild entry, so calls can be chained
    */
   toggleAutoResponse (type) {
@@ -97,7 +97,9 @@ class GuildEntry {
       throw new Error('Missing mandatory "type" argument');
     }
     this.props.autoResponse[type] = !this.props.autoResponse[type];
-    this.update({ autoResponse: this._client.row('autoResponse').default(this._client.db.getDefaultGuild().autoResponse).merge({ [type]: !this.props.autoResponse[type] }) });
+    this.update({ autoResponse: { [type]: !this.props.autoResponse[type] } }); // Actually this doesn't work either ????????????
+    // For some reasons the query below doesn't save
+    // this.update({ autoResponse: this._client.r.row('autoResponse').default(this._client.db.getDefaultGuild().autoResponse).merge({ [type]: !this.props.autoResponse[type] }) });
     return this;
   }
 

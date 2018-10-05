@@ -704,7 +704,7 @@ class DatabaseFunctions {
    * @returns {Promise<GuildEntry>}
    */
   async getGuild (id) {
-    return this.client.r.table('users').get(id).default(this.getDefaultGuild(id)).run().then(g => new Guild(g, this.client));
+    return this.client.r.table('guilds').get(id).default(this.getDefaultGuild(id)).run().then(g => new Guild(g, this.client));
   }
 }
 

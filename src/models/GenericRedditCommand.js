@@ -1,4 +1,6 @@
-/** @typedef {import('./GenericCommand').CommandProps} CommandProps */
+/** @typedef {import('./GenericCommand').CommandProps} CommandProps
+ * @typedef {import('./GenericCommand').FunctionParams} FunctionParams
+ */
 
 const GenericCommand = require('./GenericCommand');
 
@@ -15,6 +17,7 @@ module.exports = class GenericRedditCommand {
     this.cmdProps = cmdProps;
   }
 
+  /** @param {FunctionParams} */
   async run ({ Memer, msg, addCD }) {
     let res;
 

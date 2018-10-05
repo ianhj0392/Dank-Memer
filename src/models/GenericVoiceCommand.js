@@ -1,4 +1,6 @@
-/** @typedef {import('./GenericCommand').CommandProps} CommandProps */
+/** @typedef {import('./GenericCommand').CommandProps} CommandProps
+ * @typedef {import('./GenericCommand').FunctionParams} FunctionParams
+ */
 
 const GenericCommand = require('./GenericCommand');
 module.exports = class GenericVoiceCommand {
@@ -9,6 +11,7 @@ module.exports = class GenericVoiceCommand {
     this.cmdProps = cmdProps;
   }
 
+  /** @param {FunctionParams} */
   async run ({ Memer, msg, args, addCD }) {
     const music = Memer.musicManager.get(msg.channel.guild.id);
     let response = await Memer.redis.get(`cachedplaylist-${this.cmdProps.dir}`)

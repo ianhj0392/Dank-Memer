@@ -3,7 +3,7 @@ const ProgrammaticREPL = require('programmatic-repl');
 
 module.exports = {
   help: 'repl',
-  fn: async ({ Memer, msg }) => {
+  fn: async ({ Memer, msg, userEntry, guildEntry, donor, isGlobalPremiumGuild }) => {
     if (!Memer.config.options.owners.includes(msg.author.id)) {
       return 'Woah now, only my "Owners" can do this';
     }
@@ -16,7 +16,11 @@ module.exports = {
       Memer,
       get top () {
         return Memer.db.topPocket();
-      }
+      },
+      userEntry,
+      guildEntry,
+      donor,
+      isGlobalPremiumGuild
     });
 
     const runCommand = async () => {

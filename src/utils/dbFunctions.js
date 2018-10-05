@@ -393,6 +393,7 @@ class DatabaseFunctions {
       spam: 0, // Spam means 2 commands in less than 1s
       pocket: 0, // Coins not in bank account
       bank: 0, // Coins in bank account
+      experience: 0, // Total experience earned
       lost: 0, // Total coins lost
       won: 0, // Total coins won
       shared: 0, // Transferred to other players

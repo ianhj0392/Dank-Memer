@@ -8,6 +8,7 @@
  * @prop {Number} spam The amount of times this user spammed the bot (Ran 2 commands in less than 1 sec)
  * @prop {Number} pocket The amount of coins this user has in their pocket
  * @prop {Number} bank The amount of coins this user has in their bank vault
+ * @prop {Number} experience The total amount of experience this user has earned
  * @prop {Number} won The total amount of coins this user has won
  * @prop {Number} lost The total amount of coins this user has lost
  * @prop {Number} shared The total amount of coins this user has transferred to another user
@@ -123,6 +124,22 @@ class UserEntry {
       this.props.pocket = this.props.pocket + amount;
       changes['pocket'] = this._client.r.row('pocket').add(amount);
     }
+    this.update(changes);
+    return this;
+  }
+
+  /**
+   * Add experience to the user
+   * @param {Number} amount The amount of experience the user should gain
+   * @returns {UserEntry} The user entry, so calls can be chained
+   */
+  addExperience (amount) {
+    if (!amount) {
+      throw new Error('Missing mandatory "amount" parameter');
+    }
+    amount = typeof amount !== 'number' ? Number(amount) : amount;
+    this.props.experience = this.props.experience + amount;
+    let changes = { bank: this._client.r.row('experience').add(amount) };
     this.update(changes);
     return this;
   }

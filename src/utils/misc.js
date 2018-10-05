@@ -8,6 +8,7 @@
  */
 
 const config = require('../config.json');
+const Term = require('../../node_modules/rethinkdbdash/lib/term');
 
 const errors = {
 
@@ -473,7 +474,7 @@ class MiscFunctions {
       if (!target[key] || typeof target[key] !== 'object') {
         destination[key] = source[key];
       } else {
-        if (typeof source[key] !== 'object') {
+        if (typeof source[key] !== 'object' || source[key] instanceof Term) {
           destination[key] = source[key];
         } else {
           destination[key] = this._deepMerge(target[key], source[key]);

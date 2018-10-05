@@ -42,8 +42,8 @@ class GuildEntry {
    * @returns {GuildEntry} The guild entry, so calls can be chained
    */
   update (object) {
-    if (typeof object !== 'object') {
-      throw new Error('Expected "object" parameter to be an object');
+    if (typeof object !== 'object' || Array.isArray(object)) {
+      throw new Error(`Expected type object, received type ${typeof object}`);
     }
     this._changes = this._client.deepMerge(this._changes, object);
     return this;
@@ -55,8 +55,8 @@ class GuildEntry {
    * @returns {GuildEntry} The guild entry, so calls can be chained
    */
   setPrefix (prefix) {
-    if (!prefix) {
-      throw new Error('Missing mandatory "prefix" argument');
+    if (typeof prefix !== 'string') {
+      throw new Error(`Expected type string, received type ${typeof prefix}`);
     }
     this.props.prefix = prefix;
     this.update({ prefix });
@@ -69,8 +69,8 @@ class GuildEntry {
    * @returns {GuildEntry} The guild entry, so calls can be chained
    */
   setModlogChannel (id) {
-    if (!id) {
-      throw new Error('Missing mandatory "prefix" argument');
+    if (typeof id !== 'string') {
+      throw new Error(`Expected type string, received type ${typeof id}`);
     }
     this.props.modlog = id;
     this.update({ modlog: id });
@@ -93,8 +93,8 @@ class GuildEntry {
    * @returns {GuildEntry} The guild entry, so calls can be chained
    */
   toggleAutoResponse (type) {
-    if (!type) {
-      throw new Error('Missing mandatory "type" argument');
+    if (typeof type !== 'string') {
+      throw new Error(`Expected type string, received type ${typeof type}`);
     }
     this.props.autoResponse[type] = !this.props.autoResponse[type];
     this.update({ autoResponse: this._client.r.row('autoResponse').default(this._client.db.getDefaultGuild().autoResponse).merge({ [type]: this.props.autoResponse[type] }) });
@@ -117,8 +117,8 @@ class GuildEntry {
    * @returns {GuildEntry} The guild entry, so calls can be chained
    */
   disableCategory (category) {
-    if (!category) {
-      throw new Error('Missing mandatory "category" argument');
+    if (typeof category !== 'string') {
+      throw new Error(`Expected type string, received type ${typeof category}`);
     }
     this.props.disabledCategories.push(category);
     this.update({ disabledCategories: this._client.r.row('disabledCategories').default([]).append(category) });
@@ -131,11 +131,59 @@ class GuildEntry {
    * @returns {GuildEntry} The guild entry, so calls can be chained
    */
   disableCommand (command) {
-    if (!command) {
-      throw new Error('Missing mandatory "command" argument');
+    if (typeof command !== 'string') {
+      throw new Error(`Expected type string, received type ${typeof command}`);
     }
     this.props.disabledCommands.push(command);
     this.update({ disabledCommands: this._client.r.row('disabledCommands').default([]).append(command) });
+    return this;
+  }
+
+  /**
+   * Disable multiple command categories
+   * @param {Array<String>} categories An array of categories to disable
+   * @returns {GuildEntry} The guild entry, so calls can be chained
+   */
+  disableCategories (categories) {
+    if (!categories) {
+      throw new Error('Missing mandatory "categories" argument');
+    }
+    this.props.disabledCategories = this.props.disabledCategories.concat(categories);
+    this.update({ disabledCategories: this._client.r.row('disabledCategories').default([]).setUnion(categories) });
+    return this;
+  }
+
+  /**
+   * Disable multiple commands, the built query will also remove the disabled commands from `enabledCommands` if necessary
+   * @param {Array<String>} commands An array of commands to disable
+   * @returns {GuildEntry} The guild entry, so calls can be chained
+   */
+  disableCommands (commands) {
+    if (!commands) {
+      throw new Error('Missing mandatory "commands" argument');
+    }
+    this.props.disabledCommands = this.props.disabledCommands.concat(commands);
+    this.update({
+      disabledCommands: this._client.r.row('disabledCommands').default([]).setUnion(commands),
+      enabledCommands: this._client.r.row('enabledCommands').default([]).difference(this._client.r.row('disabledCommands').default([]).setUnion(commands))
+    });
+    return this;
+  }
+
+  /**
+   * Enable multiple commands, the built query will also remove the disabled commands from `disabledCommands` if necessary
+   * @param {Array<String>} commands An array of commands to enable
+   * @returns {GuildEntry} The guild entry, so calls can be chained
+   */
+  enableCommands (commands) {
+    if (!commands) {
+      throw new Error('Missing mandatory "commands" argument');
+    }
+    this.props.enabledCommands = this.props.enabledCommands.concat(commands);
+    this.update({
+      enabledCommands: this._client.r.row('enabledCommands').default([]).setUnion(commands),
+      disabledCommands: this._client.r.row('disabledCommands').default([]).difference(this._client.r.row('enabledCommands').default([]).setUnion(commands))
+    });
     return this;
   }
 

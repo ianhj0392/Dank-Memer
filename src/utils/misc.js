@@ -43,12 +43,38 @@ const errors = {
   'DiscordRESTError [10003]: Unknown Channel': `Something broke!\n\nI am currently not sure why this bug is happening, but if you report this bug in the support server, you will get paid for it in meme coins.\nJoin (<https://discord.gg/Wejhbd4>) and tell support it is error \`hunt1\`.`
 };
 
+/* Rewards is always the same object, but can contain of 4 things:
+ * coins
+ * items (array of objects, laid out like {id: item ID, quantity: number})
+ * multiplier (number)
+ * title (string)
+*/
+const levels = {
+  1: { reward: { coins: 500 }, exp: 100 },
+  3: { reward: { coins: 1500 }, exp: 300 },
+  5: { reward: { multiplier: 2.5 }, exp: 500 },
+  7: { reward: { coins: 4e3, items: [{ id: 'tidepod', quantity: 2 }] }, exp: 700 },
+  9: { reward: { coins: 4e3, items: [{ id: 'spinner', quantity: 3 }] }, exp: 900 },
+  10: { reward: { multiplier: 5 }, exp: 1000 },
+  11: { reward: { items: [{ id: 'reversal', quantity: 1 }] }, exp: 1100 },
+  13: { reward: { coins: 5e3, items: [{ id: 'inviscloak', quantity: 3 }] }, exp: 1300 },
+  15: { reward: { multiplier: 5 }, exp: 1500 },
+  17: { reward: { coins: 5e3 }, exp: 1700 },
+  19: { reward: { coins: 7e3 }, exp: 1900 },
+  20: { reward: { coins: 1e4 }, exp: 2000 },
+  21: { reward: { coins: 500 }, exp: 2100 },
+  23: { reward: { coins: 500 }, exp: 2300 },
+  25: { reward: { multiplier: 7.5 }, exp: 2500 }
+};
+
 module.exports = {
   errorMessages: async (e) => errors[Object.keys(errors).find((error) => e.message.includes(error))] || false,
 
   intro: `Sup nerds. My name is **Dank Memer**.\n\nTo get started, send \`${config.options.prefix} help\`. All commands are run this way, for example, pls meme.\n\nIf you're interested in autoposting memes, nsfw, extra currency, and more... Check out our [PREMIUM SERVER](https://www.patreon.com/bePatron?c=362724) option or [check this out](https://github.com/Dank-Memer/Dank-Memer/wiki/Donor-Rewards) to read about all the powerups you can get!`,
 
   links: '[Official Twitter](https://twitter.com/dankmemerbot) - Sometimes win free stuff and get bot support\n[Patreon Page](https://www.patreon.com/dankmemerbot) - Help support the bot development, and get some sweet perks!\n[Invite Link](https://goo.gl/BPWvB9) - Add the bot to another server and meme around\n[Official Website](https://dankmemer.lol/) - See all the bot commands and learn more about the developers!',
+
+  levels,
 
   /**
    * @function randomColor

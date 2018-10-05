@@ -17,8 +17,33 @@ module.exports = class GenericCurrencyCommand {
       return 'This command is only available on **Premium** servers.\nTo learn more about how to redeem a premium server, visit our Patreon https://www.patreon.com/dankmemerbot';
     }
 
-    const formula = (Memer.calcMultiplier(Memer, msg.author, userEntry.props, null /* TODO: need donor object here */, msg, isGlobalPremiumGuild) * Math.floor(Memer.randomNumber(1, 2)) / 100);
-    userEntry.addExperience(formula);
+    const formula = ((Memer.calcMultiplier(Memer, msg.author, userEntry.props, null /* TODO: need donor object here */, msg, isGlobalPremiumGuild) * 100) * Math.floor(Memer.randomNumber(1, 2)) / 100);
+    const experience = userEntry.addExperience(formula).props.experience;
+
+    for (const level in Memer.levels) {
+      if (experience >= level.exp) {
+        userEntry.setLevel(Math.floor(level.exp / 100));
+        // Perform rewards
+        for (const { reward, value } in Object.values(level.reward)) {
+          switch (reward) {
+            case 'coins':
+              userEntry.addPocket(value);
+              break;
+            case 'multiplier':
+              // TODO: add multiplier case
+              break;
+            case 'items':
+              value.map(item => {
+                // TOOD: add `userEntry.addInventoryItem()` to push Item object into inventory
+              });
+              break;
+            case 'title':
+              // TODO: add title case
+              break;
+          }
+        }
+      }
+    }
 
     await addCD();
     return this.fn({ Memer, msg, args, addCD });

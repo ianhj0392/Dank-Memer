@@ -145,6 +145,22 @@ class UserEntry {
   }
 
   /**
+   * Set the level for a user
+   * @param {Number} level The level that the user should be updated to
+   * @returns {UserEntry} The user entry, so calls can be chained
+   */
+  setLevel (level) {
+    if (!level) {
+      throw new Error('Missing mandatory "level" parameter');
+    }
+    level = typeof level !== 'number' ? Number(level) : level;
+    this.props.level = this.props.level + level;
+    let changes = { bank: this._client.r.row('level').add(level) };
+    this.update(changes);
+    return this;
+  }
+
+  /**
    * Updates the user's `daily` streak
    * @param {Number} [timestamp=Date.now()] The unix epoch timestamp of when the user last ran `daily`, defaults to `Date.now()`
    * @param {Number} [streak=this.streak.streak + 1] The user's streak, defaults to their current streak + 1

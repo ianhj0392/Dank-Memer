@@ -460,6 +460,32 @@ module.exports = {
     return `${pad(hours)}:${pad(minutes)}:${pad(seconds2)}`;
   },
 
+  /**
+   * Performs a deep merge of the two given object, the behavior of this merge being the same as RethinkDB's `update`/`merge` methods
+   * @param {Object} target - The object that should be updated with the source
+   * @param {Object} source - The object that will be merged on the `target` object
+   * @returns {Object} The merged object
+   */
+  deepMerge (target, source) {
+    let destination = {};
+    for (const key of Object.keys(target)) {
+      destination[key] = typeof target[key] === 'object' ? { ...target[key] } : target[key];
+    }
+
+    for (const key of Object.keys(source)) {
+      if (!target[key] || typeof target[key] !== 'object') {
+        destination[key] = source[key];
+      } else {
+        if (typeof source[key] !== 'object') {
+          destination[key] = source[key];
+        } else {
+          destination[key] = this._deepMerge(target[key], source[key]);
+        }
+      }
+    }
+    return destination;
+  },
+
   getRateTarget (msg, args) {
     let target = !args[0] || args[0].toLowerCase() === 'me'
       ? 'You are'

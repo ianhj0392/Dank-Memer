@@ -134,7 +134,7 @@ class UserEntry {
    * @param {Number} [streak=this.streak.streak + 1] The user's streak, defaults to their current streak + 1
    * @returns {UserEntry} The user entry, so calls can be chained
    */
-  updateStreak (timestamp = Date.now(), streak = this.streak.streak + 1) {
+  updateStreak (timestamp = Date.now(), streak = this.props.streak.streak + 1) {
     this.props.streak = { time: timestamp, streak };
     this.update({ streak: { time: timestamp, streak: this._client.r.row('streak')('streak').add(1) } });
     return this;
@@ -145,8 +145,8 @@ class UserEntry {
   * @returns {UserEntry} The user entry, so calls can be chained
   */
   resetStreak () {
-    this.props.streak.streak = 0;
-    this.update({ streak: { streak: 0 } });
+    this.props.streak = { streak: 0, time: 0 };
+    this.update({ streak: { streak: 0, time: 0 } });
     return this;
   }
 
@@ -194,6 +194,7 @@ class UserEntry {
       .insert(this._client.r.table('users').get(this.props.id).default(this._client.db.getDefaultUser(this.props.id)).merge(this._changes), { conflict: 'update', returnChanges: 'always' }).run()
       .then(c => {
         this._saved = this._saved + 1;
+        this.props = c.changes[0].new_val;
         return new UserEntry(c.changes[0].new_val, this._client);
       });
   }

@@ -477,7 +477,7 @@ class MiscFunctions {
         if (typeof source[key] !== 'object' || source[key] instanceof Term) {
           destination[key] = source[key];
         } else {
-          destination[key] = this._deepMerge(target[key], source[key]);
+          destination[key] = this.deepMerge(target[key], source[key]);
         }
       }
     }

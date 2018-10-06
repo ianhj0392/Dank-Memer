@@ -487,6 +487,58 @@ class MiscFunctions {
   }
 
   /**
+   * @param {Array} data The embed object to turn into a regular string
+   * @param {Object} settings Settings object that lays out how this menu should be styled
+   * @example
+   * {
+   * pageLength: 10, // how many elements should fit on one page
+   * embed: {}, // the embed object to send alongside the pagination data
+   * type: '', // the name of this data
+   * delimiter: '' // how this data should be delimited or separated
+   * }
+   * @param {Number} page The page number that should be displayed
+   * @returns {{embed: EmbedBase}} Embed that contains the paginated data inside one of the fields
+   */
+  paginationMenu (data = [], settings = {}, page = 1) {
+    function MissingRequired (required) {
+      this.required = required;
+      this.toString = function () {
+        return `paginationMenu: Required parameter ${this.required} is missing or undefined`;
+      };
+    }
+
+    if (!data || data.length < 1) throw new MissingRequired('DATA');
+    if (!settings) throw new MissingRequired('SETTINGS');
+    const embed = settings.embed || {};
+
+    if (data.length > settings.pageLength) {
+      if (isNaN(page) || page < 0) {
+        return 'that\'s not a valid page number lol';
+      }
+      if (Math.ceil(data.length / settings.pageLength) < page) {
+        return `Hey idiot, page \`${page}\` doesn't exist. There's only \`${Math.ceil(data.length / settings.pageLength)}\` pages`;
+      }
+      embed.footer.text = `${(!embed.footer ? (settings.type || 'stuff') : embed.footer.text)} ─ Page ${page} of ${Math.ceil(data.length / settings.pageLength)}`;
+      data = data.splice(settings.pageLength + (page - 2) * settings.pageLength, settings.pageLength);
+    }
+
+    if (!settings.delimiter) {
+      settings.delimiter = '\n';
+    }
+    let prefix = settings.delimiter === '`, `' || settings.delimiter === '`\n`' ? '`' : '';
+    let suffix = settings.delimiter === '`, `' || settings.delimiter === '`\n`' ? '`' : '';
+
+    if (!embed.fields) {
+      embed.fields = [];
+    }
+    embed.fields.push({
+      name: settings.type,
+      value: prefix + (data.constructor === Array && settings.delimiter ? data.join(settings.delimiter) : data) + suffix
+    });
+    return embed;
+  }
+
+  /**
    * Performs a deep merge of the two given object, the behavior of this merge being the same as RethinkDB's `update`/`merge` methods
    * @param {Object} target - The object that should be updated with the source
    * @param {Object} source - The object that will be merged on the `target` object

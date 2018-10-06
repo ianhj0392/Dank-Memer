@@ -71,6 +71,44 @@ const levels = {
   25: { reward: { multiplier: 7.5 }, exp: 2500 }
 };
 
+const ItemTypes = {
+  ITEM: 0,
+  COLLECTABLE: 1,
+  TOOL: 2,
+  POWERUP: 3
+};
+
+const shop = {
+  tidepod: {
+    name: 'Tidepod',
+    id: 'tidepod',
+    type: ItemTypes.ITEM,
+    cost: 15e3,
+    active: false
+  },
+  inviscloak: {
+    name: 'Invisibility Cloak',
+    id: 'inviscloak',
+    type: ItemTypes.POWERUP,
+    cost: 35e3,
+    active: false
+  },
+  reversal: {
+    name: 'Reversal Card',
+    id: 'reversal',
+    type: ItemTypes.POWERUP,
+    cost: 20e3,
+    active: false
+  },
+  spinner: {
+    name: 'Fidget Spinner',
+    id: 'reversal',
+    type: ItemTypes.POWERUP,
+    cost: 20e3,
+    active: false
+  }
+};
+
 class MiscFunctions {
   errorMessages (e) {
     return errors[Object.keys(errors).find((error) => e.message.includes(error))] || false;

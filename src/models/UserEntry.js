@@ -169,7 +169,7 @@ class UserEntry {
    * name: '', // friendly name
    * id: '', // some identifier for the object, usually the friendly name without spaces and in lowercase
    * type: '', // what type of item is this (can be one of Item, Collectable, Tool, Power-up)
-   * cost: '', // how much does this item cost
+   * cost: 0, // how much does this item cost
    * active: false // used for power-ups with cooldowns to see if the item is currently in use
    * }
    * @returns {UserEntry} The user entry, so calls can be chained
@@ -190,6 +190,13 @@ class UserEntry {
     }
     this.update({ inventory: this.props.inventory });
     return this;
+  }
+
+  hasInventoryItem (id) {
+    if (!id) {
+      throw new Error('Missing mandatory "id" parameter');
+    }
+    
   }
 
   removeInventoryItem (item) {

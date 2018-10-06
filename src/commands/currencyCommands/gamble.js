@@ -3,7 +3,7 @@ const GenericCommand = require('../../models/GenericCommand');
 module.exports = new GenericCommand(
   async ({ Memer, msg, addCD, isGlobalPremiumGuild, donor, userEntry }) => {
     let user = msg.author;
-    let multi = await Memer.calcMultiplier(Memer, user, userEntry.props, donor ? 0 : donor.donorAmount, msg, isGlobalPremiumGuild);
+    let multi = await Memer.calcMultiplier(Memer, user, userEntry.props, donor ? donor.donorAmount : 0, msg, isGlobalPremiumGuild);
     let coins = userEntry.props.pocket;
 
     let bet = msg.args.args[0];

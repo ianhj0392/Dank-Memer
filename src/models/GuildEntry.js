@@ -83,7 +83,7 @@ class GuildEntry {
    */
   toggleSwearFilter () {
     this.props.swearFilter = !this.props.swearFilter;
-    this.update({ swearFilter: !this.props.swearFilter });
+    this.update({ swearFilter: this.props.swearFilter });
     return this;
   }
 

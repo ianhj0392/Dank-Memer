@@ -188,6 +188,20 @@ class GuildEntry {
   }
 
   /**
+   * Enable multiple categories, effectively removes the given categories from `disabledCategories`
+   * @param {Array<String>} categories An array of categories to enable
+   * @returns {GuildEntry} The guild entry, so calls can be chained
+   */
+  enableCategories (categories) {
+    if (!categories) {
+      throw new Error('Missing mandatory "categories" argument');
+    }
+    this.props.disabledCategories = this.props.disabledCategories.filter(c => !c.includes(categories));
+    this.update({ disabledCategories: this._client.r.row('disabledCategories').default([]).difference(categories) });
+    return this;
+  }
+
+  /**
    * Saves the guild into the database
    * @returns {Promise<GuildEntry>} The freshly updated entry
    */

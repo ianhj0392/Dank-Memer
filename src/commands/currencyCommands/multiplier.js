@@ -1,12 +1,10 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
 module.exports = new GenericCurrencyCommand(
-  async ({ Memer, msg, addCD, isGlobalPremiumGuild }) => {
+  async ({ Memer, msg, addCD, isGlobalPremiumGuild, userEntry, donor }) => {
     let user = msg.author;
-    let userDB = await Memer.db.getUser(user.id);
-    let donor = await Memer.db.checkDonor(user.id);
-    let total = await Memer.calcMultiplier(Memer, user, userDB, donor, msg, isGlobalPremiumGuild);
-    let show = await Memer.showMultiplier(Memer, user, userDB, donor, msg, isGlobalPremiumGuild);
+    let total = await Memer.calcMultiplier(Memer, user, userEntry.props, donor ? donor.donorAmount : 0, msg, isGlobalPremiumGuild);
+    let show = await Memer.showMultiplier(Memer, user, userEntry.props, donor ? donor.donorAmount : 0, msg, isGlobalPremiumGuild);
     await addCD();
     return {
       title: `Here is some info about your Multipliers, ${user.username}`,

@@ -1,7 +1,7 @@
 const GenericCommand = require('../../models/GenericCommand');
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg, guildEntry }) => {
+  async ({ msg, guildEntry }) => {
     let perms = msg.channel.permissionsOf(msg.author.id);
     if (!perms.has('manageGuild')) {
       return 'lol you do not have manage server perms and you know it';

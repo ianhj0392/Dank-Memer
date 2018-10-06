@@ -1,7 +1,7 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
 module.exports = new GenericCurrencyCommand(
-  async ({ Memer, msg, addCD }) => {
+  async ({ Memer, msg, addCD, userEntry }) => {
     let { pocket } = await Memer.db.getUser(msg.author.id);
     if (pocket.coin === 0) {
       return { title: 'You have no coins.' };
@@ -19,7 +19,7 @@ module.exports = new GenericCurrencyCommand(
     } else if (choice.content.toLowerCase().includes('heads')) {
       await addCD();
       if (coinFlip === heads) {
-        await Memer.db.addPocket(msg.author.id, 1);
+        await userEntry.addPocket(1).save();
         return 'It was heads! You have been awarded one coin!';
       } else {
         return 'aw it was tails and you suck, sad day for you';
@@ -27,7 +27,7 @@ module.exports = new GenericCurrencyCommand(
     } else if (choice.content.toLowerCase().includes('tails')) {
       await addCD();
       if (coinFlip === tails) {
-        await Memer.db.addPocket(msg.author.id, 1);
+        await userEntry.addPocket(1).save();
         return 'It was tails! You have been awarded one coin!';
       } else {
         return 'aw it was heads and you suck, sad day for you';

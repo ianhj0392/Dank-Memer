@@ -1,29 +1,27 @@
-const { GenericCommand } = require('../../models');
+const GenericCommand = require('../../models/GenericCommand');
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg, args, addCD }) => {
+  async ({ Memer, msg, args, addCD, guildEntry }) => {
     if (!msg.member.permission.has('manageGuild') && !Memer.config.options.developers.includes(msg.author.id)) {
       return 'You are not authorized to use this command. You must have `Manage Server` to change the prefix.';
     }
 
-    const gConfig = await Memer.db.getGuild(msg.channel.guild.id);
-
     if (!args[0]) {
-      return `What do you want your new prefix to be?\n\nExample: \`${gConfig.prefix} prefix pepe\``; // please think of a better example..
+      return `What do you want your new prefix to be?\n\nExample: \`${guildEntry.props.prefix} prefix plz\``;
     }
     if (args.join(' ').length > 32) {
       return `Your prefix can't be over 30 characters long. You're ${args.join(' ').length - 32} characters over the limit.`;
     }
-    if (gConfig.prefix === args.join(' ').toLowerCase()) {
-      return `\`${gConfig.prefix}\` is already your current prefix.`;
+    const newPrefix = args.join(' ').toLowerCase();
+    if (guildEntry.props.prefix === newPrefix) {
+      return `\`${guildEntry.props.prefix}\` is already your current prefix.`;
     }
 
-    gConfig.prefix = args.join(' ').toLowerCase();
-    await Memer.db.updateGuild(gConfig);
+    await guildEntry.setPrefix(newPrefix).save();
     await addCD();
 
     return {
-      description: `Prefix successfully changed to \`${gConfig.prefix}\`.`
+      description: `Prefix successfully changed to \`${guildEntry.props.prefix}\`.`
     };
   }, {
     triggers: ['prefix'],

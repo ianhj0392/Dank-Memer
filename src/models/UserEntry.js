@@ -162,6 +162,55 @@ class UserEntry {
   }
 
   /**
+   * Add an item to the user
+   * @param {Object} item The item object
+   * @example
+   * {
+   * name: '', // friendly name
+   * id: '', // some identifier for the object, usually the friendly name without spaces and in lowercase
+   * type: '', // what type of item is this (can be one of Item, Collectable, Tool, Power-up)
+   * cost: '', // how much does this item cost
+   * active: false // used for power-ups with cooldowns to see if the item is currently in use
+   * }
+   * @returns {UserEntry} The user entry, so calls can be chained
+   */
+  addInventoryItem (item) {
+    if (!item) {
+      throw new Error('Missing mandatory "item" parameter');
+    }
+    if (typeof item !== 'object') {
+      throw new Error(`"item" parameter must be an object, not a ${typeof item}`);
+    }
+    if (item.constructor === Array) {
+      for (let i in item) {
+        this.props.inventory.push(item[i]);
+      }
+    } else {
+      this.props.inventory.push(item);
+    }
+    this.update({ inventory: this.props.inventory });
+    return this;
+  }
+
+  removeInventoryItem (item) {
+    if (!item) {
+      throw new Error('Missing mandatory "item" parameter');
+    }
+    if (typeof item !== 'object') {
+      throw new Error(`"item" parameter must be an object, not a ${typeof item}`);
+    }
+    if (item.constructor === Array) {
+      for (let i in item) {
+        this.props.inventory = this.props.inventory.filter(o => o.id !== item[i].id);
+      }
+    } else {
+      this.props.inventory = this.props.inventory.filter(o => o.id !== item.id);
+    }
+    this.update({ inventory: this.props.inventory });
+    return this;
+  }
+
+  /**
    * Updates the user's `daily` streak
    * @param {Number} [timestamp=Date.now()] The unix epoch timestamp of when the user last ran `daily`, defaults to `Date.now()`
    * @param {Number} [streak=this.streak.streak + 1] The user's streak, defaults to their current streak + 1

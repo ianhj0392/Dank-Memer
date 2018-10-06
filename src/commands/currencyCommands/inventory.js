@@ -3,7 +3,7 @@ const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, args, addCD, userEntry }) => {
     const page = Number(msg.args.nextArgument) || 1;
-    const user = msg.args.resolveUser();
+    const user = msg.args.resolveUser() || msg.author;
     const userItems = userEntry.props.inventory;
     const items = [];
     for (let i of userItems) {
@@ -18,7 +18,7 @@ module.exports = new GenericCurrencyCommand(
       embed: {
         author:
           {
-            name: `${user.username}#${user.discriminator}`,
+            name: `${user.username}'s inventory'`,
             icon_url: user.dynamicAvatarURL()
           }
       },

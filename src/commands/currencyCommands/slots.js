@@ -44,42 +44,28 @@ module.exports = new GenericCurrencyCommand(
     const generate = () => {
       return slots[Number(Math.floor(Math.random() * slots.length))];
     };
-    const slotPositions = [
-      [generate(), generate(), generate()],
-      [generate(), generate(), generate()],
-      [generate(), generate(), generate()]
-    ];
-    await userEntry.removePocket(bet);
+    const slotPositions = [generate(), generate(), generate()];
 
     let result = 0;
-    const amount = (new Set(slotPositions[1])).size;
+    const amount = slotPositions.filter((i, e) => slotPositions.indexOf(i) !== e);
     for (let i in amount) {
-      if (amount > 2) {
-        result = amount[i].el.multiplier * 2;
-      } else if (amount > 1) {
-        result = amount[i].el.multiplier;
+      if (amount.length > 1) {
+        result = amount[i].multiplier * 2;
+      } else if (amount.length > 0) {
+        result = amount[i].multiplier;
       }
     }
-    result = Math.floor(result);
-    const payout = result ? Number(bet * result) : 0;
-    console.log(slotPositions[0][1].icon);
-    let message = ` \`${slotPositions[0][0].icon}   ${slotPositions[0][1].icon}   ${slotPositions[0][2].icon}\`\n`;
-    message += ` ${slotPositions[1][0].icon}    ${slotPositions[1][1].icon}    ${slotPositions[1][2].icon}\n`;
-    message += ` \`${slotPositions[0][0].icon}   ${slotPositions[2][1].icon}   ${slotPositions[2][2].icon}\``;
 
-    if (result) {
-      await userEntry.addPocket(payout).save();
-    } else {
-      await userEntry.removePocket(bet).save();
-    }
+    const payout = Math.floor(result ? Number(bet * result) : 0);
+    let message = `**>** ${slotPositions[0].icon}    ${slotPositions[1].icon}    ${slotPositions[2].icon} **<**\n`;
 
-    return {
+    msg.channel.createMessage({ embed: {
       author:
           {
-            name: `${user.username}'s Slot Machine'`,
+            name: `${user.username}'s Slot Machine`,
             icon_url: user.dynamicAvatarURL()
           },
-      description: result
+      description: payout
         ? `You won **${payout.toLocaleString()}** coins. \n**Multiplier**: ${multi}% | **Percent of bet won**: ${payout.toFixed(2) * 100}%`
         : `You lost **${Number(bet).toLocaleString()}** coins.`,
       fields: [
@@ -88,7 +74,14 @@ module.exports = new GenericCurrencyCommand(
           value: message
         }
       ]
-    };
+    }
+    });
+
+    if (payout) {
+      await userEntry.addPocket(payout).save();
+    } else {
+      await userEntry.removePocket(bet).save();
+    }
   },
   {
     triggers: ['slots', 'slotmachine'],

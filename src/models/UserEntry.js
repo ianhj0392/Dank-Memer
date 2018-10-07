@@ -140,7 +140,7 @@ class UserEntry {
     }
     amount = typeof amount !== 'number' ? Number(amount) : amount;
     this.props.experience = this.props.experience + amount;
-    let changes = { bank: this._client.r.row('experience').add(amount) };
+    let changes = { experience: this._client.r.row('experience').add(amount) };
     this.update(changes);
     return this;
   }
@@ -156,7 +156,7 @@ class UserEntry {
     }
     level = typeof level !== 'number' ? Number(level) : level;
     this.props.level = this.props.level + level;
-    let changes = { bank: this._client.r.row('level').add(level) };
+    let changes = { level: this._client.r.row('level').add(level) };
     this.update(changes);
     return this;
   }

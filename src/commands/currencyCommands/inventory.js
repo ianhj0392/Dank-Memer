@@ -6,7 +6,7 @@ module.exports = new GenericCurrencyCommand(
     const user = msg.args.resolveUser() || msg.author;
     const userItems = userEntry.props.inventory;
     const items = [];
-    for (let i of userItems) {
+    for (let i in userItems) {
       items.push(`**${i.name}** ─ *ID* \`${i.id}\` ─ ${i.type.charAt(0).toUpperCase()}${i.type.slice(1)}\n`);
     }
 

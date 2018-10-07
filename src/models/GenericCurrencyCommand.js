@@ -46,7 +46,7 @@ module.exports = class GenericCurrencyCommand {
     }
 
     await addCD();
-    return this.fn({ Memer, msg, args, addCD });
+    return this.fn({ Memer, msg, args, addCD, userEntry });
   }
 
   get props () {

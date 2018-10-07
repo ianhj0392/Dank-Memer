@@ -14,6 +14,7 @@ module.exports = new GenericCurrencyCommand(
       return 'Look let\'s try and keep the quantity under 10 so the shop doesn\'t go out of business';
     }
 
+    await addCD();
     const item = Memer.currency.shop[query];
     if (quantity > 1 && userEntry.props.pocket < (item.cost * quantity)) {
       return 'Far out, you don\'t have enough money to buy that much!!';
@@ -23,7 +24,7 @@ module.exports = new GenericCurrencyCommand(
     }
 
     await userEntry.addInventoryItem(item);
-    await userEntry.removePocket(item.cost * quantity).save();
+    await userEntry.removePocket(Math.round(item.cost * quantity)).save();
 
     return {
       author:
@@ -31,7 +32,8 @@ module.exports = new GenericCurrencyCommand(
           name: 'Successful purchase',
           icon_url: msg.author.dynamicAvatarURL()
         },
-      description: `You successfully bought *${quantity}* **${item.name}**'s!\n\`-${(item.cost * quantity)} coins\``
+      description: `You successfully bought *${quantity}* **${item.name}**'s which cost you ${Math.round(item.cost * quantity)} coins\``,
+      color: 6732650
     };
   },
   {

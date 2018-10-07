@@ -185,11 +185,12 @@ class UserEntry {
 
     if (item.constructor === Array) {
       for (let i in item) {
-        this.props.inventory.push(item[i].id);
+        Object.values(this.props.inventory).push(item[i].id);
       }
     } else {
-      this.props.inventory.push(item.id);
+      Object.values(this.props.inventory).push(item.id);
     }
+    this._client.log(Object.values(this.props.inventory));
     this.update({ inventory: this.props.inventory });
     return this;
   }
@@ -203,7 +204,7 @@ class UserEntry {
     if (!id) {
       throw new Error('Missing mandatory "id" parameter');
     }
-    return !!this.props.inventory.filter(i => i === id).length;
+    return !!Object.values(this.props.inventory).filter(i => i === id).length;
   }
 
   /**
@@ -221,10 +222,10 @@ class UserEntry {
 
     if (item.constructor === Array) {
       for (let i in item) {
-        this.props.inventory = this.props.inventory.filter(o => o.id !== item[i].id);
+        this.props.inventory = Object.values(this.props.inventory).filter(o => o.id !== item[i].id);
       }
     } else {
-      this.props.inventory = this.props.inventory.filter(o => o.id !== item.id);
+      this.props.inventory = Object.values(this.props.inventory).filter(o => o.id !== item.id);
     }
     this.update({ inventory: this.props.inventory });
     return this;

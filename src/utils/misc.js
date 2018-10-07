@@ -106,6 +106,13 @@ const shop = {
     type: ItemTypes.POWERUP,
     cost: 20e3,
     active: false
+  },
+  mel: {
+    name: 'Mel is a sick lad',
+    id: 'mel',
+    type: ItemTypes.TOOL,
+    cost: 20e3,
+    active: false
   }
 };
 

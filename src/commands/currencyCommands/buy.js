@@ -32,7 +32,7 @@ module.exports = new GenericCurrencyCommand(
           name: 'Successful purchase',
           icon_url: msg.author.dynamicAvatarURL()
         },
-      description: `You successfully bought *${quantity}* **${item.name}**'s which cost you ${Math.round(item.cost * quantity)} coins\``,
+      description: `You successfully bought ${quantity} **${item.name}**${quantity === 1 ? '\'s' : ''} which cost you \`${Math.round(item.cost * quantity)} coins\``,
       color: 6732650
     };
   },

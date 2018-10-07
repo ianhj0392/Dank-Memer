@@ -4,11 +4,11 @@ module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, args, addCD, userEntry }) => {
     const page = Number(msg.args.nextArgument) || 1;
     const user = msg.args.resolveUser() || msg.author;
-    const userItems = userEntry.props.inventory;
+    const userItems = Object.values(userEntry.props.inventory);
     const items = [];
     for (let i in userItems) {
-      const item = Memer.currency.shop[i];
-      items.push(`**${item.name}** ─ *ID* \`${item.id}\` ─ ${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}\n`);
+      const item = Memer.currency.shop[userItems[i]];
+      items.push(`**${item.name}** ─ ${userItems.filter((e) => userItems.indexOf(e) !== item.id).length}\n*ID* \`${item.id}\` ─ ${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}\n`);
     }
 
     if (items < 1) {
@@ -19,9 +19,10 @@ module.exports = new GenericCurrencyCommand(
       embed: {
         author:
           {
-            name: `${user.username}'s inventory'`,
+            name: `${user.username}'s inventory`,
             icon_url: user.dynamicAvatarURL()
-          }
+          },
+        color: 7964363
       },
       pageLength: 7
     }, page);

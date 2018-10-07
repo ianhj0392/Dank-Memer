@@ -17,8 +17,8 @@ module.exports = class GenericCurrencyCommand {
       return 'This command is only available on **Premium** servers.\nTo learn more about how to redeem a premium server, visit our Patreon https://www.patreon.com/dankmemerbot';
     }
 
-    const formula = ((Memer.calcMultiplier(Memer, msg.author, userEntry.props, null /* TODO: need donor object here */, msg, isGlobalPremiumGuild) * 100) * Math.floor(Memer.randomNumber(1, 2)) / 100);
-    const experience = userEntry.addExperience(formula).props.experience;
+    const formula = ((Math.round(Memer.calcMultiplier(Memer, msg.author, userEntry.props, null /* TODO: need donor object here */, msg, isGlobalPremiumGuild) / 10)) * Math.floor(Memer.randomNumber(1, 2)));
+    const experience = userEntry.addExperience(formula).save();
 
     for (const level in Memer.levels) {
       if (experience >= level.exp) {

@@ -72,10 +72,10 @@ const levels = {
 };
 
 const ItemTypes = {
-  ITEM: 0,
-  COLLECTABLE: 1,
-  TOOL: 2,
-  POWERUP: 3
+  ITEM: 'Item',
+  COLLECTABLE: 'Collectable',
+  TOOL: 'Tool',
+  POWERUP: 'Power-up'
 };
 
 const shop = {

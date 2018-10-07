@@ -172,6 +172,7 @@ class UserEntry {
    * cost: 0, // how much does this item cost
    * active: false // used for power-ups with cooldowns to see if the item is currently in use
    * }
+   * // Note that the item object does NOT get added to the user's inventory, only the identifier string
    * @returns {UserEntry} The user entry, so calls can be chained
    */
   addInventoryItem (item) {
@@ -184,10 +185,10 @@ class UserEntry {
 
     if (item.constructor === Array) {
       for (let i in item) {
-        this.props.inventory.push(item[i]);
+        this.props.inventory.push(item[i].id);
       }
     } else {
-      this.props.inventory.push(item);
+      this.props.inventory.push(item.id);
     }
     this.update({ inventory: this.props.inventory });
     return this;
@@ -202,7 +203,7 @@ class UserEntry {
     if (!id) {
       throw new Error('Missing mandatory "id" parameter');
     }
-    return !!this.props.inventory.filter(i => i.id === id).length;
+    return !!this.props.inventory.filter(i => i === id).length;
   }
 
   /**

@@ -126,6 +126,13 @@ class MiscFunctions {
     return levels;
   }
 
+  get currency () {
+    return {
+      shop,
+      levels
+    };
+  }
+
   /**
    * @returns {Number} A random color code
    */

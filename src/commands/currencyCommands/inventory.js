@@ -13,7 +13,7 @@ module.exports = new GenericCurrencyCommand(
     if (items < 1) {
       return 'You suck, you have nothing. You can use `pls shop` to see what\'s in store though';
     }
-    Memer.paginationMenu(items, {
+    return Memer.paginationMenu(items, {
       type: 'Owned Items',
       embed: {
         author:
@@ -26,7 +26,7 @@ module.exports = new GenericCurrencyCommand(
     }, page);
   },
   {
-    triggers: ['steal', 'rob', 'ripoff'],
+    triggers: ['inventory', 'inv'],
     cooldown: 5e3,
     donorCD: 3e3,
     perms: ['embedLinks']

@@ -16,7 +16,7 @@ module.exports = new GenericCurrencyCommand(
     };
   },
   {
-    triggers: ['balance', 'bal', 'inventory', 'coins', 'inv'],
+    triggers: ['balance', 'bal', 'coins'],
     description: 'Check your coin balance, or someone elses',
     perms: ['embedLinks']
   }

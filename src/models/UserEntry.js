@@ -162,7 +162,7 @@ class UserEntry {
   }
 
   /**
-   * Add an item to the user
+   * Add an item or items to the user
    * @param {Object} item The item object
    * @example
    * {
@@ -175,12 +175,13 @@ class UserEntry {
    * @returns {UserEntry} The user entry, so calls can be chained
    */
   addInventoryItem (item) {
-    if (!item) {
-      throw new Error('Missing mandatory "item" parameter');
-    }
     if (typeof item !== 'object') {
-      throw new Error(`"item" parameter must be an object, not a ${typeof item}`);
+      item = this._client.currency.shop[item];
     }
+    if (!item) {
+      throw new Error('Mandatory "item" parameter is missing or not valid');
+    }
+
     if (item.constructor === Array) {
       for (let i in item) {
         this.props.inventory.push(item[i]);
@@ -192,20 +193,31 @@ class UserEntry {
     return this;
   }
 
+  /**
+   * Check if this user has a specific item
+   * @param {String} id The item ID in a string
+   * @returns {Boolean} Whether or not the user has the specified item
+   */
   hasInventoryItem (id) {
     if (!id) {
       throw new Error('Missing mandatory "id" parameter');
     }
-    
+    return !!this.props.inventory.filter(i => i.id === id).length;
   }
 
+  /**
+   * Remove a specific item or items from this user
+   * @param {Object} item The item object
+   * @returns {UserEntry} The user entry, so calls can be chained
+   */
   removeInventoryItem (item) {
-    if (!item) {
-      throw new Error('Missing mandatory "item" parameter');
-    }
     if (typeof item !== 'object') {
-      throw new Error(`"item" parameter must be an object, not a ${typeof item}`);
+      item = this._client.currency.shop[item];
     }
+    if (!item) {
+      throw new Error('Mandatory "item" parameter is missing or not valid');
+    }
+
     if (item.constructor === Array) {
       for (let i in item) {
         this.props.inventory = this.props.inventory.filter(o => o.id !== item[i].id);

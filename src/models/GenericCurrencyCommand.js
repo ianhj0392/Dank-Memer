@@ -33,9 +33,9 @@ module.exports = class GenericCurrencyCommand {
               // TODO: add multiplier case
               break;
             case 'items':
-              value.map(item => {
-                // TOOD: add `userEntry.addInventoryItem()` to push Item object into inventory
-              });
+              for (const item in value) {
+                userEntry.addInventoryItem(item.id);
+              }
               break;
             case 'title':
               // TODO: add title case

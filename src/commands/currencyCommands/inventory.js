@@ -7,7 +7,8 @@ module.exports = new GenericCurrencyCommand(
     const userItems = userEntry.props.inventory;
     const items = [];
     for (let i in userItems) {
-      items.push(`**${i.name}** ─ *ID* \`${i.id}\` ─ ${i.type.charAt(0).toUpperCase()}${i.type.slice(1)}\n`);
+      const item = Memer.currency.shop[i];
+      items.push(`**${item.name}** ─ *ID* \`${item.id}\` ─ ${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}\n`);
     }
 
     if (items < 1) {

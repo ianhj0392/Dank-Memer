@@ -179,19 +179,18 @@ class UserEntry {
     if (!item) {
       throw new Error('Mandatory "item" parameter is missing or not valid');
     }
-    if (!Array.isArray(item)) {
+
+    if (item.constructor !== Array) {
       item = this._client.currency.shop[item.id || item];
       if (!item) {
         throw new Error(`${item} is not a valid shop item`);
       }
-      item = item.id;
+      item = [item.id || item];
     }
-
-    if (item.constructor !== Array) {
-      item = [item];
-    }
+    this._client.log(this.props.inventory);
     this.props.inventory = this.props.inventory.concat(item);
-    this.update({ inventory: this._client.r.row('inventory').default([]).setUnion(item) });
+    this._client.log(this.props.inventory);
+    this.update({ inventory: this._client.r.row('inventory').default([]).union(item) });
     return this;
   }
 
@@ -230,7 +229,7 @@ class UserEntry {
     } else {
       this.props.inventory = this.props.inventory.filter(o => o.id !== item.id);
     }
-    this.update({ inventory: this._client.r.row('inventory').default([]).setUnion(item) });
+    this.update({ inventory: this._client.r.row('inventory').default([]).union(item) });
     return this;
   }
 

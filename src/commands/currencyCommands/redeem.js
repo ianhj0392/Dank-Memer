@@ -1,11 +1,10 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
-
 module.exports = new GenericCurrencyCommand(
-  async ({ Memer, msg, addCD }) => {
-    const multiplier = await Memer.db.checkDonor(msg.author.id);
+  async ({ Memer, msg, addCD, donor, userEntry }) => {
+    const multiplier = donor ? donor.donorAmount : 0;
     const winnings = Number(multiplier) * 1000;
     await addCD();
-    await Memer.db.addPocket(msg.author.id, winnings);
+    await userEntry.addPocket(winnings).save();
     return {
       title: `${msg.author.username} has redeemed their monthly donor rewards!`,
       description: `You donated $${multiplier}, so you get ${winnings.toLocaleString()} coins!\nThank you for your support!`

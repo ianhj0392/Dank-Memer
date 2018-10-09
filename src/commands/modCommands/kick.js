@@ -1,7 +1,7 @@
 const GenericModerationCommand = require('../../models/GenericModerationCommand');
 
 module.exports = new GenericModerationCommand(
-  async ({ Memer, msg, args, addCD }) => {
+  async ({ Memer, msg, addCD, guildEntry }) => {
     let reason;
     let user = msg.args.resolveUser();
     if (!user) {
@@ -29,7 +29,7 @@ module.exports = new GenericModerationCommand(
     }
 
     let kicked = user;
-    let modlog = await Memer.db.fetchModlog(msg.channel.guild.id);
+    let { modlog } = guildEntry.props;
     await addCD();
     const hahayes = `${kicked.username}#${kicked.discriminator}`;
     Memer.bot.kickGuildMember(msg.channel.guild.id, kicked.id, `${reason} | kicked by ${msg.author.username}`)

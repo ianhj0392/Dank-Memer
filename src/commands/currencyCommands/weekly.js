@@ -1,9 +1,9 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
 module.exports = new GenericCurrencyCommand(
-  async ({ Memer, msg, addCD }) => {
+  async ({ Memer, msg, addCD, userEntry }) => {
     let coinsEarned = 1800;
-    await Memer.db.addPocket(msg.author.id, coinsEarned);
+    await userEntry.addPocket(coinsEarned).save();
     await addCD();
 
     return {

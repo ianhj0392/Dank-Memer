@@ -1,7 +1,7 @@
 const GenericModerationCommand = require('../../models/GenericModerationCommand');
 
 module.exports = new GenericModerationCommand(
-  async ({ Memer, msg, args, addCD }) => {
+  async ({ Memer, msg, addCD, guildEntry }) => {
     const nicknameMatcher = /(["'])(.*?[^\\])\1/m.exec(msg.args.args.join(' ')); // quotation support
     let nickname = nicknameMatcher ? nicknameMatcher[2] : msg.args.args[0];
     if (nicknameMatcher) {
@@ -86,7 +86,7 @@ module.exports = new GenericModerationCommand(
     } else {
       await Memer.redis.del(`massnick-${msg.channel.guild.id}`);
     }
-    let modlog = await Memer.db.fetchModlog(msg.channel.guild.id);
+    let { modlog } = guildEntry.props;
     if (modlog) {
       Memer.bot.createMessage(modlog, `**${msg.author.username}#${msg.author.discriminator}** massnicknamed ${members.length - failed} ${members.length - failed === 1 ? 'user' : 'users'} to ${!nickname ? 'their stinky username' : `**${nickname}**`}.`);
     }

@@ -2,7 +2,7 @@
 const GenericCommand = require('../../models/GenericCommand');
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg, addCD }) => {
+  async ({ Memer, msg, addCD, donor }) => {
     const argument = msg.args.gather();
     const redeemValues = {
       3: 1,
@@ -11,7 +11,6 @@ module.exports = new GenericCommand(
     };
 
     await addCD();
-    const donor = await Memer.db.getDonor(msg.author.id);
     let guilds = donor.guilds;
     let guildRedeems = donor.guildRedeems;
 

@@ -1,10 +1,9 @@
-const { GenericCommand } = require('../../models');
+const GenericCommand = require('../../models/GenericCommand');
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg, args, addCD }) => {
+  async ({ Memer, msg, args, addCD, guildEntry }) => {
     const commands = Memer.cmds.filter(cmd => !cmd.props.ownerOnly && !cmd.props.hide);
-    const db = await Memer.db.getGuild(msg.channel.guild.id);
-    const prefix = db ? db.prefix : Memer.config.options.prefix;
+    const prefix = guildEntry ? guildEntry.props.prefix : Memer.config.options.prefix;
     let help = Memer.config.options.helpCommand || {
       'title': 'no title for you',
       'message': 'no message for you',

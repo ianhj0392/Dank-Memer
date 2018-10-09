@@ -1,7 +1,7 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
 module.exports = new GenericCurrencyCommand(
-  async ({ Memer, msg, addCD }) => {
+  async ({ Memer, msg, addCD, userEntry }) => {
     let args = msg.args.args;
     let given;
     let user;
@@ -19,20 +19,20 @@ module.exports = new GenericCurrencyCommand(
       return 'you have to to actually share a number, dummy. Not ur dumb feelings';
     }
     given = Number(given);
-    let giverCoins = await Memer.db.getUser(msg.author.id);
+    let giverCoins = userEntry;
     let takerCoins = await Memer.db.getUser(user.id);
 
-    if (given > giverCoins.pocket) {
-      return `You only have ${giverCoins.pocket} coins, you can't share that many`;
+    if (given > giverCoins.props.pocket) {
+      return `You only have ${giverCoins.props.pocket} coins, you can't share that many`;
     }
     if (given < 1) {
       return 'You can\'t share 0 coins you dumb';
     }
 
     await addCD();
-    await Memer.db.addPocket(user.id, given);
-    await Memer.db.removePocket(msg.author.id, given);
-    return `You gave ${user.username} ${given.toLocaleString()} coins, now you have ${(giverCoins.pocket - given).toLocaleString()} and they've got ${(takerCoins.pocket + given).toLocaleString()}`;
+    await takerCoins.addPocket(given).save();
+    await userEntry.removePocket(given).save();
+    return `You gave ${user.username} ${given.toLocaleString()} coins, now you have ${giverCoins.props.pocket.toLocaleString()} and they've got ${takerCoins.props.pocket.toLocaleString()}`;
   },
   {
     triggers: ['share', 'give'],

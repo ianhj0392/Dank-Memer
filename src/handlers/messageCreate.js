@@ -202,11 +202,6 @@ function cacheMessage (msg) {
 }
 
 async function updateStats (msg, command, userEntry) {
-  // Should be tracked in memory instead
-  /* if (Date.now() - lastCmd < 500) {
-    this.ddog.increment('spam500');
-    await this.db.addSpam(msg.author.id);
-  } */
   if (!userEntry._saved) {
     userEntry.save();
   }

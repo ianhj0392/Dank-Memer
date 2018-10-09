@@ -361,7 +361,7 @@ class MiscFunctions {
    * @returns {Number} A random number between the given range
    */
   randomNumber (min, max) {
-    if (!min || !max) {
+    if ((!min && min !== 0) || (!max && max !== 0)) {
       // Default 0-100 if no args passed
       min = 0;
       max = 100;
@@ -603,7 +603,7 @@ class MiscFunctions {
     }
 
     for (const key of Object.keys(source)) {
-      if (!target[key] || typeof target[key] !== 'object') {
+      if (!target[key] || typeof target[key] !== 'object' || Array.isArray(source[key])) {
         destination[key] = source[key];
       } else {
         if (typeof source[key] !== 'object' || source[key] instanceof Term) {

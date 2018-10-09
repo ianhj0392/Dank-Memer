@@ -473,6 +473,13 @@ class DatabaseFunctions {
       .then(d => d.changes.map(o => o.old_val));
   }
 
+  async checkDonor (id) {
+    return this.client.r.table('donors')
+      .get(id)('donorAmount')
+      .default(false)
+      .run();
+  }
+
   /**
    * Check if the given guild is a premium guild redeemed by a 20$+ donor
    * @param {String} id The ID of the guild to check

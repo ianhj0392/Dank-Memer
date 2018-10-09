@@ -1,7 +1,7 @@
 const GenericCommand = require('../../models/GenericCommand');
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg, args, addCD }) => {
+  async ({ Memer, msg, addCD }) => {
     let patrons = [];
     const user = Memer.config.options.developers.includes(msg.author.id) ? (msg.args.resolveUser() || msg.author) : msg.author;
 

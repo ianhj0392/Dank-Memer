@@ -12,7 +12,7 @@ module.exports = class GenericVoiceCommand {
   }
 
   /** @param {FunctionParams} */
-  async run ({ Memer, msg, args, addCD }) {
+  async run ({ Memer, msg, args, addCD, donor }) {
     const music = Memer.musicManager.get(msg.channel.guild.id);
     let response = await Memer.redis.get(`cachedplaylist-${this.cmdProps.dir}`)
       .then(res => res ? JSON.parse(res) : undefined);
@@ -39,7 +39,6 @@ module.exports = class GenericVoiceCommand {
 
     if (args.length) {
       // Repeat function
-      let donor = await Memer.db.checkDonor(msg.author.id);
       if ((args.includes('-autoplay') || args.includes('-repeat')) && donor) {
         music.sfxautoplay = { enabled: true, host: msg.member, type: this.cmdProps.dir, name: this.props.triggers[0] };
         await music.stop();

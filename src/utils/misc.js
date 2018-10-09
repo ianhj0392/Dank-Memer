@@ -471,7 +471,7 @@ class MiscFunctions {
     }
 
     for (const key of Object.keys(source)) {
-      if (!target[key] || typeof target[key] !== 'object') {
+      if (!target[key] || typeof target[key] !== 'object' || Array.isArray(source[key])) {
         destination[key] = source[key];
       } else {
         if (typeof source[key] !== 'object' || source[key] instanceof Term) {

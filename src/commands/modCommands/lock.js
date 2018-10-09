@@ -1,7 +1,7 @@
 const GenericModerationCommand = require('../../models/GenericModerationCommand');
 
 module.exports = new GenericModerationCommand(
-  async ({ Memer, msg, args, addCD }) => {
+  async ({ Memer, msg, addCD, guildEntry }) => {
     let reason;
     let channel = msg.args.resolveChannel();
     if (!channel) {
@@ -27,7 +27,7 @@ module.exports = new GenericModerationCommand(
     if (previousOverwrites.json.sendMessages === false) {
       return 'this channel is already locked ya doofus';
     }
-    let modlog = await Memer.db.fetchModlog(msg.channel.guild.id);
+    let { modlog } = guildEntry.props;
     channel.createMessage(`**This channel has been locked.**\n${reason}`);
     channel.editPermission(msg.channel.guild.id, previousOverwrites.allow & ~2048, previousOverwrites.deny | 2048, 'role', reason)
       .then(() => {

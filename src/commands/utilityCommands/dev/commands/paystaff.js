@@ -11,7 +11,10 @@ module.exports = {
       return u.roles.includes('421905409872363530');
     });
     for (const member of members) {
-      Memer.db.addPocket(member.id, 10000);
+      await Memer.r.table('users').get(member.id).default(Memer.db.getDefaultUser(member.id)).update({
+        pocket: Memer.r.row('pocket').add(10000),
+        won: Memer.r.row('pocket').add(10000)
+      });
     }
     return `Anyone with staff role has been paid 10,000 meme coins (${members.length} paid)`;
   }

@@ -1,7 +1,7 @@
 const GenericModerationCommand = require('../../models/GenericModerationCommand');
 
 module.exports = new GenericModerationCommand(
-  async ({ Memer, msg, args, addCD }) => {
+  async ({ Memer, msg, addCD, guildEntry }) => {
     let reason;
     let id = msg.args.args[0];
     if (!id) {
@@ -24,7 +24,7 @@ module.exports = new GenericModerationCommand(
     await addCD();
     msg.channel.guild.getBan(id)
       .then(async (ban) => {
-        let modlog = await Memer.db.fetchModlog(msg.channel.guild.id);
+        let { modlog } = guildEntry.props;
         msg.channel.guild.unbanMember(ban.user.id, `${reason} | unbanned by ${msg.author.username}`)
           .then(() => {
             const hahayes = `${ban.user.username}#${ban.user.discriminator}`;

@@ -1,7 +1,7 @@
 const GenericModerationCommand = require('../../models/GenericModerationCommand');
 
 module.exports = new GenericModerationCommand(
-  async ({ Memer, msg, addCD }) => {
+  async ({ Memer, msg, addCD, guildEntry }) => {
     await addCD();
 
     const purgeAmount = Math.min(Math.max(msg.args.nextArgument() || 10, 1), 100);
@@ -34,7 +34,7 @@ module.exports = new GenericModerationCommand(
     if (typeof (deleted) === 'string') {
       return `Something went wrong while deleting the messages\n\`\`\`\n${deleted}\`\`\``;
     } else {
-      let modlog = await Memer.db.fetchModlog(msg.channel.guild.id);
+      let { modlog } = guildEntry.props;
       if (modlog) {
         Memer.bot.createMessage(modlog, `**${msg.author.username}#${msg.author.discriminator}** Deleted ${deleted} messages in ${msg.channel.name}.`);
       }

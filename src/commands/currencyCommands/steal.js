@@ -13,7 +13,7 @@ const dmStolenUser = async (Memer, user, msg, worth) => {
 };
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg, args, addCD }) => {
+  async ({ Memer, msg, args, addCD, userEntry, donor }) => {
     let user = msg.args.resolveUser(true);
     if (!user) {
       return 'try running the command again, but this time actually mention someone to steal from';
@@ -21,11 +21,11 @@ module.exports = new GenericCommand(
     if (msg.author.id === user.id) {
       return 'hey stupid, seems pretty dumb to steal from urself';
     }
-    let perp = await Memer.db.getUser(msg.author.id);
+    let perp = userEntry;
     let victim = await Memer.db.getUser(user.id);
-    let perpCoins = perp.pocket;
-    let victimCoins = victim.pocket;
-    let donor = await Memer.db.checkDonor(user.id);
+    let perpCoins = perp.props.pocket;
+    let victimCoins = victim.props.pocket;
+    donor = donor ? donor.donorAmount : 0;
     if (perpCoins < min) {
       return `You need at least ${min} coins to try and rob someone.`;
     }
@@ -46,6 +46,8 @@ module.exports = new GenericCommand(
     await addCD();
     let stealingOdds = Memer.randomNumber(1, 100);
 
+    let worth;
+    let message;
     if (stealingOdds <= 60) { // fail section
       let punish;
       if ((perpCoins * 0.05) < 500) {
@@ -53,28 +55,23 @@ module.exports = new GenericCommand(
       } else {
         punish = perpCoins * 0.05;
       }
-      await Memer.db.removePocket(msg.author.id, Math.round(punish));
-      await Memer.db.addPocket(user.id, Math.round(punish));
+      await perp.removePocket(Math.round(punish)).save();
+      await victim.addPocket(Math.round(punish)).save();
       return `You were caught! You paid the person you stole from **${Math.round(punish)}** coins.`;
     } else if (stealingOdds > 60 && stealingOdds <= 80) { // 30% payout
-      let worth = Math.round(victimCoins * 0.3);
-      await Memer.db.addPocket(msg.author.id, worth);
-      await Memer.db.removePocket(user.id, worth);
-      await dmStolenUser(Memer, user, msg, worth);
-      return `You managed to steal a small amount before leaving! 💸\nYour payout was **${worth.toLocaleString()}** coins.`;
+      worth = Math.round(victimCoins * 0.3);
+      message = `You managed to steal a small amount before leaving! 💸\nYour payout was **${worth.toLocaleString()}** coins.`;
     } else if (stealingOdds > 80 && stealingOdds <= 90) { // 50% payout
-      let worth = Math.round(victimCoins * 0.5);
-      await Memer.db.addPocket(msg.author.id, worth);
-      await Memer.db.removePocket(user.id, worth);
-      await dmStolenUser(Memer, user, msg, worth);
-      return `You managed to steal a large amount before leaving! 💰\nYour payout was **${worth.toLocaleString()}** coins.`;
+      worth = Math.round(victimCoins * 0.5);
+      message = `You managed to steal a large amount before leaving! 💰\nYour payout was **${worth.toLocaleString()}** coins.`;
     } else { // full theft
-      let worth = Math.round(victimCoins);
-      await Memer.db.addPocket(msg.author.id, worth);
-      await Memer.db.removePocket(user.id, worth);
-      await dmStolenUser(Memer, user, msg, worth);
-      return `You managed to steal a TON before leaving! 🤑\nYour payout was **${worth.toLocaleString()}** coins.`;
+      worth = Math.round(victimCoins);
+      message = `You managed to steal a TON before leaving! 🤑\nYour payout was **${worth.toLocaleString()}** coins.`;
     }
+    await perp.addPocket(worth).save();
+    await victim.removePocket(worth).save();
+    await dmStolenUser(Memer, user, msg, worth);
+    return message;
   },
   {
     triggers: ['steal', 'rob', 'ripoff'],

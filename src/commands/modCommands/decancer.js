@@ -1,7 +1,7 @@
 const GenericModerationCommand = require('../../models/GenericModerationCommand');
 
 module.exports = new GenericModerationCommand(
-  async ({ Memer, msg, args, addCD }) => {
+  async ({ Memer, msg, addCD, guildEntry }) => {
     const cancerSearcher = /^[^\w\s\d]/;
     let nickname = msg.args.args.join(' ') || 'cancer name';
     if (nickname.length > 32 || nickname.length < 1) {
@@ -46,7 +46,7 @@ module.exports = new GenericModerationCommand(
     msg.channel.createMessage(`Now renaming **${members.length} ${members.length === 1 ? 'person' : 'people'}** with cancerous names, this may take a while depending on the size of your server\n**ETA**: ${timeLeft}`);
     await Promise.all(promises);
     let finalRenamed = members.length - failed;
-    let modlog = await Memer.db.fetchModlog(msg.channel.guild.id);
+    let { modlog } = guildEntry.props;
     if (modlog) {
       Memer.bot.createMessage(modlog, `**${msg.author.username}#${msg.author.discriminator}** decancered ${finalRenamed} poor ${finalRenamed === 1 ? 'user' : 'users'}.`);
     }

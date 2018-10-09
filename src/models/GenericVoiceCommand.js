@@ -1,4 +1,6 @@
-/** @typedef {import('./GenericCommand').CommandProps} CommandProps */
+/** @typedef {import('./GenericCommand').CommandProps} CommandProps
+ * @typedef {import('./GenericCommand').FunctionParams} FunctionParams
+ */
 
 const GenericCommand = require('./GenericCommand');
 module.exports = class GenericVoiceCommand {
@@ -9,7 +11,8 @@ module.exports = class GenericVoiceCommand {
     this.cmdProps = cmdProps;
   }
 
-  async run ({ Memer, msg, args, addCD }) {
+  /** @param {FunctionParams} */
+  async run ({ Memer, msg, args, addCD, donor }) {
     const music = Memer.musicManager.get(msg.channel.guild.id);
     let response = await Memer.redis.get(`cachedplaylist-${this.cmdProps.dir}`)
       .then(res => res ? JSON.parse(res) : undefined);
@@ -36,7 +39,6 @@ module.exports = class GenericVoiceCommand {
 
     if (args.length) {
       // Repeat function
-      let donor = await Memer.db.checkDonor(msg.author.id);
       if ((args.includes('-autoplay') || args.includes('-repeat')) && donor) {
         music.sfxautoplay = { enabled: true, host: msg.member, type: this.cmdProps.dir, name: this.props.triggers[0] };
         await music.stop();

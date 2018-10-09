@@ -1,7 +1,7 @@
 const GenericModerationCommand = require('../../models/GenericModerationCommand');
 
 module.exports = new GenericModerationCommand(
-  async ({ Memer, msg, args, addCD }) => {
+  async ({ Memer, msg, addCD, guildEntry }) => {
     let reason;
     let user = msg.args.resolveUser();
     if (!user) {
@@ -31,7 +31,7 @@ module.exports = new GenericModerationCommand(
     let banned = user;
     await addCD();
     const hahayes = `${banned.username}#${banned.discriminator}`;
-    let modlog = await Memer.db.fetchModlog(msg.channel.guild.id);
+    let { modlog } = guildEntry.props;
     Memer.bot.banGuildMember(msg.channel.guild.id, banned.id, 1, `${reason} | banned by ${msg.author.username}`)
       .then(() => {
         Memer.bot.unbanGuildMember(msg.channel.guild.id, banned.id, 'Automatic unban from softban')

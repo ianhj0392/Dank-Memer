@@ -1,7 +1,7 @@
 const GenericCommand = require('../../models/GenericCommand');
 let message;
 module.exports = new GenericCommand(
-  async ({ Memer, msg, addCD }) => {
+  async ({ Memer, msg, addCD, userEntry }) => {
     const chances = Memer.randomNumber(0, 5);
     if (chances === 0) {
       message = 'Looks like you didn\'t find any coins in the dumpster. At least you found some day old tortillas!';
@@ -9,7 +9,7 @@ module.exports = new GenericCommand(
       message = `You found **${chances > 1 ? chances + ' coins' : chances + ' coin'}** in the dumpster!\nCongrats I think? Idk, all I know is that you smell bad now.`;
     }
     await addCD();
-    await Memer.db.addPocket(msg.author.id, chances);
+    await userEntry.addPocket(chances).save();
     return {
       title: `${msg.author.username} searches in a dumpster for some coins...`,
       description: message

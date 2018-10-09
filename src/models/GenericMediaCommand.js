@@ -1,4 +1,6 @@
-/** @typedef {import('./GenericCommand').CommandProps} CommandProps */
+/** @typedef {import('./GenericCommand').CommandProps} CommandProps
+ * @typedef {import('./GenericCommand').FunctionParams} FunctionParams
+ */
 
 const GenericCommand = require('./GenericCommand');
 
@@ -10,9 +12,9 @@ class GenericMediaCommand {
     this.cmdProps = cmdProps;
   }
 
-  async run ({ Memer, msg, addCD }) {
-    let user = await Memer.db.getUser(msg.author.id);
-    if (this.props.voter && !user.dblUpvoted) {
+  /** @param {FunctionParams} */
+  async run ({ Memer, msg, addCD, userEntry }) {
+    if (this.props.voter && !userEntry.props.dblUpvoted) {
       return `**WOAH** you need to vote at https://discordbotlist.com/bots/270904126974590976 to use this command.\n${this.props.vMessage}`;
     }
 

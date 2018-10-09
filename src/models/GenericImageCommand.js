@@ -1,4 +1,6 @@
-/** @typedef {import('./GenericCommand').CommandProps} CommandProps */
+/** @typedef {import('./GenericCommand').CommandProps} CommandProps
+ * @typedef {import('./GenericCommand').FunctionParams} FunctionParams
+ */
 
 const GenericCommand = require('./GenericCommand');
 
@@ -13,6 +15,7 @@ class GenericImageCommand {
     this.requestURL = commandProps.reqURL || 'http://127.0.0.1:65535/api/$ENDPOINT';
   }
 
+  /** @param {FunctionParams} */
   async run ({ Memer, msg, addCD }) {
     const datasrc = this.URLParseFN(msg);
     if (!datasrc) {

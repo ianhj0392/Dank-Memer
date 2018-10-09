@@ -1,13 +1,13 @@
 module.exports = {
   help: 'Show user info',
-  fn: async ({ Memer, args }) => {
+  fn: async ({ Memer, args, userEntry, donor }) => {
     if (!args[0] && isNaN(args[0])) {
       return 'you need to give an id';
     }
     let id = args[0];
 
-    let db = await Memer.db.getUser(id);
-    let donor = await Memer.db.checkDonor(id);
+    let db = userEntry.props;
+    donor = donor ? donor.donorAmount : false;
     let user = await Memer.ipc.fetchUser(id);
     let blacklisted = await Memer.db.checkBlocked(id);
     return {

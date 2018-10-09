@@ -1,14 +1,14 @@
 const GenericCommand = require('../../models/GenericCommand');
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg, addCD }) => {
+  async ({ Memer, msg, addCD, userEntry }) => {
     await addCD();
     const prompt = await msg.channel.createMessage('Hm, let me think...');
     await Memer.sleep(1000);
     await prompt.edit('Hm, let me think... <:feelsthinkman:397488376728780800>');
     await Memer.sleep(2000);
     if (Math.random() >= 0.5) {
-      await Memer.db.addPocket(msg.author.id, 1);
+      await userEntry.addPocket(1).save();
       await prompt.edit('Ok sure, have a coin.');
     } else {
       await prompt.edit('Nah, no coin for you.');

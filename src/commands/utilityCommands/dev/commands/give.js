@@ -11,7 +11,10 @@ module.exports = {
     } else {
       amount = 1;
     }
-    await Memer.db.addPocket(id, amount);
+    await Memer.r.table('users').get(id).default(Memer.db.getDefaultUser(id)).update({
+      pocket: Memer.r.row('pocket').add(amount),
+      won: Memer.r.row('pocket').add(amount)
+    });
     return `<@${id}> (${id}) was given ${amount} coins.`;
   }
 };

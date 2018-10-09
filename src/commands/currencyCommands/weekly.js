@@ -1,9 +1,9 @@
 const GenericCommand = require('../../models/GenericCommand');
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg, addCD }) => {
+  async ({ Memer, msg, addCD, userEntry }) => {
     let coinsEarned = 1800;
-    await Memer.db.addPocket(msg.author.id, coinsEarned);
+    await userEntry.addPocket(coinsEarned).save();
     await addCD();
 
     return {

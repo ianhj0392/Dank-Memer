@@ -13,7 +13,7 @@ module.exports = class GenericModerationCommand {
     this.cmdProps = cmdProps;
   }
 
-  async run ({ Memer, msg, args, addCD, cleanArgs, isGlobalPremiumGuild }) {
+  async run ({ Memer, msg, args, addCD, cleanArgs, guildEntry, userEntry, donor, isGlobalPremiumGuild }) {
     // modPerms will be an array of permissions that are required by the user to run this command
     // If no permissions are passed, this code is never considered.
     for (const requiredPermission of this.cmdProps.perms || []) {
@@ -33,7 +33,7 @@ module.exports = class GenericModerationCommand {
     }
 
     await addCD();
-    return this.fn({ Memer, msg, args, addCD, cleanArgs, isGlobalPremiumGuild });
+    return this.fn({ Memer, msg, args, addCD, cleanArgs, userEntry, guildEntry, donor, isGlobalPremiumGuild });
   }
 
   missingPermission (type, permission) {

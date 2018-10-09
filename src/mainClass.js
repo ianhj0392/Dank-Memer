@@ -16,7 +16,7 @@ class Memer extends Base {
     this.secrets = require('./secrets.json');
     this.r = require('rethinkdbdash')();
     this.ddog = new StatsD();
-    this.db = require('./utils/dbFunctions.js')(this);
+    this.db = new (require('./utils/dbFunctions.js'))(this);
     this.http = require('./utils/http');
     this.cmds = [];
     this.tags = {};
@@ -55,7 +55,14 @@ class Memer extends Base {
     };
     this.cooldowns = new Map();
     this._cooldownsSweep = setInterval(this._sweepCooldowns.bind(this), 1000 * 60 * 30);
-    Object.assign(this, require('./utils/misc.js'));
+    // work-around to benefit from nice documentation and still have misc functions assigned on the Memer instance
+    const MiscFunctions = new (require('./utils/misc.js'))();
+    for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(MiscFunctions))) {
+      if (key !== 'constructor') {
+        this[key] = MiscFunctions[key];
+      }
+    }
+    Object.assign(this, new (require('./utils/misc.js'))(this));
   }
 
   async launch () {

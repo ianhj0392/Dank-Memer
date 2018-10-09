@@ -1,16 +1,14 @@
-const { GenericCommand } = require('../../models');
+const GenericCommand = require('../../models/GenericCommand');
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg, args }) => {
+  async ({ Memer, msg, args, guildEntry }) => {
     if (!msg.member.permission.has('manageGuild') && !Memer.config.options.developers.includes(msg.author.id)) {
       return 'You are not authorized to use this command. You must have `Manage Server` to disable commands.';
     }
 
-    const gConfig = await Memer.db.getGuild(msg.channel.guild.id) || await Memer.db.createGuild(msg.channel.guild.id);
-
     if (!args[0]) {
-      return { content: `Specify a command to disable, or multiple.\n\nExample: \`${gConfig.prefix} disable meme trigger shitsound\` or \`${gConfig.prefix} disable meme\`
-      \nYou can also disable categories by specifying the category name, for example: \`${gConfig.prefix} disable nsfw\``,
+      return { content: `Specify a command to disable, or multiple.\n\nExample: \`${guildEntry.props.prefix} disable meme trigger shitsound\` or \`${guildEntry.props.prefix} disable meme\`
+      \nYou can also disable categories by specifying the category name, for example: \`${guildEntry.props.prefix} disable nsfw\``,
       reply: true };
     }
 
@@ -25,26 +23,21 @@ module.exports = new GenericCommand(
         return (Memer.cmds.find(c => c.props.triggers.includes(cmd)) || { props: { triggers: [cmd] } }).props.triggers[0];
       }));
 
-    gConfig.disabledCategories = gConfig.disabledCategories || [];
-    gConfig.enabledCommands = gConfig.enabledCommands || [];
-
-    const alreadyDisabled = args.filter(cmd => gConfig.disabledCommands.includes(cmd) || gConfig.disabledCategories.includes(cmd));
+    const alreadyDisabled = args.filter(cmd => guildEntry.props.disabledCommands.includes(cmd) || guildEntry.props.disabledCategories.includes(cmd));
     if (alreadyDisabled[0]) {
       return `These commands/categories are already disabled:\n\n${alreadyDisabled.map(c => `\`${c}\``).join(', ')}\n\nHow tf do you plan to disable stuff that's already disabled??`;
     }
 
-    args.map(cmd => {
-      if (categories.includes(cmd)) {
-        gConfig.disabledCategories = gConfig.disabledCategories.concat(cmd);
-      } else {
-        gConfig.disabledCommands = gConfig.disabledCommands.concat(cmd);
-        if (gConfig.enabledCommands.indexOf(cmd) > -1) {
-          gConfig.enabledCommands.splice(gConfig.enabledCommands.indexOf(cmd), 1);
-        }
-      }
-    });
+    const categoriesToDisable = args.filter(a => categories.includes(a));
+    const commandsToDisable = args.filter(a => !categories.includes(a));
+    if (categoriesToDisable[0]) {
+      guildEntry.disableCategories(categoriesToDisable);
+    }
+    if (commandsToDisable[0]) {
+      guildEntry.disableCommands(commandsToDisable);
+    }
 
-    await Memer.db.updateGuild(gConfig);
+    await guildEntry.save();
 
     return `The following commands/categories have been disabled successfully:\n\n${args.map(cmd => `\`${cmd}\``).join(', ')}`;
   }, {

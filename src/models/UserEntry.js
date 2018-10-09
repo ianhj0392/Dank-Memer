@@ -176,22 +176,22 @@ class UserEntry {
    * @returns {UserEntry} The user entry, so calls can be chained
    */
   addInventoryItem (item) {
-    if (typeof item !== 'object') {
-      item = this._client.currency.shop[item];
-    }
     if (!item) {
       throw new Error('Mandatory "item" parameter is missing or not valid');
     }
-
-    if (item.constructor === Array) {
-      for (let i in item) {
-        Object.values(this.props.inventory).push(item[i].id);
+    if (!Array.isArray(item)) {
+      item = this._client.currency.shop[item.id || item];
+      if (!item) {
+        throw new Error(`${item} is not a valid shop item`);
       }
-    } else {
-      Object.values(this.props.inventory).push(item.id);
+      item = item.id;
     }
-    this._client.log(Object.values(this.props.inventory));
-    this.update({ inventory: this.props.inventory });
+
+    if (item.constructor !== Array) {
+      item = [item];
+    }
+    this.props.inventory = this.props.inventory.concat(item);
+    this.update({ inventory: this._client.r.row('inventory').default([]).setUnion(item) });
     return this;
   }
 
@@ -204,7 +204,7 @@ class UserEntry {
     if (!id) {
       throw new Error('Missing mandatory "id" parameter');
     }
-    return !!Object.values(this.props.inventory).filter(i => i === id).length;
+    return !!this.props.inventory.filter(i => i === id).length;
   }
 
   /**
@@ -213,21 +213,24 @@ class UserEntry {
    * @returns {UserEntry} The user entry, so calls can be chained
    */
   removeInventoryItem (item) {
-    if (typeof item !== 'object') {
-      item = this._client.currency.shop[item];
-    }
     if (!item) {
       throw new Error('Mandatory "item" parameter is missing or not valid');
+    }
+    if (typeof item !== 'object') {
+      item = this._client.currency.shop[item.id || item];
+      if (!item) {
+        throw new Error(`${item} is not a valid shop item`);
+      }
     }
 
     if (item.constructor === Array) {
       for (let i in item) {
-        this.props.inventory = Object.values(this.props.inventory).filter(o => o.id !== item[i].id);
+        this.props.inventory = this.props.inventory.filter(o => o.id !== item[i].id);
       }
     } else {
-      this.props.inventory = Object.values(this.props.inventory).filter(o => o.id !== item.id);
+      this.props.inventory = this.props.inventory.filter(o => o.id !== item.id);
     }
-    this.update({ inventory: this.props.inventory });
+    this.update({ inventory: this._client.r.row('inventory').default([]).setUnion(item) });
     return this;
   }
 

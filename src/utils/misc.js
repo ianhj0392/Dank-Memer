@@ -281,7 +281,7 @@ class MiscFunctions {
    * @returns {Number} A random number between the given range
    */
   randomNumber (min, max) {
-    if (!min || !max) {
+    if ((!min && min !== 0) || (!max && max !== 0)) {
       // Default 0-100 if no args passed
       min = 0;
       max = 100;

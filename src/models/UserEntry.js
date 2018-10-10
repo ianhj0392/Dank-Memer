@@ -155,8 +155,8 @@ class UserEntry {
       throw new Error('Missing mandatory "level" parameter');
     }
     level = typeof level !== 'number' ? Number(level) : level;
-    this.props.level = this.props.level + level;
-    let changes = { level: this._client.r.row('level').default(0).add(level) };
+    this.props.level = level;
+    let changes = { level: level };
     this.update(changes);
     return this;
   }

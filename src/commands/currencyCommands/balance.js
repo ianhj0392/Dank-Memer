@@ -1,25 +1,19 @@
-const { GenericCommand } = require('../../models');
+const GenericCommand = require('../../models/GenericCommand');
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg, addCD }) => {
+  async ({ Memer, msg, addCD, userEntry }) => {
     let user = msg.args.resolveUser(true);
-    await addCD();
     if (user) {
-      let { pocket, bank } = await Memer.db.getUser(user.id);
-      return {
-        title: `Here is ${user.username}'s balance`,
-        description: `**Their Pocket**: ${pocket.toLocaleString()} coins.\n**Bank Account**: ${bank.toLocaleString()} coins`,
-        thumbnail: {url: 'http://www.dank-memer-is-lots-of.fun/coin.png'},
-        footer: { text: 'to see what upgrades they have, use the upgrades command' }
-      };
-    } else {
-      let { pocket, bank } = await Memer.db.getUser(msg.author.id);
-      return {
-        title: `Here is your balance, ${msg.author.username}`,
-        description: `**Your Pocket**: ${pocket.toLocaleString()} coins\n**Bank Account**: ${bank.toLocaleString()} coins`,
-        thumbnail: {url: 'http://www.dank-memer-is-lots-of.fun/coin.png'}
-      };
+      userEntry = await Memer.db.getUser(user.id);
     }
+    const text = [user ? `Here is ${user.username}'s balance` : `Here is your balance, ${msg.author.username}`, user ? `**Their Pocket**` : `**Your Pocket**`];
+    await addCD();
+    return {
+      title: text[0],
+      description: `${text[1]}: ${userEntry.props.pocket.toLocaleString()} coins.\n**Bank Account**: ${userEntry.props.bank.toLocaleString()} coins`,
+      thumbnail: {url: 'http://www.dank-memer-is-lots-of.fun/coin.png'},
+      footer: { text: 'to see what upgrades they have, use the upgrades command' }
+    };
   },
   {
     triggers: ['balance', 'bal', 'inventory', 'coins', 'inv'],

@@ -6,6 +6,11 @@ class MusicManager {
     this._map = new Map();
   }
 
+  /**
+   *
+   * @param {String} id The ID of the guild to get the music player of
+   * @returns {Music}
+   */
   get (id) {
     let val = this._map.get(id);
     if (!val) {

@@ -1,4 +1,6 @@
-/** @typedef {import('./GenericCommand').CommandProps} CommandProps */
+/** @typedef {import('./GenericCommand').CommandProps} CommandProps
+ * @typedef {import('./GenericCommand').FunctionParams} FunctionParams
+ */
 
 const GenericCommand = require('./GenericCommand');
 const { exists } = require('../utils/audioUtils.js');
@@ -12,6 +14,7 @@ module.exports = class GenericSoundboardCommand {
     this.cmdProps = cmdProps;
   }
 
+  /** @param {FunctionParams} */
   async run ({ Memer, msg, addCD }) {
     const sfx = msg.args.nextArgument();
     const music = Memer.musicManager.get(msg.channel.guild.id);

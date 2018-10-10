@@ -1,5 +1,9 @@
 /** @typedef {import('eris').Message} Message
  * @typedef {import('../utils/misc')} Utils
+ * @typedef {import('./UserEntry')} UserEntry
+ * @typedef {import('../utils/misc')} MiscFunctions
+ * @typedef {import('./GuildEntry')} GuildEntry
+ * @typedef {import('../utils/dbFunctions').DonorData} DonorData
  */
 
 /** @typedef {Object} ExtendedMessage
@@ -8,12 +12,12 @@
 
 /** @typedef {Message & ExtendedMessage} MemerMessage */
 
-/** @typedef {Object} Memer
+/** @typedef {Object} MemerBase
  * @prop {import('rethinkdbdash')} r The RethinkDB interface (haha no intellisense for it because rethonk sucks)
  * @prop {import('redis').RedisClient} redis The redis interface
  * @prop {import('../utils/http')} http The http module
  * @prop {import('../utils/logger')} log The log module
- * @prop {Object} db The database functions
+ * @prop {import('../utils/dbFunctions')} db The database functions
  * @prop {Object} config The Memer config
  * @prop {Object} secrets The secrets, credentials and stuff
  * @prop {import('lavalink').Cluster} lavalink The lavalink cluster
@@ -21,23 +25,9 @@
  * @prop {import('eris').Client} bot The eris client instance
  * @prop {import('../utils/Autopost')} autopost The auto-poster
  * @prop {Array<Object>} cmds An array of all the commands
- * @prop {Utils.randomColor} randomColor
- * @prop {Utils.inviteRemoval} inviteRemoval
- * @prop {Utils.calcMultiplier} calcMultiplier
- * @prop {Utils.showMultiplier} showMultiplier
- * @prop {Utils.decodeHtmlEntity} decodeHtmlEntity
- * @prop {Utils.randomInArray} randomInArray
- * @prop {Utils.randomNumber} randomNumber
- * @prop {Utils.sleep} sleep
- * @prop {Utils.removeDuplicates} removeDuplicates
- * @prop {Utils.codeblock} codeblock
- * @prop {Utils.getHighestRolePos} getHighestRolePos
- * @prop {Utils.parseTime} parseTime
- * @prop {Utils.punish} punish
- * @prop {Utils.paginate} paginate
- * @prop {Utils.format} format
- * @prop {Utils.paginateArray} paginateArray
  */
+
+/** @typedef {MemerBase & MiscFunctions} Memer */
 
 /** @typedef {Object} CommandProps
  * @prop {String} [usage] How to use the command
@@ -60,6 +50,9 @@
  * @prop {Array<String>} args The raw sliced arguments
  * @prop {Array<String>} cleanArgs The raw sliced arguments, but with mentions nullified
  * @prop {Boolean} isGlobalPremiumGuild Whether this guild is a premium guild redeemed by a 20$+ donator
+ * @prop {UserEntry} userEntry The message author user entry
+ * @prop {GuildEntry} guildEntry The guild settings entry
+ * @prop {DonorData} [donor] The donor data of the author, may be `null`
  */
 
 module.exports = class GenericCommand {
@@ -73,7 +66,7 @@ module.exports = class GenericCommand {
     this.cmdProps = props;
   }
 
-  async run ({ Memer, msg, args, addCD, cleanArgs, isGlobalPremiumGuild }) {
+  async run ({ Memer, msg, args, addCD, cleanArgs, guildEntry, userEntry, donor, isGlobalPremiumGuild }) {
     if (this.props.missingArgs && !args[0]) {
       return this.props.missingArgs;
     }
@@ -83,7 +76,7 @@ module.exports = class GenericCommand {
     if (this.props.requiresPremium && !await Memer.db.checkPremiumGuild(msg.channel.guild.id)) {
       return 'This command is only available on **Premium** servers.\nTo learn more about how to redeem a premium server, visit our Patreon https://www.patreon.com/dankmemerbot';
     }
-    return this.fn({ Memer, msg, args, addCD, cleanArgs, isGlobalPremiumGuild });
+    return this.fn({ Memer, msg, args, addCD, cleanArgs, guildEntry, userEntry, donor, isGlobalPremiumGuild });
   }
 
   get props () {

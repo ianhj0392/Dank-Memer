@@ -1,12 +1,10 @@
 const GenericCommand = require('../../models/GenericCommand');
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg, addCD, isGlobalPremiumGuild }) => {
+  async ({ Memer, msg, addCD, isGlobalPremiumGuild, donor, userEntry }) => {
     let user = msg.author;
-    let userDB = await Memer.db.getUser(user.id);
-    let donor = await Memer.db.checkDonor(user.id);
-    let multi = await Memer.calcMultiplier(Memer, user, userDB, donor, msg, isGlobalPremiumGuild);
-    let coins = userDB.pocket;
+    let multi = await Memer.calcMultiplier(Memer, user, userEntry.props, donor ? donor.donorAmount : 0, msg, isGlobalPremiumGuild);
+    let coins = userEntry.props.pocket;
 
     let bet = msg.args.args[0];
     if (!bet) {
@@ -44,7 +42,7 @@ module.exports = new GenericCommand(
         return 'You broke even. This means you\'re lucky I think?';
       }
 
-      await Memer.db.addPocket(msg.author.id, winnings);
+      await userEntry.addPocket(winnings).save();
       return `You won **${winnings.toLocaleString()}** coins. \n**Multiplier**: ${multi}% | **Percent of bet won**: ${winnings.toFixed(2) * 100}%`;
     } else if (blahblah > 0.65) {
       let winAmount = Math.random() + 0.4;
@@ -53,11 +51,10 @@ module.exports = new GenericCommand(
       if (winnings === bet) {
         return 'You broke even. This means you\'re lucky I think?';
       }
-
-      await Memer.db.addPocket(msg.author.id, winnings);
+      await userEntry.addPocket(winnings).save();
       return `You won **${winnings.toLocaleString()}** coins. \n**Multiplier**: ${multi}% | **Percent of bet won**: ${winAmount.toFixed(2) * 100}%`;
     } else {
-      await Memer.db.removePocket(msg.author.id, bet);
+      await userEntry.removePocket(bet).save();
       return `You lost **${Number(bet).toLocaleString()}** coins.`;
     }
   },

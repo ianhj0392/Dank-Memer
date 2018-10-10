@@ -1,3 +1,7 @@
+/** @typedef {import('../models/GenericCommand').Memer} Memer
+ * @typedef {import('eris').Message} Message
+*/
+
 const gifs = require('../assets/arrays/permGifs.json');
 const ArgParser = require('../utils/ArgParser.js');
 
@@ -26,6 +30,9 @@ const PREMATURE_REQUIREMENTS = [
   'im', 'i\'m', 'i am', 'no u', 'sec', 'one sec', 'ree'
 ].concat(SWEARWORDS);
 
+/** @this Memer
+ * @param {Message} msg
+*/
 exports.handle = async function (msg) {
   this.ddog.increment('global.seen');
   this.ddog.increment(`user.bot.${msg.author.bot}`);
@@ -66,34 +73,11 @@ exports.handle = async function (msg) {
     return;
   }
 
-  const gConfig = await this.db.getGuild(msg.channel.guild.id) || {
-    prefix: this.config.options.prefix,
-    disabledCommands: [],
-    disabledCategories: [],
-    enabledCommands: [],
-    autoResponse: {
-      dad: false,
-      ree: false,
-      sec: false,
-      nou: false
-    }
-  };
-
-  gConfig.disabledCategories = gConfig.disabledCategories || [];
-  gConfig.enabledCommands = gConfig.enabledCommands || [];
-
-  if (!gConfig.autoResponse) {
-    gConfig.autoResponse = {
-      dad: false,
-      ree: false,
-      sec: false,
-      nou: false
-    };
-  }
+  const gConfig = await this.db.getGuild(msg.channel.guild.id);
 
   // Auto responses
-  for (const autoResponse in gConfig.autoResponse) {
-    if (gConfig.autoResponse[autoResponse]) {
+  for (const autoResponse in gConfig.props.autoResponse) {
+    if (gConfig.props.autoResponse[autoResponse]) {
       const entry = AUTORESPONSE_MATRIX[autoResponse];
       const match = entry.regex.exec(msg.content);
       if (match) {
@@ -107,7 +91,7 @@ exports.handle = async function (msg) {
   }
 
   // Swear detection
-  if (gConfig.swearFilter) {
+  if (gConfig.props.swearFilter) {
     if (SWEARWORDS.some(word => msg.content.toLowerCase().includes(word))) {
       this.ddog.increment('swearDetected');
       msg.channel.createMessage(`No swearing in this christian server :rage:\n${
@@ -123,10 +107,10 @@ exports.handle = async function (msg) {
   const selfMember = msg.channel.guild.members.get(this.bot.user.id);
   const mention = `<@${selfMember.nick ? '!' : ''}${selfMember.id}>`;
   const wasMentioned = msg.content.startsWith(mention);
-  const triggerLength = (wasMentioned ? mention : gConfig.prefix).length + 1;
-  const cleanTriggerLength = (wasMentioned ? `@${selfMember.nick || selfMember.username}` : gConfig.prefix).length + 1;
+  const triggerLength = (wasMentioned ? mention : gConfig.props.prefix).length + 1;
+  const cleanTriggerLength = (wasMentioned ? `@${selfMember.nick || selfMember.username}` : gConfig.props.prefix).length + 1;
 
-  if (!msg.content.toLowerCase().startsWith(gConfig.prefix) && !wasMentioned) {
+  if (!msg.content.toLowerCase().startsWith(gConfig.props.prefix) && !wasMentioned) {
     return;
   }
 
@@ -138,24 +122,25 @@ exports.handle = async function (msg) {
 
   command = command && (this.cmds.find(c => c.props.triggers.includes(command.toLowerCase())) || this.tags[command.toLowerCase()]);
 
-  let isDonor = await this.db.checkDonor(msg.author.id);
-  if (isDonor) { this.ddog.increment(`user.donor`); }
-  const isGlobalPremiumGuild = await this.db.checkGlobalPremiumGuild(msg.channel.guild.id);
+  let donor = await this.db.getDonor(msg.author.id);
+  if (donor) { this.ddog.increment(`user.donor`); }
+  // Save a db call if we can already check if the guild is a global premium guild
+  const isGlobalPremiumGuild = (donor && donor.guilds.includes(msg.channel.guild.id) && donor.donorAmount >= 20) || await this.db.checkGlobalPremiumGuild(msg.channel.guild.id);
 
   if (
     !command &&
     msg.mentions.find(u => u.id === this.bot.user.id) &&
     msg.content.toLowerCase().includes('hello')
   ) {
-    return msg.channel.createMessage(`Hello, ${msg.author.username}. My prefix is \`${gConfig.prefix}\`. Example: \`${gConfig.prefix} meme\``);
+    return msg.channel.createMessage(`Hello, ${msg.author.username}. My prefix is \`${gConfig.props.prefix}\`. Example: \`${gConfig.props.prefix} meme\``);
   } else if (
     !command ||
     (command.props.ownerOnly && !this.config.options.developers.includes(msg.author.id)) ||
-    gConfig.disabledCommands.includes(command.props.triggers[0]) ||
-    ((gConfig.disabledCategories || []).includes(command.category.split(' ')[1].toLowerCase()) && !['disable', 'enable'].includes(command.props.triggers[0]) && !gConfig.enabledCommands.includes(command.props.triggers[0]))
+    gConfig.props.disabledCommands.includes(command.props.triggers[0]) ||
+    ((gConfig.props.disabledCategories || []).includes(command.category.split(' ')[1].toLowerCase()) && !['disable', 'enable'].includes(command.props.triggers[0]) && !gConfig.props.enabledCommands.includes(command.props.triggers[0]))
   ) {
     return;
-  } else if (command.props.donorOnly && !isDonor && (!isGlobalPremiumGuild || command.props.triggers.includes('redeem')) && !this.config.options.developers.includes(msg.author.id)) {
+  } else if (command.props.donorOnly && !donor && (!isGlobalPremiumGuild || command.props.triggers.includes('redeem')) && !this.config.options.developers.includes(msg.author.id)) {
     return msg.channel.createMessage('This command is for donors only. You can find more information by using `pls donate` if you are interested.');
   }
 
@@ -164,21 +149,19 @@ exports.handle = async function (msg) {
     return;
   }
 
-  let { spam, lastCmd } = await this.db.getUser(msg.author.id);
+  let userEntry = await this.db.getUser(msg.author.id);
+  userEntry.addPls().setLastCmd(command.props.triggers[0]);
 
-  if (spam > 1e4) {
-    let reason = 'Blacklisted for spamming over 10,000 times.';
-    await this.punish(this, msg.author.id, 'user', reason);
+  if (userEntry.props.spam > 1e4) {
+    await this.punish(this, msg.author.id, 'user', 'Blacklisted for spamming over 10,000 times.');
     return;
   }
-
-  updateStats.call(this, msg, command, lastCmd);
 
   this.ddog.increment('total.commands');
   this.ddog.increment(`category.${command.category}`, 1, ['tag:one']);
   this.ddog.increment(`cmd.${command.cmdProps.triggers[0]}`, 1, ['tag:two']);
 
-  const isInCooldown = await checkCooldowns.call(this, msg, command, isDonor, isGlobalPremiumGuild);
+  const isInCooldown = await checkCooldowns.call(this, msg, command, !!donor, isGlobalPremiumGuild);
   if (isInCooldown) { return; }
 
   const updateCooldowns = () => this.db.updateCooldowns(command.props.triggers[0], msg.author.id, isGlobalPremiumGuild);
@@ -202,7 +185,8 @@ exports.handle = async function (msg) {
       );
     } else {
       msg.reply = (str) => { msg.channel.createMessage(`${msg.author.mention}, ${str}`); };
-      await runCommand.call(this, command, msg, args, cleanArgs, updateCooldowns, isGlobalPremiumGuild, permissions);
+      await runCommand.call(this, command, msg, args, cleanArgs, updateCooldowns, userEntry, gConfig, donor, isGlobalPremiumGuild, permissions);
+      updateStats.call(this, msg, command, userEntry);
     }
   } catch (e) {
     reportError.call(this, e, msg, command, cleanArgs);
@@ -217,15 +201,10 @@ function cacheMessage (msg) {
   this.redis.set(`msg-${msg.id}`, JSON.stringify({ userID: msg.author.id, content: msg.content, timestamp: msg.timestamp, guildID: msg.channel.guild.id, channelID: msg.channel.id }), 'EX', 20 * 60);
 }
 
-async function updateStats (msg, command, lastCmd) {
-  if (Date.now() - lastCmd < 500) {
-    this.ddog.increment('spam500');
-    await this.db.addSpam(msg.author.id);
+async function updateStats (msg, command, userEntry) {
+  if (!userEntry._saved) {
+    userEntry.save();
   }
-
-  await this.db.addCmd(msg.author.id);
-
-  this.db.addPls(msg.channel.guild.id, msg.author.id);
 }
 
 async function checkCooldowns (msg, command, isDonor, isGlobalPremiumGuild) {
@@ -282,7 +261,7 @@ function checkPerms (command, permissions, msg) {
   }
 }
 
-async function runCommand (command, msg, args, cleanArgs, updateCooldowns, isGlobalPremiumGuild, permissions) {
+async function runCommand (command, msg, args, cleanArgs, updateCooldowns, userEntry, guildEntry, donor, isGlobalPremiumGuild, permissions) {
   this.stats.commands++;
   let res = await command.run({
     msg,
@@ -290,7 +269,10 @@ async function runCommand (command, msg, args, cleanArgs, updateCooldowns, isGlo
     cleanArgs,
     Memer: this,
     addCD: updateCooldowns,
-    isGlobalPremiumGuild
+    isGlobalPremiumGuild,
+    userEntry,
+    guildEntry,
+    donor
   });
   if (!res) {
     return;
@@ -329,13 +311,12 @@ async function reportError (e, msg, command, cleanArgs) {
   let message = await this.errorMessages(e);
   let randNum = Math.floor(Math.random() * 99999);
   const channel = this.config.options.errorChannel || '470338254848262154';
+  this.log(`Command error:\n\tCommand: ${command.props.triggers[0]}\n\tSupplied arguments: ${cleanArgs.join(' ')}\n\tServer ID: ${msg.channel.guild.id}\n\tError: ${e.stack}`, 'error');
   if (!message) {
     msg.channel.createMessage(`Something went wrong lol\nError: \`${command.props.triggers[0]}.${this.clusterID}.${msg.channel.guild.shard.id}.${date.getHours()}:${date.getMinutes()}.err${randNum}\``);
     await this.bot.createMessage(channel, `**Error: ${e.message}**\nCode: \`err${randNum}\`\nCommand Ran: ${command.props.triggers[0]}\nDate: ${date.toLocaleTimeString('en-US')}\nSupplied arguments: ${cleanArgs.join(' ')}\nServer ID: ${msg.channel.guild.id}\nCluster ${this.clusterID} | Shard ${msg.channel.guild.shard.id}\n\`\`\` ${e.stack} \`\`\``);
-    this.log(`Command error:\n\tCommand: ${command.props.triggers[0]}\n\tSupplied arguments: ${cleanArgs.join(' ')}\n\tServer ID: ${msg.channel.guild.id}\n\tError: ${e.stack}`, 'error');
   } else {
     msg.channel.createMessage(message);
     await this.bot.createMessage(channel, `**Error: ${e.message}**\nCommand Ran: ${command.props.triggers[0]}\nDate: ${date.toLocaleTimeString('en-US')}\nSupplied arguments: ${cleanArgs.join(' ')}\nServer ID: ${msg.channel.guild.id}\nCluster ${this.clusterID} | Shard ${msg.channel.guild.shard.id}\n\`\`\` ${e.stack} \`\`\``);
-    this.log(`Command error:\n\tCommand: ${command.props.triggers[0]}\n\tSupplied arguments: ${cleanArgs.join(' ')}\n\tServer ID: ${msg.channel.guild.id}\n\tError: ${e.stack}`, 'error');
   }
 }

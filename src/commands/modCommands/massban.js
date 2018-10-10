@@ -1,7 +1,7 @@
 const GenericModerationCommand = require('../../models/GenericModerationCommand');
 
 module.exports = new GenericModerationCommand(
-  async ({ Memer, msg, args, addCD }) => {
+  async ({ Memer, msg, addCD, guildEntry }) => {
     const reasonMatcher = /(["'])(.*?[^\\])\1/m.exec(msg.args.args.join(' '));
     let reason = reasonMatcher ? reasonMatcher[2] : undefined;
     msg.args.args = msg.args.args.join(' ').replace(reasonMatcher ? reasonMatcher[0] : '', '').trim().split(' ');
@@ -31,7 +31,7 @@ module.exports = new GenericModerationCommand(
     await addCD();
     let promises = [];
     let bannedUsers = [];
-    let modlog = await Memer.db.fetchModlog(msg.channel.guild.id);
+    let { modlog } = guildEntry.props;
     for (let banned of users) {
       promises.push(
         Memer.bot.banGuildMember(msg.channel.guild.id, banned.id, 1, `${reason} | banned by ${msg.author.username}`)

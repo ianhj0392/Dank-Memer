@@ -3,7 +3,7 @@ const { exists, isOpus, getFiles, getFileSize, saveAudioData } = require('../../
 const basePath = `${process.cwd()}/assets/audio/custom`;
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg }) => {
+  async ({ Memer, msg, donor }) => {
     if (!msg.attachments[0]) {
       return 'Sure, let me just save silence... you need to attach a sound clip.';
     }
@@ -25,8 +25,7 @@ module.exports = new GenericCommand(
     const files = await getFiles(`${basePath}/${msg.author.id}/`)
       .catch(() => []);
 
-    const isDonor = await Memer.db.checkDonor(msg.author.id);
-    const maxClips = isDonor ? 10 : 3;
+    const maxClips = donor ? 10 : 3;
 
     if (files.length >= maxClips) {
       return `No more clips for you, you've hit the maximum limit of ${maxClips} clips!`;

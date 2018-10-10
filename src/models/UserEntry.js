@@ -140,7 +140,7 @@ class UserEntry {
     }
     amount = typeof amount !== 'number' ? Number(amount) : amount;
     this.props.experience = this.props.experience + amount;
-    let changes = { experience: this._client.r.row('experience').add(amount) };
+    let changes = { experience: this._client.r.row('experience').default(0).add(amount) };
     this.update(changes);
     return this;
   }
@@ -156,7 +156,7 @@ class UserEntry {
     }
     level = typeof level !== 'number' ? Number(level) : level;
     this.props.level = this.props.level + level;
-    let changes = { level: this._client.r.row('level').add(level) };
+    let changes = { level: this._client.r.row('level').default(0).add(level) };
     this.update(changes);
     return this;
   }
@@ -166,10 +166,9 @@ class UserEntry {
    * @param {Object} item The item object
    * @example
    * {
-   * id: '', // item id
-   * quantity: 1, // the amount of the item needed
+   * item id: quantity amount
    * }
-   * // Note that the item object does NOT get added to the user's inventory, only the identifier string
+   * // Note that the item object does NOT get added to the user's inventory, only the identifier string + quantity amount
    * @returns {UserEntry} The user entry, so calls can be chained
    */
   addInventoryItem (item, quantity = 1) {
@@ -207,7 +206,7 @@ class UserEntry {
     if (!id) {
       throw new Error('Missing mandatory "id" parameter');
     }
-    return !!Object.entries(this.props.inventory).filter((key, value) => (key === id && value > 0)).length;
+    return this.props.inventory[id] > 0;
   }
 
   /**

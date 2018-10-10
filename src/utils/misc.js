@@ -47,75 +47,6 @@ const errors = {
   'DiscordRESTError [10003]: Unknown Channel': `Something broke!\n\nI am currently not sure why this bug is happening, but if you report this bug in the support server, you will get paid for it in meme coins.\nJoin (<https://discord.gg/Wejhbd4>) and tell support it is error \`hunt1\`.`
 };
 
-/* Rewards is always the same object, but can contain of 4 things:
- * coins
- * items (array of objects, laid out like {id: item ID, quantity: number})
- * multiplier (number)
- * title (string)
-*/
-const levels = {
-  1: { reward: { coins: 500 }, exp: 100 },
-  3: { reward: { coins: 1500 }, exp: 300 },
-  5: { reward: { multiplier: 2.5 }, exp: 500 },
-  7: { reward: { coins: 4e3, items: [{ id: 'tidepod', quantity: 2 }] }, exp: 700 },
-  9: { reward: { coins: 4e3, items: [{ id: 'spinner', quantity: 3 }] }, exp: 900 },
-  10: { reward: { multiplier: 5 }, exp: 1000 },
-  11: { reward: { items: [{ id: 'reversal', quantity: 1 }] }, exp: 1100 },
-  13: { reward: { coins: 5e3, items: [{ id: 'inviscloak', quantity: 3 }] }, exp: 1300 },
-  15: { reward: { multiplier: 5 }, exp: 1500 },
-  17: { reward: { coins: 5e3 }, exp: 1700 },
-  19: { reward: { coins: 7e3 }, exp: 1900 },
-  20: { reward: { coins: 1e4 }, exp: 2000 },
-  21: { reward: { coins: 500 }, exp: 2100 },
-  23: { reward: { coins: 500 }, exp: 2300 },
-  25: { reward: { multiplier: 7.5 }, exp: 2500 }
-};
-
-const ItemTypes = {
-  ITEM: 'Item',
-  COLLECTABLE: 'Collectable',
-  TOOL: 'Tool',
-  POWERUP: 'Power-up'
-};
-
-const shop = {
-  tidepod: {
-    name: 'Tidepod',
-    id: 'tidepod',
-    type: ItemTypes.ITEM,
-    cost: 15e3,
-    active: false
-  },
-  inviscloak: {
-    name: 'Invisibility Cloak',
-    id: 'inviscloak',
-    type: ItemTypes.POWERUP,
-    cost: 35e3,
-    active: false
-  },
-  reversal: {
-    name: 'Reversal Card',
-    id: 'reversal',
-    type: ItemTypes.POWERUP,
-    cost: 20e3,
-    active: false
-  },
-  spinner: {
-    name: 'Fidget Spinner',
-    id: 'reversal',
-    type: ItemTypes.POWERUP,
-    cost: 20e3,
-    active: false
-  },
-  mel: {
-    name: 'Mel is a sick lad',
-    id: 'mel',
-    type: ItemTypes.TOOL,
-    cost: 20e3,
-    active: false
-  }
-};
-
 class MiscFunctions {
   errorMessages (e) {
     return errors[Object.keys(errors).find((error) => e.message.includes(error))] || false;
@@ -129,14 +60,111 @@ class MiscFunctions {
     return '[Official Twitter](https://twitter.com/dankmemerbot) - Sometimes win free stuff and get bot support\n[Patreon Page](https://www.patreon.com/dankmemerbot) - Help support the bot development, and get some sweet perks!\n[Invite Link](https://goo.gl/BPWvB9) - Add the bot to another server and meme around\n[Official Website](https://dankmemer.lol/) - See all the bot commands and learn more about the developers!';
   }
 
-  get levels () {
-    return levels;
-  }
-
+  // All of the objects contained in this getter will soon be moved to a separate JSON file.
   get currency () {
+    /* Rewards is always the same object, but can contain of 4 things:
+     * coins
+     * items (array of objects, laid out like {id: item ID, quantity: number})
+     * multiplier (number)
+     * title (string)
+    */
+    const LEVELS = {
+      1: { reward: { coins: 500 }, exp: 100 },
+      3: { reward: { coins: 1500 }, exp: 300 },
+      5: { reward: { multiplier: 2.5 }, exp: 500 },
+      7: { reward: { coins: 4e3, items: [{ id: 'tidepod', quantity: 2 }] }, exp: 700 },
+      9: { reward: { coins: 4e3, items: [{ id: 'spinner', quantity: 3 }] }, exp: 900 },
+      10: { reward: { multiplier: 5 }, exp: 1000 },
+      11: { reward: { items: [{ id: 'reversal', quantity: 1 }] }, exp: 1100 },
+      13: { reward: { coins: 5e3, items: [{ id: 'inviscloak', quantity: 3 }] }, exp: 1300 },
+      15: { reward: { multiplier: 5 }, exp: 1500 },
+      17: { reward: { coins: 5e3 }, exp: 1700 },
+      19: { reward: { coins: 7e3 }, exp: 1900 },
+      20: { reward: { coins: 1e4 }, exp: 2000 },
+      21: { reward: { coins: 500 }, exp: 2100 },
+      23: { reward: { coins: 500 }, exp: 2300 },
+      25: { reward: { multiplier: 7.5 }, exp: 2500 }
+    };
+
+    const ItemTypes = {
+      ITEM: 'Item',
+      COLLECTABLE: 'Collectable',
+      TOOL: 'Tool',
+      POWERUP: 'Power-up'
+    };
+
+    const SHOP = {
+      tidepod: {
+        name: 'Tidepod',
+        id: 'tidepod',
+        type: ItemTypes.ITEM,
+        cost: 15e3,
+        active: false
+      },
+      inviscloak: {
+        name: 'Invisibility Cloak',
+        id: 'inviscloak',
+        type: ItemTypes.POWERUP,
+        cost: 35e3,
+        active: false
+      },
+      reversal: {
+        name: 'Reversal Card',
+        id: 'reversal',
+        type: ItemTypes.POWERUP,
+        cost: 20e3,
+        active: false
+      },
+      spinner: {
+        name: 'Fidget Spinner',
+        id: 'reversal',
+        type: ItemTypes.POWERUP,
+        cost: 20e3,
+        active: false
+      },
+      mel: {
+        name: 'Mel is a sick lad',
+        id: 'mel',
+        type: ItemTypes.TOOL,
+        cost: 20e3,
+        active: false
+      }
+    };
+
+    // The amount of arrays in `items` represents getting multiple items of different tiers (ie, one amazing item, multiple medium items)
+    // It's important to note that people can sell items meaning they can gain back value on items gained in boxes
+    // Descriptions need better wording, not sure if I'll keep them
+    const BOXES = {
+      NORMIE: { // 50 to 500 coins, 20% chance to get a low item
+        level: 1,
+        name: 'Normie Box',
+        description: 'Can\'t get more basic than this',
+        rewards: {
+          coins: { min: 50, max: 500 },
+          items: [{ sand: 1 }, { reversal: 1 }]
+        }
+      },
+      MEME: { // 1000 to 3000 coins, 75% chance to get a medium item
+        level: 2,
+        description: 'Something actually worth opening',
+        rewards: {
+          coins: { min: 1e3, max: 3e3 },
+          items: [{ phone: 1 }, { tidepod: 1 }]
+        }
+      },
+      DANK: { // 7500 to 10000 coins, 100% chance to get one amazing item, multiple medium items
+        level: 3,
+        description: 'Dank rewards for a dank donator',
+        rewards: {
+          coins: { min: 7.5e3, max: 1e4 },
+          items: [[{ inviscloak: 1 }, { reversal: 1 }], [{ tidepod: 3 }, { alcohol: 1 }, { phone: 2 }]]
+        }
+      }
+    };
     return {
-      shop,
-      levels
+      shop: SHOP,
+      levels: LEVELS,
+      boxes: BOXES
     };
   }
 

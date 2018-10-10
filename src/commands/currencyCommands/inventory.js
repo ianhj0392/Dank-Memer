@@ -1,7 +1,7 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
 module.exports = new GenericCurrencyCommand(
-  async ({ Memer, msg, args, addCD, userEntry }) => {
+  async ({ Memer, msg, args, addCD, userEntry, guildEntry }) => {
     const page = Number(msg.args.nextArgument) || 1;
     const user = msg.args.resolveUser() || msg.author;
     const userItems = userEntry.props.inventory;
@@ -12,7 +12,7 @@ module.exports = new GenericCurrencyCommand(
     }
 
     if (items < 1) {
-      return 'You suck, you have nothing. You can use `pls shop` to see what\'s in store though';
+      return `You suck, you have nothing. You can use \`${guildEntry.props.prefix} shop\` to see what's in store though`;
     }
     return Memer.paginationMenu(items, {
       type: 'Owned Items',

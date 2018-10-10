@@ -18,11 +18,11 @@ module.exports = class GenericCurrencyCommand {
     }
 
     const formula = ((Math.round(Memer.calcMultiplier(Memer, msg.author, userEntry.props, null /* TODO: need donor object here */, msg, isGlobalPremiumGuild) / 10)) * Math.floor(Memer.randomNumber(1, 2)));
-    const experience = await userEntry.addExperience(formula).save();
-
-    for (const level in Memer.levels) {
+    const experience = await userEntry.addExperience(formula).save().then(a => a.props.experience);
+    for (const o in Memer.currency.levels) {
+      let level = Memer.currency.levels[o];
       if (experience >= level.exp) {
-        userEntry.setLevel(Math.floor(level.exp / 100));
+        await userEntry.setLevel(Math.round(level.exp / 100)).save();
         // Perform rewards
         for (const { reward, value } in Object.values(level.reward)) {
           switch (reward) {

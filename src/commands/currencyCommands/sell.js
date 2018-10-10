@@ -13,7 +13,7 @@ module.exports = new GenericCurrencyCommand(
 
     await addCD();
     const item = Memer.currency.shop[query];
-    await userEntry.removeInventoryItem(item);
+    await userEntry.removeInventoryItem(item.id, quantity);
     // Sell an item for a third of what it's worth
     await userEntry.addPocket(Math.floor((item.cost / 3) * quantity)).save();
 

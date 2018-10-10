@@ -23,7 +23,7 @@ module.exports = new GenericCurrencyCommand(
       return 'You don\'t have enough money to buy that item silly';
     }
 
-    await userEntry.addInventoryItem(item);
+    await userEntry.addInventoryItem(item, quantity);
     await userEntry.removePocket(Math.round(item.cost * quantity)).save();
 
     return {

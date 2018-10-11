@@ -203,7 +203,7 @@ function cacheMessage (msg) {
 
 async function updateStats (msg, command, userEntry) {
   if (!userEntry._saved) {
-    userEntry.save();
+    userEntry.save().catch(() => {});
   }
 }
 

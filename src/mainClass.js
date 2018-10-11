@@ -5,8 +5,8 @@ const { Cluster } = require('lavalink');
 const cluster = require('cluster');
 const { StatsD } = require('node-dogstatsd');
 
-const MessageCollector = require('./utils/MessageCollector.js');
-const botPackage = require('../package.json');
+let MessageCollector = require('./utils/MessageCollector.js');
+let botPackage = require('../package.json');
 
 class Memer extends Base {
   constructor (bot) {
@@ -53,6 +53,7 @@ class Memer extends Base {
       errReported: 0,
       err: 0
     };
+    this.listeners = {};
     this.cooldowns = new Map();
     this._cooldownsSweep = setInterval(this._sweepCooldowns.bind(this), 1000 * 60 * 30);
     // work-around to benefit from nice documentation and still have misc functions assigned on the Memer instance
@@ -71,12 +72,7 @@ class Memer extends Base {
     this.createIPC();
     this.ddog.increment('function.launch');
     this.MessageCollector = new MessageCollector(this.bot);
-    this.bot
-      .on('ready', this.ready.bind(this));
-    const listeners = require(join(__dirname, 'handlers'));
-    for (const listener of listeners) {
-      this.bot.on(listener, require(join(__dirname, 'handlers', listener)).handle.bind(this));
-    }
+    this.loadListeners();
     global.memeBase || this.ready();
     this.autopost = new (require('./utils/Autopost.js'))(this);
     if (cluster.worker.id === 1) {
@@ -113,35 +109,51 @@ class Memer extends Base {
     this.mockIMG = await this.http.get('https://pbs.twimg.com/media/DAU-ZPHUIAATuNy.jpg').then(r => r.body);
   }
 
-  createIPC () {
-    this.ipc.register('reloadCommands', this.reloadCommands.bind(this));
-    this.ipc.register('reloadMost', () => {
-      for (const path in require.cache) {
-        if (path.includes('src/utils') || path.includes('src/commands') || path.includes('src/models') || path.includes('src/assets') || path.includes('src/handlers')) {
-          delete require.cache[path];
-        }
-      }
-      this.cmds = [];
-      this.loadCommands();
-      this.loadUtils();
-      this.log('Most things reloaded probably');
-    });
-    this.ipc.register('reloadConfig', () => {
-      for (const path in require.cache) {
-        if (path.includes('src/config')) {
-          delete require.cache[path];
-        }
-      }
-      this.config = require('./config.json');
-      this.log('Config reloaded probably');
-    });
+  loadListeners () {
+    this.listeners.ready = this.ready.bind(this);
+    this.bot.on('ready', this.listeners.ready);
+    const listeners = require(join(__dirname, 'handlers'));
+    for (const listener of listeners) {
+      this.listeners[listener] = require(join(__dirname, 'handlers', listener)).handle.bind(this);
+      this.bot.on(listener, this.listeners[listener]);
+    }
   }
 
-  async loadUtils () {
+  removeListeners () {
+    for (const listener in this.listeners) {
+      this.bot.removeListener(listener, this.listeners[listener]);
+    }
+  }
+
+  createIPC () {
+    this.ipc.register('reloadCommands', this.reloadCommands.bind(this));
+    this.ipc.register('reloadListeners', this.reloadListeners.bind(this));
+    this.ipc.register('reloadAll', this.reload.bind(this));
+    this.ipc.register('reloadModels', this.reloadModels.bind(this));
+    this.ipc.register('reloadUtils', this.reloadUtils.bind(this));
+    this.ipc.register('reloadConfig', this.reloadConfig.bind(this));
+  }
+
+  reloadUtils () {
+    const utilsPath = join(__dirname, 'utils');
+    for (const path in require.cache) {
+      if (path.startsWith(utilsPath)) {
+        delete require.cache[path];
+      }
+    }
     this.log = require('./utils/logger.js');
-    this.db = require('./utils/dbFunctions.js')(this);
-    this.redis = await require('./utils/redisClient.js')(this.config.redis);
-    Object.assign(this, require('./utils/misc.js'));
+    this.db = new (require('./utils/dbFunctions.js'))(this);
+    this.http = require('./utils/http');
+    this.bot.removeListener('messageCreate', this.MessageCollector._boundVerify);
+    MessageCollector = require('./utils/MessageCollector.js');
+    this.MessageCollector = new MessageCollector(this.bot);
+    this.autopost = new (require('./utils/Autopost.js'))(this);
+    const MiscFunctions = new (require('./utils/misc.js'))();
+    for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(MiscFunctions))) {
+      if (key !== 'constructor') {
+        this[key] = MiscFunctions[key];
+      }
+    }
   }
 
   loadCommands () {
@@ -153,6 +165,7 @@ class Memer extends Base {
       for (const command of category.commands) {
         command.category = category.name;
         command.description = category.description;
+        command.path = join(__dirname, 'commands', categoryPath, command.props.triggers[0]);
         this.cmds.push(command);
       }
     }
@@ -162,30 +175,65 @@ class Memer extends Base {
     return botPackage;
   }
 
+  reloadConfig () {
+    delete require.cache[require.resolve('./config')];
+    delete require.cache[require.resolve('./secrets')];
+    delete require.cache[require.resolve('../package')];
+    botPackage = require('../package');
+    this.config = require('./config');
+    this.secrets = require('./secrets');
+  }
+
+  reloadModels () {
+    const modelsPath = require.resolve(join(__dirname, 'models'));
+    for (const path in require.cache) {
+      if (path.startsWith(modelsPath)) {
+        delete require.cache[path];
+      }
+    }
+    Memer.log(`Reloaded models`);
+  }
+
+  reloadListeners () {
+    const listenersPath = join(__dirname, 'handlers');
+    for (const path in require.cache) {
+      if (path.startsWith(listenersPath)) {
+        delete require.cache[path];
+      }
+    }
+    this.removeListeners();
+    this.loadListeners();
+    this.log(`Reloaded event listeners`);
+  }
+
   reloadCommands (msg) {
     if (msg.category) {
-      const categoryPath = require.resolve(join(__dirname, 'commands', msg.category));
+      const categoryPath = join(__dirname, 'commands', `${msg.category}Commands`);
       const categoryDir = readdirSync(categoryPath);
       for (const file of categoryDir) {
-        delete require.cache[require.resolve(join(__dirname, 'commands', msg.category, file))];
+        delete require.cache[require.resolve(`${categoryPath}/${file}`)];
       }
       const category = require(categoryPath);
       let reloadedCmds = [];
       for (const command of category.commands) {
         command.category = category.name;
         command.description = category.description;
+        command.path = require.resolve(`${categoryPath}/${command.props.triggers[0]}`);
         reloadedCmds.push(command);
       }
-      this.cmds = this.cmds.filter(c => c.category !== category.name).concat(reloadedCmds);
+      this.cmds = this.cmds.filter(c => !c.path.includes(`${msg.category}Commands`)).concat(reloadedCmds);
+      this.log(`Reloaded command category ${msg.category}`);
     } else if (msg.command) {
       const cmd = this.cmds.find(c => c.props.triggers.includes(msg.command));
-      const cmdPath = require.resolve(join(__dirname, 'commands', cmd.category, cmd.props.triggers[0]));
+      const cmdPath = require.resolve(cmd.path);
       delete require.cache[cmdPath];
       const reloadedCmd = require(cmdPath);
       reloadedCmd.category = cmd.category;
       reloadedCmd.description = cmd.description;
-      this.cmds = this.cmds.splice(this.cmds.findIndex(c => c.props.triggers.includes(msg.command), 1));
+      reloadedCmd.path = cmd.path;
+      this.cmds.splice(this.cmds.findIndex(c => c.props.triggers.includes(msg.command), 1));
       this.cmds.push(reloadedCmd);
+      this.log(`Reloaded command ${reloadedCmd.props.triggers[0]}`);
     } else {
       const commandPath = join(__dirname, 'commands');
       for (const path in require.cache) {
@@ -195,7 +243,39 @@ class Memer extends Base {
       }
       this.cmds = [];
       this.loadCommands();
+      this.log(`Reloaded all ${this.cmds.length} commands`);
     }
+  }
+
+  reload () {
+    for (const path in require.cache) {
+      if (path.startsWith(__dirname)) {
+        delete require.cache[path];
+      }
+    }
+    for (const key of this.ipc.events) {
+      this.ipc.events.delete(key);
+    }
+    process.removeAllListeners('message');
+    this.removeListeners();
+    this.bot.removeListener('messageCreate', this.MessageCollector._boundVerify);
+    this.r.getPoolMaster().drain();
+    this.redis.disconnect();
+    this.ddog.close();
+    for (const node of this.lavalink.nodes) {
+      for (const player of node.players) {
+        node.players.get(player).destroy();
+      }
+      try {
+        node.connection.ws.close();
+      } catch (err) {}
+    }
+    const intervals = [this._cooldownsSweep, this._autopostInterval];
+    for (const interval of intervals) {
+      clearInterval(interval);
+    }
+    const Memer = require(module.filename);
+    new Memer({ bot: this.bot, clusterID: this.clusterID }).launch();
   }
 
   _sweepCooldowns () {

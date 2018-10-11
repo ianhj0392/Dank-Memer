@@ -62,7 +62,6 @@ class Memer extends Base {
         this[key] = MiscFunctions[key];
       }
     }
-    Object.assign(this, new (require('./utils/misc.js'))(this));
   }
 
   async launch () {
@@ -115,17 +114,7 @@ class Memer extends Base {
   }
 
   createIPC () {
-    this.ipc.register('reloadCommands', () => {
-      for (const path in require.cache) {
-        if (path.includes('src/commands')) {
-          delete require.cache[path];
-        }
-      }
-      this.log('Commands reloaded probably');
-
-      this.cmds = [];
-      this.loadCommands();
-    });
+    this.ipc.register('reloadCommands', this.reloadCommands.bind(this));
     this.ipc.register('reloadMost', () => {
       for (const path in require.cache) {
         if (path.includes('src/utils') || path.includes('src/commands') || path.includes('src/models') || path.includes('src/assets') || path.includes('src/handlers')) {
@@ -171,6 +160,42 @@ class Memer extends Base {
 
   get package () {
     return botPackage;
+  }
+
+  reloadCommands (msg) {
+    if (msg.category) {
+      const categoryPath = require.resolve(join(__dirname, 'commands', msg.category));
+      const categoryDir = readdirSync(categoryPath);
+      for (const file of categoryDir) {
+        delete require.cache[require.resolve(join(__dirname, 'commands', msg.category, file))];
+      }
+      const category = require(categoryPath);
+      let reloadedCmds = [];
+      for (const command of category.commands) {
+        command.category = category.name;
+        command.description = category.description;
+        reloadedCmds.push(command);
+      }
+      this.cmds = this.cmds.filter(c => c.category !== category.name).concat(reloadedCmds);
+    } else if (msg.command) {
+      const cmd = this.cmds.find(c => c.props.triggers.includes(msg.command));
+      const cmdPath = require.resolve(join(__dirname, 'commands', cmd.category, cmd.props.triggers[0]));
+      delete require.cache[cmdPath];
+      const reloadedCmd = require(cmdPath);
+      reloadedCmd.category = cmd.category;
+      reloadedCmd.description = cmd.description;
+      this.cmds = this.cmds.splice(this.cmds.findIndex(c => c.props.triggers.includes(msg.command), 1));
+      this.cmds.push(reloadedCmd);
+    } else {
+      const commandPath = join(__dirname, 'commands');
+      for (const path in require.cache) {
+        if (path.startsWith(commandPath)) {
+          delete require.cache[path];
+        }
+      }
+      this.cmds = [];
+      this.loadCommands();
+    }
   }
 
   _sweepCooldowns () {

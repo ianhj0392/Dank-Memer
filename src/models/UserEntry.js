@@ -19,6 +19,8 @@
  * @prop {Boolean} dblUpvoted Whether the user upvoted the bot on discordbotlist.com
  */
 
+const { Currency } = require('.');
+
 /**
  * - An interface for user entries, all methods except `update()` updates the data on this `UserEntry` instance, and convert the changes into ReQL queries in the background
  * - The changes won't be saved unless `save()` is called
@@ -181,7 +183,7 @@ class UserEntry {
     }
 
     if (item.constructor !== Array) {
-      item = this._client.currency.shop[item.id || item];
+      item = Currency.shop[item.id || item];
       if (!item) {
         throw new Error(`${item} is not a valid shop item`);
       }
@@ -228,7 +230,7 @@ class UserEntry {
         this.props.inventory[i] -= quantity;
       }
     } else {
-      item = this._client.currency.shop[item.id || item];
+      item = Currency.shop[item.id || item];
       if (!item) {
         throw new Error(`${item} is not a valid shop item`);
       }

@@ -68,6 +68,7 @@ module.exports = new GenericCurrencyCommand(
       worth = Math.round(victimCoins);
       message = `You managed to steal a TON before leaving! 🤑\nYour payout was **${worth.toLocaleString()}** coins.`;
     }
+    Memer.redis.set(`stolen-${victim.id}`, JSON.stringify({ amount: worth, stealer: perp.id }));
     await perp.addPocket(worth).save();
     await victim.removePocket(worth).save();
     await dmStolenUser(Memer, user, msg, worth);

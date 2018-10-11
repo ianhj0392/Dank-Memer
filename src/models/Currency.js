@@ -25,9 +25,6 @@ const LEVELS = {
   25: { reward: { multiplier: 7.5 }, exp: 2500 }
 };
 
-/**
- * Items
-*/
 const ItemTypes = {
   ITEM: 'Item',
   COLLECTABLE: 'Collectable',
@@ -36,7 +33,49 @@ const ItemTypes = {
   BOX: 'Loot Box'
 };
 
-const SHOP = {
+/**
+ * Loot Boxes
+*/
+// The amount of arrays in `items` represents getting multiple items of different tiers (ie, one amazing item, multiple medium items)
+// It's important to note that people can sell items meaning they can gain back value on items gained in boxes
+// Descriptions need better wording, not sure if I'll keep them
+const BOXES = {
+  normie: { // 50 to 500 coins, 20% chance to get a low item
+    id: 'box-normie',
+    name: 'Normie Box',
+    type: ItemTypes.BOX,
+    description: 'Can\'t get more basic than this',
+    rewards: {
+      coins: { min: 50, max: 500 },
+      items: [{ sand: 1 }, { reversal: 1 }]
+    }
+  },
+  meme: { // 1000 to 3000 coins, 75% chance to get a medium item
+    id: 'box-meme',
+    name: 'Meme Box',
+    type: ItemTypes.BOX,
+    description: 'Something actually worth opening',
+    rewards: {
+      coins: { min: 1e3, max: 3e3 },
+      items: [{ phone: 1 }, { tidepod: 1 }]
+    }
+  },
+  dank: { // 7500 to 10000 coins, 100% chance to get one amazing item, multiple medium items
+    id: 'box-dank',
+    name: 'Normie Box',
+    type: ItemTypes.BOX,
+    description: 'Dank rewards for a dank donator',
+    rewards: {
+      coins: { min: 7.5e3, max: 1e4 },
+      items: [[{ inviscloak: 1 }, { reversal: 1 }], [{ tidepod: 3 }, { alcohol: 1 }, { phone: 2 }]]
+    }
+  }
+};
+
+/**
+ * Items
+*/
+const ITEMS = Object.assign({
   tidepod: {
     name: 'Tidepod',
     id: 'tidepod',
@@ -72,40 +111,14 @@ const SHOP = {
     cost: 1e5,
     consumable: false
   }
-};
+}, BOXES);
 
-/**
- * Loot Boxes
-*/
-// The amount of arrays in `items` represents getting multiple items of different tiers (ie, one amazing item, multiple medium items)
-// It's important to note that people can sell items meaning they can gain back value on items gained in boxes
-// Descriptions need better wording, not sure if I'll keep them
-const BOXES = {
-  NORMIE: { // 50 to 500 coins, 20% chance to get a low item
-    level: 1,
-    name: 'Normie Box',
-    description: 'Can\'t get more basic than this',
-    rewards: {
-      coins: { min: 50, max: 500 },
-      items: [{ sand: 1 }, { reversal: 1 }]
-    }
-  },
-  MEME: { // 1000 to 3000 coins, 75% chance to get a medium item
-    level: 2,
-    description: 'Something actually worth opening',
-    rewards: {
-      coins: { min: 1e3, max: 3e3 },
-      items: [{ phone: 1 }, { tidepod: 1 }]
-    }
-  },
-  DANK: { // 7500 to 10000 coins, 100% chance to get one amazing item, multiple medium items
-    level: 3,
-    description: 'Dank rewards for a dank donator',
-    rewards: {
-      coins: { min: 7.5e3, max: 1e4 },
-      items: [[{ inviscloak: 1 }, { reversal: 1 }], [{ tidepod: 3 }, { alcohol: 1 }, { phone: 2 }]]
-    }
-  }
-};
+// Shop items are only visible in the shop if they have a cost. All items are purchasable by default unless their cost is undefined or 0.
+const SHOP = Object.values(ITEMS)
+  .filter(value => value.cost)
+  .reduce((obj, key) => {
+    obj[key] = ITEMS[key];
+    return obj;
+  }, {});
 
-module.exports = { shop: SHOP, levels: LEVELS, boxes: BOXES };
+module.exports = { shop: SHOP, levels: LEVELS, boxes: BOXES, items: ITEMS };

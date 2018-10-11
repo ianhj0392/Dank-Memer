@@ -1,9 +1,9 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
 module.exports = new GenericCurrencyCommand(
-  async ({ Memer, msg, args, addCD, userEntry }) => {
+  async ({ Memer, msg, args, addCD, Currency, userEntry }) => {
     const page = Number(msg.args.nextArgument) || 1;
-    const shopItems = Memer.currency.shop;
+    const shopItems = Currency.shop;
     const items = [];
     for (let item of Object.values(shopItems)) {
       items.push(`**${item.name}** ─ *ID* \`${item.id}\` ─ ${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}\n`);

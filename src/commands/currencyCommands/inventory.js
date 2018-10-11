@@ -1,13 +1,13 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
 module.exports = new GenericCurrencyCommand(
-  async ({ Memer, msg, args, addCD, userEntry, guildEntry }) => {
+  async ({ Memer, msg, args, addCD, Currency, userEntry, guildEntry }) => {
     const page = Number(msg.args.nextArgument) || 1;
     const user = msg.args.resolveUser() || msg.author;
     const userItems = userEntry.props.inventory;
     const items = [];
     for (const i in userItems) {
-      const item = Memer.currency.shop[i];
+      const item = Currency.shop[i];
       if (userEntry.hasInventoryItem(i)) {
         items.push(`**${item.name}** ─ ${userItems[i]}\n*ID* \`${item.id}\` ─ ${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}\n`);
       }

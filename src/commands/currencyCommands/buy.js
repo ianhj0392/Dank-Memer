@@ -1,10 +1,10 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
 module.exports = new GenericCurrencyCommand(
-  async ({ Memer, msg, args, addCD, userEntry }) => {
+  async ({ Memer, msg, args, addCD, Currency, userEntry }) => {
     const query = msg.args.args[0];
     const quantity = msg.args.args[1] || 1;
-    if (!Memer.currency.shop[query]) {
+    if (!Currency.shop[query]) {
       return 'what are you thinking tbh that item isn\'t even in the shop';
     }
     if (quantity < 1) {
@@ -15,7 +15,7 @@ module.exports = new GenericCurrencyCommand(
     }
 
     await addCD();
-    const item = Memer.currency.shop[query];
+    const item = Currency.shop[query];
     if (quantity > 1 && userEntry.props.pocket < (item.cost * quantity)) {
       return 'Far out, you don\'t have enough money to buy that much!!';
     }

@@ -1,9 +1,6 @@
 /** @typedef {import('./GenericCommand').CommandProps} CommandProps */
 
-const GenericCommand = require('./GenericCommand');
-/** @typedef {Object} Currency
- * @prop {import('./Music')} Currency
- */
+const { Currency, GenericCommand } = require('.');
 
 module.exports = class GenericCurrencyCommand {
   /**
@@ -15,12 +12,12 @@ module.exports = class GenericCurrencyCommand {
     this.cmdProps = cmdProps;
   }
 
-  async run ({ Memer, msg, addCD, args, Currency, userEntry, donor, guildEntry, isGlobalPremiumGuild }) {
+  async run ({ Memer, msg, addCD, args, userEntry, donor, guildEntry, isGlobalPremiumGuild }) {
     if (this.props.requiresPremium && !await Memer.db.checkPremiumGuild(msg.channel.guild.id)) {
       return 'This command is only available on **Premium** servers.\nTo learn more about how to redeem a premium server, visit our Patreon https://www.patreon.com/dankmemerbot';
     }
 
-    const formula = ((Math.round(Memer.calcMultiplier(Memer, msg.author, userEntry.props, null /* TODO: need donor object here */, msg, isGlobalPremiumGuild) / 10)) * Math.floor(Memer.randomNumber(1, 2)));
+    const formula = ((Math.round(Memer.calcMultiplier(Memer, msg.author, userEntry.props, null, msg, isGlobalPremiumGuild) / 10)) * Math.floor(Memer.randomNumber(1, 2)));
     const experience = await userEntry.addExperience(formula).save().then(a => a.props.experience);
     for (const o in Currency.levels) {
       let level = Currency.levels[o];

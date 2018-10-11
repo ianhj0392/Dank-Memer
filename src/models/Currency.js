@@ -32,7 +32,8 @@ const ItemTypes = {
   ITEM: 'Item',
   COLLECTABLE: 'Collectable',
   TOOL: 'Tool',
-  POWERUP: 'Power-up'
+  POWERUP: 'Power-up',
+  BOX: 'Loot Box'
 };
 
 const SHOP = {

@@ -22,7 +22,7 @@ module.exports = class GenericCurrencyCommand {
     for (const o in Currency.levels) {
       let level = Currency.levels[o];
       if (experience >= level.exp) {
-        await userEntry.setLevel(Math.round(level.exp / 100)).save();
+        userEntry.setLevel(Math.round(level.exp / 100));
         // Perform rewards
         for (const { reward, value } in Object.values(level.reward)) {
           switch (reward) {
@@ -34,7 +34,7 @@ module.exports = class GenericCurrencyCommand {
               break;
             case 'items':
               for (const item in value) {
-                userEntry.addInventoryItem(item.id);
+                userEntry.addInventoryItem(item.id, value[item]);
               }
               break;
             case 'title':
@@ -42,6 +42,7 @@ module.exports = class GenericCurrencyCommand {
               break;
           }
         }
+        await userEntry.save();
       }
     }
 

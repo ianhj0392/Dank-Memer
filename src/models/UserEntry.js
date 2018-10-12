@@ -183,7 +183,7 @@ class UserEntry {
     }
 
     if (item.constructor !== Array) {
-      item = Currency.shop[item.id || item];
+      item = Currency.items[item.id || item];
       if (!item) {
         throw new Error(`${item} is not a valid shop item`);
       }
@@ -230,7 +230,7 @@ class UserEntry {
         this.props.inventory[i] -= quantity;
       }
     } else {
-      item = Currency.shop[item.id || item];
+      item = Currency.items[item.id || item];
       if (!item) {
         throw new Error(`${item} is not a valid shop item`);
       }

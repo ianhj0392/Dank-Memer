@@ -41,30 +41,33 @@ const ItemTypes = {
 // Descriptions need better wording, not sure if I'll keep them
 const BOXES = {
   normie: { // 50 to 500 coins, 20% chance to get a low item
-    id: 'box-normie',
+    id: 'normie',
     name: 'Normie Box',
     type: ItemTypes.BOX,
     description: 'Can\'t get more basic than this',
+    consumable: true,
     rewards: {
       coins: { min: 50, max: 500 },
       items: [{ sand: 1 }, { reversal: 1 }]
     }
   },
   meme: { // 1000 to 3000 coins, 75% chance to get a medium item
-    id: 'box-meme',
+    id: 'meme',
     name: 'Meme Box',
     type: ItemTypes.BOX,
     description: 'Something actually worth opening',
+    consumable: true,
     rewards: {
       coins: { min: 1e3, max: 3e3 },
       items: [{ phone: 1 }, { tidepod: 1 }]
     }
   },
   dank: { // 7500 to 10000 coins, 100% chance to get one amazing item, multiple medium items
-    id: 'box-dank',
-    name: 'Normie Box',
+    id: 'dank',
+    name: 'Dank Box',
     type: ItemTypes.BOX,
     description: 'Dank rewards for a dank donator',
+    consumable: true,
     rewards: {
       coins: { min: 7.5e3, max: 1e4 },
       items: [[{ inviscloak: 1 }, { reversal: 1 }], [{ tidepod: 3 }, { alcohol: 1 }, { phone: 2 }]]

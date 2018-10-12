@@ -1,8 +1,8 @@
 module.exports = class MessageCollector {
   constructor (bot) {
     this.collectors = {};
-
-    bot.on('messageCreate', this.verify.bind(this));
+    this._boundVerify = this.verify.bind(this);
+    bot.on('messageCreate', this._boundVerify);
   }
 
   async verify (msg) {

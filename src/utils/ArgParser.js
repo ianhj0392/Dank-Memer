@@ -135,7 +135,7 @@ class ArgParser {
 
   /**
    * Returns the next word(s) in the argument list
-   * @param {Boolean} consumeRest Whether to return the remaining arguments or a single argument
+   * @param {Boolean} [consumeRest=false] Whether to return the remaining arguments or a single argument, defaults to `false`
    * @return {Null|String} Null if the arg list is empty, otherwise the arguments
    */
   nextArgument (consumeRest = false) {

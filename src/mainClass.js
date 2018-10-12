@@ -9,13 +9,13 @@ let MessageCollector = require('./utils/MessageCollector.js');
 let botPackage = require('../package.json');
 
 class Memer extends Base {
-  constructor (bot) {
+  constructor (bot, reload = {}) {
     super(bot);
     this.log = require('./utils/logger.js');
     this.config = require('./config.json');
     this.secrets = require('./secrets.json');
-    this.r = require('rethinkdbdash')();
-    this.ddog = new StatsD();
+    this.r = reload.r || require('rethinkdbdash')();
+    this.ddog = reload.ddog || new StatsD();
     this.db = new (require('./utils/dbFunctions.js'))(this);
     this.http = require('./utils/http');
     this.cmds = [];
@@ -53,6 +53,8 @@ class Memer extends Base {
       errReported: 0,
       err: 0
     };
+    this.redis = reload.redis;
+    this.lavalink = reload.lavalink;
     this.listeners = {};
     this.cooldowns = new Map();
     this._cooldownsSweep = setInterval(this._sweepCooldowns.bind(this), 1000 * 60 * 30);
@@ -66,7 +68,7 @@ class Memer extends Base {
   }
 
   async launch () {
-    this.redis = await require('./utils/redisClient.js')(this.config.redis);
+    this.redis = this.redis || await require('./utils/redisClient.js')(this.config.redis);
 
     this.loadCommands();
     this.createIPC();
@@ -82,7 +84,7 @@ class Memer extends Base {
 
   async ready () {
     const { bot } = this;
-    this.lavalink = new Cluster({
+    this.lavalink = this.lavalink || new Cluster({
       nodes: this.config.lavalink.nodes.map(node => ({
         hosts: { ws: `ws://${node.host}:${node.portWS}`, rest: `http://${node.host}:${node.port}` },
         password: this.secrets.memerServices.lavalink,
@@ -247,7 +249,7 @@ class Memer extends Base {
     }
   }
 
-  reload () {
+  reload (msg) {
     for (const path in require.cache) {
       if (path.startsWith(__dirname)) {
         delete require.cache[path];
@@ -259,23 +261,29 @@ class Memer extends Base {
     process.removeAllListeners('message');
     this.removeListeners();
     this.bot.removeListener('messageCreate', this.MessageCollector._boundVerify);
-    this.r.getPoolMaster().drain();
-    this.redis.disconnect();
-    this.ddog.close();
-    for (const node of this.lavalink.nodes) {
-      for (const player of node.players) {
-        node.players.get(player).destroy();
+    if (!msg.preserveConnections) {
+      this.r.getPoolMaster().drain();
+      this.redis.disconnect();
+      this.ddog.close();
+      for (const node of this.lavalink.nodes) {
+        for (const player of node.players) {
+          node.players.get(player).destroy();
+        }
+        try {
+          node.connection.ws.close();
+        } catch (err) {}
       }
-      try {
-        node.connection.ws.close();
-      } catch (err) {}
     }
     const intervals = [this._cooldownsSweep, this._autopostInterval];
     for (const interval of intervals) {
       clearInterval(interval);
     }
     const Memer = require(module.filename);
-    new Memer({ bot: this.bot, clusterID: this.clusterID }).launch();
+    new Memer({ bot: this.bot, clusterID: this.clusterID }, msg.preserveConnections ? { r: this.r, lavalink: this.lavalink, redis: this.redis, ddog: this.ddog } : undefined).launch();
+    this.lavalink = null;
+    this.r = null;
+    this.redis = null;
+    this.ddog = null;
   }
 
   _sweepCooldowns () {

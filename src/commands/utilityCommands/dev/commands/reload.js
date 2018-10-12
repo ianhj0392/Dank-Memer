@@ -4,7 +4,7 @@ module.exports = {
   help: 'reload [all | commands | config | command [command|all] | category [command category] | models | utils]',
   /** @param {FunctionParams} */
   fn: async ({ Memer, msg, args }) => {
-    if (['category', 'command', 'commands', 'all', 'models', 'events', 'utils'].includes(args[0])) {
+    if (['category', 'command', 'commands', 'all', 'models', 'events', 'utils', 'config'].includes(args[0])) {
       const m = await msg.channel.createMessage(`confirm spicy reload? \`y\`/\`n\``);
 
       const choice = await Memer.MessageCollector.awaitMessage(msg.channel.id, msg.author.id, 5e4);
@@ -21,6 +21,9 @@ module.exports = {
       case 'category':
         try {
           const category = msg.args.nextArgument(false).toLowerCase();
+          if (!category) {
+            return `You gotta specify a category to reload stupid`;
+          }
           Memer.ipc.broadcast('reloadCommands', { category });
           return `Reloaded command category ${category}`;
         } catch (err) {
@@ -50,7 +53,10 @@ module.exports = {
         }
       case 'all':
         try {
-          Memer.ipc.broadcast('reloadAll', {});
+          await msg.channel.createMessage(`Preserve connections to lavalink/redis/rethink...? \`y\`/\`n\``);
+          let choice = await Memer.MessageCollector.awaitMessage(msg.channel.id, msg.author.id, 5e4);
+          choice = (!choice || choice.content.toLowerCase() === 'y');
+          Memer.ipc.broadcast('reloadAll', { preserveConnections: choice });
           return `Reloaded welp everything`;
         } catch (err) {
           return `We had a hecking error: \n\`\`\`${err.stack || err.message || err}\`\`\``;

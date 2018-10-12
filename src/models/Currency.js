@@ -114,11 +114,11 @@ const ITEMS = Object.assign({
 }, BOXES);
 
 // Shop items are only visible in the shop if they have a cost. All items are purchasable by default unless their cost is undefined or 0.
-const SHOP = Object.values(ITEMS)
-  .filter(value => value.cost)
+const SHOP = Object.keys(ITEMS)
+  .filter(key => ITEMS[key].cost)
   .reduce((obj, key) => {
     obj[key] = ITEMS[key];
     return obj;
   }, {});
 
-module.exports = { shop: SHOP, levels: LEVELS, boxes: BOXES, items: ITEMS };
+module.exports = { shop: SHOP, levels: LEVELS, boxes: BOXES, items: ITEMS, ItemTypes };

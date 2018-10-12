@@ -7,8 +7,8 @@ module.exports = new GenericCurrencyCommand(
     const userItems = userEntry.props.inventory;
     const items = [];
     for (const i in userItems) {
-      const item = Currency.shop[i];
-      if (userEntry.hasInventoryItem(i)) {
+      const item = Currency.items[i];
+      if (item && userEntry.hasInventoryItem(i)) {
         items.push(`**${item.name}** ─ ${userItems[i]}\n*ID* \`${item.id}\` ─ ${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}\n`);
       }
     }

@@ -43,7 +43,7 @@ module.exports = new GenericCurrencyCommand(
     }
   },
   {
-    triggers: ['userEntry.props.bank'],
+    triggers: ['bank'],
     description: 'Check your account balance and make deposits or withdraws',
     perms: ['embedLinks']
   }

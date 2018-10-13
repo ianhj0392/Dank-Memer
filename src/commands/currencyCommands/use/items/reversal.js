@@ -2,7 +2,6 @@ module.exports = {
   fn: async ({ Memer, msg, Currency, userEntry }) => {
     const stolen = await Memer.redis.get(`stolen-${msg.author.id}`)
       .then(res => res ? JSON.parse(res) : undefined);
-    Memer.log(stolen)
     if (!stolen) {
       msg.channel.createMessage('You haven\'t been stolen from by anybody within the last **2 minutes**.');
       return false;
@@ -14,7 +13,7 @@ module.exports = {
       }
       userEntry.addPocket(stolen.worth);
       await stealer.removePocket(stolen.worth).save();
-      return true;
+      return 'Nice one, you\'ve reversed time and got your money back from that steal';
     }
   }
 };

@@ -4,7 +4,6 @@ module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, args, addCD, Currency, userEntry }) => {
     const query = msg.args.args[0];
     const quantity = msg.args.args[1] || 1;
-    Memer.log(Currency.shop);
     if (!Currency.shop[query]) {
       return 'what are you thinking tbh that item isn\'t even in the shop';
     }

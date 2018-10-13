@@ -2,11 +2,11 @@ const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
 module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, args, addCD, Currency, userEntry }) => {
-    const page = Number(msg.args.nextArgument) || 1;
+    const page = Number(msg.args.nextArgument()) || 1;
     const shopItems = Currency.shop;
     const items = [];
     for (let item of Object.values(shopItems)) {
-      items.push(`**${item.name}** ─ *ID* \`${item.id}\` ─ ${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}\n`);
+      items.push(`**${item.name}** ─ __${item.cost} coins__\n*ID* \`${item.id}\` ─ ${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}\n`);
     }
 
     if (items < 1) {
@@ -18,7 +18,7 @@ module.exports = new GenericCurrencyCommand(
         title: `Meme Shop`,
         description: 'alright dog this is what we\'ve got in store today'
       },
-      pageLength: 7
+      pageLength: 5
     }, page);
   },
   {

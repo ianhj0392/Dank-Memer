@@ -3,7 +3,7 @@ const items = require('./items');
 
 module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, userEntry, donor, Currency, isGlobalPremiumGuild }) => {
-    const item = Currency.items[msg.args.args[0]];
+    const item = Currency.items[msg.args.nextArgument()];
     if (!item) {
       return 'That item doesn\'t even exist what are you doing';
     }
@@ -13,7 +13,7 @@ module.exports = new GenericCurrencyCommand(
     if (!item.consumable) {
       return 'You can\'t use this item :thinking:';
     }
-    if (await userEntry.getActiveItems(item.id)) {
+    if (await userEntry.isItemActive(item.id)) {
       return 'You\'ve already used this item!';
     }
     if (item.type === Currency.ItemTypes.BOX) {

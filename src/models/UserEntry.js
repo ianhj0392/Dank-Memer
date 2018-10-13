@@ -213,14 +213,22 @@ class UserEntry {
 
   /**
    * Returns all of the active items this user has in an array
-   * @param {String} id The item ID in a string
    * @returns {Array} Item's that this user has active in the form of item ID's
    */
-  getActiveItems (id) {
+  async getActiveItems () {
+    return (await this._client.redis.keys(`activeitems-${this.props.id}-*`)).map(item => item.replace(`activeitems-${this.props.id}-`, ''));
+  }
+
+  /**
+   * Returns all of the active items this user has in an array
+   * @param {String} id The item ID in a string
+   * @returns {Boolean} Whether or not the item is active
+   */
+  async isItemActive (id) {
     if (!id) {
-      throw new Error('Missing mandatory "id" parameter');
+      throw new Error('Mandatory "id" parameter is missing or not valid');
     }
-    return this._client.redis.keys(`activeitems-${this.props.id}-*`).map(item => item.replace(`activeitems-${this.props.id}-`, ''));
+    return Boolean(await this._client.redis.get(`activeitems-${this.props.id}-${id}`));
   }
 
   /**

@@ -212,6 +212,18 @@ class UserEntry {
   }
 
   /**
+   * Returns all of the active items this user has in an array
+   * @param {String} id The item ID in a string
+   * @returns {Array} Item's that this user has active in the form of item ID's
+   */
+  getActiveItems (id) {
+    if (!id) {
+      throw new Error('Missing mandatory "id" parameter');
+    }
+    return this._client.redis.keys(`activeitems-${this.props.id}-*`).map(item => item.replace(`activeitems-${this.props.id}-`, ''));
+  }
+
+  /**
    * Remove a specific item or items from this user
    * @param {Object} item The item object
    * @returns {UserEntry} The user entry, so calls can be chained

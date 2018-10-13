@@ -13,16 +13,12 @@ module.exports = class GenericCurrencyCommand {
   }
 
   async run ({ Memer, msg, addCD, args, userEntry, donor, guildEntry, isGlobalPremiumGuild }) {
-    if (this.props.requiresPremium && !await Memer.db.checkPremiumGuild(msg.channel.guild.id)) {
-      return 'This command is only available on **Premium** servers.\nTo learn more about how to redeem a premium server, visit our Patreon https://www.patreon.com/dankmemerbot';
-    }
-
-    const formula = ((Math.round(Memer.calcMultiplier(Memer, msg.author, userEntry.props, null, msg, isGlobalPremiumGuild) / 10)) * Math.floor(Memer.randomNumber(1, 2)));
+    const formula = ((Math.round(await Memer.calcMultiplier(Memer, msg.author, userEntry.props, null, msg, isGlobalPremiumGuild) / 10)) * Math.floor(Memer.randomNumber(1, 2)));
     const experience = await userEntry.addExperience(formula).save().then(a => a.props.experience);
     for (const o in Currency.levels) {
       let level = Currency.levels[o];
       if (experience >= level.exp) {
-        userEntry.setLevel(Math.round(level.exp / 100));
+        userEntry.setLevel(Math.floor(level.exp / 100));
         // Perform rewards
         for (const { reward, value } in Object.values(level.reward)) {
           switch (reward) {

@@ -102,7 +102,7 @@ const ITEMS = Object.assign({
   },
   spinner: {
     name: 'Fidget Spinner',
-    id: 'reversal',
+    id: 'spinner',
     type: ItemTypes.POWERUP,
     cost: 20e3,
     consumable: true
@@ -113,6 +113,20 @@ const ITEMS = Object.assign({
     type: ItemTypes.COLLECTABLE,
     cost: 1e5,
     consumable: false
+  },
+  sand: {
+    name: 'Box of Sand',
+    id: 'sand',
+    type: ItemTypes.TOOL,
+    cost: 4e3,
+    consumable: true
+  },
+  padlock: {
+    name: 'Padlock',
+    id: 'padlock',
+    type: ItemTypes.TOOL,
+    cost: 25e3,
+    consumable: true
   }
 }, BOXES);
 

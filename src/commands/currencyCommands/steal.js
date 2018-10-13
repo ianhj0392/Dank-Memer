@@ -44,8 +44,22 @@ module.exports = new GenericCurrencyCommand(
       victimCoins = victimCoins - (victimCoins * 0.95);
     }
     await addCD();
-    let stealingOdds = Memer.randomNumber(1, 100);
 
+    // Items
+    if (victim.getActiveItems().includes('padlock')) {
+      await perp.removePocket(Math.round(min / 2)).save();
+      return `You try to steal from ${user.username} only to notice that they've got a massive padlock on their pocket! You didn't bring your bolt cutters with you, and ended up getting caught by the police, losing **${Math.round(min / 2)}** coins.`;
+    }
+
+    await Memer.redis.get(`sand-effect-${msg.author.id}`)
+      .then(res => {
+        res = JSON.parse(res) || undefined;
+        if (res && res.perpetrator === user.id) {
+          return `${user.username} is a cheeky bastard and has thrown sand directly into your precious eyeballs! You can't steal from them right now.`;
+        }
+      });
+
+    let stealingOdds = Memer.randomNumber(1, 100);
     let worth;
     let message;
     if (stealingOdds <= 60) { // fail section

@@ -28,7 +28,8 @@ const master = new Sharder(secrets.bot.token, config.sharder.path, {
   clientOptions: config.eris.clientOptions,
   shards: config.sharder.shardCount || 1,
   statsInterval: config.statsInterval || 1e4,
-  clusters: config.sharder.clusters || undefined
+  clusters: config.sharder.clusters || undefined,
+  guildsPerShard: config.sharder.guildsPerShard
 });
 
 // Record bot stats every x seconds/minutes to the database

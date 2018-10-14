@@ -136,7 +136,7 @@ module.exports = class Autopost {
   async _fetchChannel (id) { // Because eris-sharder sucks hard
     return new Promise(resolve => {
       setTimeout(() => resolve({ id }), 2000);
-      this.client.ipc.fetchChannel(id)
+      this.client.IPC.fetchChannel(id)
         .then(resolve);
     });
   }

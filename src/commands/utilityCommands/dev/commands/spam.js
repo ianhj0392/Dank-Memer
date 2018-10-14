@@ -1,11 +1,8 @@
 module.exports = {
   help: 'who spammin',
   fn: async ({ Memer }) => {
-    const bigmeme = (id) => new Promise(resolve => {
-      setTimeout(() => resolve({ id }), 1000);
-      Memer.ipc.fetchUser(id)
-        .then(resolve); // this is intentional and also stupid but still intentional
-    });
+    const bigmeme = (id) => Memer.IPC.fetchUser(id).then(u => u || { id });
+
     let pls = await Memer.db.topSpam();
     pls = await Promise.all(pls.map(async g => Object.assign(await bigmeme(g.id), { pls: g.spam })));
     return {

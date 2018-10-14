@@ -129,12 +129,12 @@ class Memer extends Base {
   }
 
   createIPC () {
-    this.ipc.register('reloadCommands', this.reloadCommands.bind(this));
-    this.ipc.register('reloadListeners', this.reloadListeners.bind(this));
-    this.ipc.register('reloadAll', this.reload.bind(this));
-    this.ipc.register('reloadModels', this.reloadModels.bind(this));
-    this.ipc.register('reloadUtils', this.reloadUtils.bind(this));
-    this.ipc.register('reloadConfig', this.reloadConfig.bind(this));
+    this.IPC.register('reloadCommands', this.reloadCommands.bind(this));
+    this.IPC.register('reloadListeners', this.reloadListeners.bind(this));
+    this.IPC.register('reloadAll', this.reload.bind(this));
+    this.IPC.register('reloadModels', this.reloadModels.bind(this));
+    this.IPC.register('reloadUtils', this.reloadUtils.bind(this));
+    this.IPC.register('reloadConfig', this.reloadConfig.bind(this));
   }
 
   reloadUtils () {

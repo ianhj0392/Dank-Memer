@@ -29,10 +29,17 @@
  * @prop {Number} largeGuilds The amount of large guilds on this cluster (250+ members)
  */
 
+/** @typedef {Object} MessageResponses
+ * @prop {String} type The type of the response
+ * @prop {String} id The ID of the original message this response is replying to
+ * @prop {Number} clusterID The ID of the cluster this response is from
+ * @prop {*} [data] The data this cluster responded with, can be `undefined`
+ */
+
 class IPCHandler {
   /**
-     * @param {Memer} client The Memer instance
-     */
+    * @param {Memer} client The Memer instance
+    */
   constructor (client) {
     /** @type {Map} A map of the current ongoing requests */
     this.requests = new Map();
@@ -59,11 +66,12 @@ class IPCHandler {
     *
     * @param {String} type The request type
     * @param {*} data Additional data about the request
+    * @param {Boolean} [resolveResponses=false] Whether the responses that made it in time should be resolved if the timeout is reached (`undefined` is resolved otherwise), defaults to `false`
     * @returns {Promise<*>}
     * @memberof IPCHandler
     * @private
     */
-  _createRequest (type, data) {
+  _createRequest (type, data, resolveResponses = false) {
     return new Promise((resolve, reject) => {
       const id = this.uid;
       this.requests.set(id, {
@@ -79,14 +87,23 @@ class IPCHandler {
         timeout: setTimeout(() => {
           const request = this.requests.get(id);
           if (request) {
-            request.resolve();
+            request.resolve(resolveResponses ? request.responses : undefined);
             this.requests.delete(id);
           }
-        }, 1000 * 15)
+        }, 1000 * 10)
       });
     });
   }
 
+  /**
+   *
+   *
+   * @param {Object} message The IPC message to reply to
+   * @param {String} type The type of the reply
+   * @param {*} data Additional data to reply with
+   * @private
+   * @memberof IPCHandler
+   */
   _replyTo (message, type, data) {
     this.client.ipc.sendTo(message.clusterID, 'memerIPC', {
       type,
@@ -157,7 +174,7 @@ class IPCHandler {
    * Broadcast the given event to all clusters, uses eris-sharder's IPC
    *
    * @param {String} event The name of the event to broadcast
-   * @param {Object?} [data={}] Additional data to broadcast, defaults to `{}`
+   * @param {Object} [data={}] Additional data to broadcast, defaults to `{}`
    * @returns {void}
    * @memberof IPCHandler
    */
@@ -180,12 +197,12 @@ class IPCHandler {
   /**
    *
    *
-   * @param {String} code
-   * @returns {Promise<Array>} An array containing responses of each cluster
+   * @param {String} code The code to evaluate, `Memer` may be used in the code, it is a reference to the `Memer` instance on the cluster on which it is evaluated
+   * @returns {Promise<Array<MessageResponses>>} An array containing responses of each cluster
    * @memberof IPCHandler
    */
   async broadcastEval (code) {
-    return this._createRequest('eval', code);
+    return this._createRequest('eval', code, true);
   }
 
   /**
@@ -194,7 +211,7 @@ class IPCHandler {
      * @private
      * @returns {void}
      */
-  _handleIncomingMessage (message) {
+  async _handleIncomingMessage (message) {
     const request = this.requests.get(message.id);
     if (!request && message.type.startsWith('requested')) {
       return;
@@ -218,13 +235,8 @@ class IPCHandler {
         break;
 
       case 'requestedGuild':
-        if (this._allClustersAnswered(message.id)) {
+        if (this._allClustersAnswered(message.id) || message.data) {
           request.resolve(message.data);
-          clearTimeout(request.timeout);
-          return this.requests.delete(message.id);
-        }
-        if (message.data) {
-          this.requests.get(message.id).resolve(message.data);
           clearTimeout(request.timeout);
           return this.requests.delete(message.id);
         }
@@ -236,13 +248,8 @@ class IPCHandler {
         break;
 
       case 'requestedUser':
-        if (this._allClustersAnswered(message.id)) {
+        if (this._allClustersAnswered(message.id) || message.data) {
           request.resolve(message.data);
-          clearTimeout(request.timeout);
-          return this.requests.delete(message.id);
-        }
-        if (message.data) {
-          this.requests.get(message.id).resolve(message.data);
           clearTimeout(request.timeout);
           return this.requests.delete(message.id);
         }
@@ -258,17 +265,27 @@ class IPCHandler {
         break;
 
       case 'requestedChannel':
-        if (this._allClustersAnswered(message.id)) {
+        if (this._allClustersAnswered(message.id) || message.data) {
           request.resolve(message.data);
           clearTimeout(request.timeout);
           return this.requests.delete(message.id);
         }
-        if (message.data) {
-          this.requests.get(message.id).resolve(message.data);
+        break;
+
+      case 'eval':
+        const result = await this._eval(this.client, message.data);
+        this._replyTo(message, 'evalResult', result);
+        break;
+
+      case 'evalResult':
+        if (!request) {
+          return;
+        }
+        if (this._allClustersAnswered(message.id)) {
+          request.resolve(request.responses);
           clearTimeout(request.timeout);
           return this.requests.delete(message.id);
         }
-        break;
     }
     if (process.argv.includes('--dev')) {
       this.client.log(`[IPCHandler] - Received the message ${message.type} from cluster ${message.clusterID}: ${JSON.stringify(message, null, 2)}`);

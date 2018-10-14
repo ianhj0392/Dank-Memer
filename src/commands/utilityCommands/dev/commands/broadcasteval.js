@@ -10,7 +10,7 @@ module.exports = {
     const m = await msg.channel.createMessage('Ok this may take a few seconds so sit tight');
     const responses = await Memer.IPC.broadcastEval(args.join(' '));
     let res = '';
-    for (let i = 1; i < Memer.config.sharder.clusters; i++) {
+    for (let i = 1; i <= Memer.config.sharder.clusters; i++) {
       const clusterResponse = responses.find(r => r.clusterID === i);
       res += `[Cluster ${i}]: ${clusterResponse ? clusterResponse.data : 'timed out'}\n`;
     }

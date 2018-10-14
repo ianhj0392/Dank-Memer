@@ -7,16 +7,24 @@
  * @typedef {import('eris').AnyGuildChannel} AnyGuildChannel
  * @typedef {import('eris').Member} Member
  * @typedef {import('eris').Role} Role
- * @typedef {import('eris').JSON}
+ * @typedef {import('eris').PermissionOverwrite} PermissionOverwrite
 */
 
-/** @typedef {Object} ConvertedProperties
+/** @typedef {Object} ConvertedGuildProperties
  * @prop {Array<Role>} roles An array of roles on this guild
  * @prop {Array<Member>} members An array of members on this guild
  * @prop {Array<AnyGuildChannel>} channels An array of channels on this guild
  */
 
-/** @typedef {Guild & ConvertedProperties} StringifiedGuild */
+/** @typedef {Object} ConvertedChannelProperties
+ * @prop {Array<PermissionOverwrite>} permissionOverwrites An array of permission overwrites
+ * @prop {Array<Member>} [voiceMembers] Only existing on voice channels (type `2`), an array of members in this voice channel
+ * @prop {Array<VoiceChannel | TextChannel>} [channels] Only existing on category channels (type `4`), an array of channels under this category
+ */
+
+/** @typedef {Guild & ConvertedGuildProperties} StringifiedGuild
+ * @typedef {AnyGuildChannel & ConvertedChannelProperties} StringifiedChannel
+ */
 
 /** @typedef {Object} ClusterStats
  * @prop {Number} cluster The ID of the cluster
@@ -35,6 +43,14 @@
  * @prop {Number} clusterID The ID of the cluster this response is from
  * @prop {*} [data] The data this cluster responded with, can be `undefined`
  */
+
+/** @typedef {Object} BasicUser
+  * @prop {String} id The ID of the user
+  * @prop {String} avatar The avatar hash of the user
+  * @prop {Boolean} bot Whether the user is a bot
+  * @prop {Number} discriminator The user's discriminator
+  * @prop {String} username The user's name
+  */
 
 class IPCHandler {
   /**
@@ -77,13 +93,7 @@ class IPCHandler {
       this.requests.set(id, {
         responses: [],
         resolve,
-        reject
-      });
-      this.client.ipc.broadcast('memerIPC', {
-        type,
-        id,
-        clusterID: this.client.clusterID,
-        data,
+        reject,
         timeout: setTimeout(() => {
           const request = this.requests.get(id);
           if (request) {
@@ -91,6 +101,12 @@ class IPCHandler {
             this.requests.delete(id);
           }
         }, 1000 * 10)
+      });
+      this.client.ipc.broadcast('memerIPC', {
+        type,
+        id,
+        clusterID: this.client.clusterID,
+        data
       });
     });
   }
@@ -122,17 +138,7 @@ class IPCHandler {
     */
   async fetchGuild (id) {
     if (this.client.bot.guilds.has(id)) {
-      let guild = this.client.bot.guilds.get(id);
-      const members = Array.from(guild.members.values());
-      const roles = Array.from(guild.roles.values());
-      const channels = Array.from(guild.members.values());
-      guild = {
-        ...guild,
-        members,
-        roles,
-        channels
-      };
-      return this.toJSON(guild);
+      return this.toJSON(this.client.bot.guilds.get(id));
     }
     return this._createRequest('fetchGuild', id);
   }
@@ -141,7 +147,7 @@ class IPCHandler {
     *
     *
     * @param {String} id The ID of the user to fetch
-    * @returns {Promise<User>}
+    * @returns {Promise<BasicUser>}
     * @memberof IPCHandler
     */
   async fetchUser (id) {
@@ -155,7 +161,7 @@ class IPCHandler {
     *
     *
     * @param {String} id The ID of the channel to fetch
-    * @returns {Promise<AnyGuildChannel>}
+    * @returns {Promise<AnyGuildChannel>} As per JSON restrictions, `permissionOverwrites` is an array
     * @memberof IPCHandler
     */
   async fetchChannel (id) {
@@ -212,26 +218,20 @@ class IPCHandler {
      * @returns {void}
      */
   async _handleIncomingMessage (message) {
+    if (process.argv.includes('--dev')) {
+      this.client.log(`[IPCHandler] - Received the message ${message.type} from cluster ${message.clusterID}: ${JSON.stringify(message, null, 2)}`);
+    }
     const request = this.requests.get(message.id);
     if (!request && message.type.startsWith('requested')) {
       return;
     }
-    request.responses.push(message);
+    if (request && !message.type.startsWith('fetch') && message.type !== 'eval') {
+      request.responses.push(message);
+    }
     switch (message.type) {
       case 'fetchGuild':
         let guild = this.client.bot.guilds.get(message.data);
-        if (guild) {
-          const members = Array.from(guild.members.values());
-          const roles = Array.from(guild.roles.values());
-          const channels = Array.from(guild.members.values());
-          guild = {
-            ...guild,
-            members,
-            roles,
-            channels
-          };
-        }
-        this._replyTo(message, 'requestedGuild', guild ? guild.toJSON() : undefined);
+        this._replyTo(message, 'requestedGuild', guild ? this.toJSON(guild) : undefined);
         break;
 
       case 'requestedGuild':
@@ -261,7 +261,7 @@ class IPCHandler {
         if (channelGuild) {
           channel = channelGuild.channels.get(message.data);
         }
-        this._replyTo(message, 'requestedChannel', channel ? channel.toJSON() : channel);
+        this._replyTo(message, 'requestedChannel', channel ? this.toJSON(channel) : channel);
         break;
 
       case 'requestedChannel':
@@ -286,9 +286,6 @@ class IPCHandler {
           clearTimeout(request.timeout);
           return this.requests.delete(message.id);
         }
-    }
-    if (process.argv.includes('--dev')) {
-      this.client.log(`[IPCHandler] - Received the message ${message.type} from cluster ${message.clusterID}: ${JSON.stringify(message, null, 2)}`);
     }
   }
 

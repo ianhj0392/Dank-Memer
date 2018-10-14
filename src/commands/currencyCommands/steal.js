@@ -48,7 +48,7 @@ module.exports = new GenericCurrencyCommand(
     // Items
     if (await victim.isItemActive('padlock')) {
       await perp.removePocket(Math.round(min / 2)).save();
-      Memer.redis.del(`activeitems-${victim.id}-padlock`);
+      await Memer.redis.del(`activeitems-${user.id}-padlock`);
       return `You try to steal from ${user.username} only to notice that they've got a massive padlock on their pocket! You didn't bring your bolt cutters with you, and ended up getting caught by the police, losing **${Math.round(min / 2)}** coins.`;
     }
 

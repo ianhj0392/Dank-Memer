@@ -106,17 +106,19 @@ class MiscFunctions {
    * @param {Message} msg The message
    * @returns {Number} The total multiplier for this user
    */
-  calcMultiplier (Memer, user, userDB, donor, msg, isGlobalPremiumGuild) {
+  async calcMultiplier (Memer, user, userDB, donor, msg, isGlobalPremiumGuild) {
     // calculates total multiplier based on multiple variables
     let guildMember = msg.channel.guild.members.get(msg.author.id);
-    const items = userDB.getActiveItems();
+    const items = [] || userDB.getActiveItems();
     let date = new Date(msg.timestamp);
     let day;
     let time;
     let total;
     if (items.includes('spinner')) {
-      const amount = Memer.redis.get(`activeitems-${user.id}-spinner`);
-      total += amount || 0;
+      total += await Memer.redis.get(`activeitems-${user.id}-spinner`) || 0;
+    }
+    if (items.includes('tidepod')) {
+      total += await Memer.redis.get(`activeitems-${user.id}-tidepod`) || 0;
     }
 
     total = userDB.upgrades ? userDB.upgrades.multi : 0;
@@ -496,7 +498,7 @@ class MiscFunctions {
       if (Math.ceil(data.length / settings.pageLength) < page) {
         return `Hey idiot, page \`${page}\` doesn't exist. There's only \`${Math.ceil(data.length / settings.pageLength)}\` pages`;
       }
-      embed.footer.text = `${(!embed.footer ? (settings.type || 'stuff') : embed.footer.text)} ─ Page ${page} of ${Math.ceil(data.length / settings.pageLength)}`;
+      embed.footer = { text: `${(!embed.footer ? (settings.type || 'stuff') : embed.footer.text)} ─ Page ${page} of ${Math.ceil(data.length / settings.pageLength)}` };
       data = data.splice(settings.pageLength + (page - 2) * settings.pageLength, settings.pageLength);
     }
 

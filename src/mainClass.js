@@ -57,6 +57,7 @@ class Memer extends Base {
     this.lavalink = reload.lavalink;
     this.listeners = {};
     this.cooldowns = new Map();
+    this.IPC = new (require('./utils/IPCHandler.js'))(this);
     this._cooldownsSweep = setInterval(this._sweepCooldowns.bind(this), 1000 * 60 * 30);
     // work-around to benefit from nice documentation and still have misc functions assigned on the Memer instance
     const MiscFunctions = new (require('./utils/misc.js'))();
@@ -150,6 +151,7 @@ class Memer extends Base {
     MessageCollector = require('./utils/MessageCollector.js');
     this.MessageCollector = new MessageCollector(this.bot);
     this.autopost = new (require('./utils/Autopost.js'))(this);
+    this.IPC = new (require('./utils/IPCHandler.js'))(this);
     const MiscFunctions = new (require('./utils/misc.js'))();
     for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(MiscFunctions))) {
       if (key !== 'constructor') {

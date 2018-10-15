@@ -354,14 +354,14 @@ class MiscFunctions {
     let name;
     let object;
     if (type === 'user') {
-      object = await Memer.ipc.fetchUser(id);
+      object = await Memer.IPC.fetchUser(id);
       if (!object) {
         name = 'not sure of the username...';
       } else {
         name = `${object.username}#${object.discriminator}`;
       }
     } else {
-      object = await Memer.ipc.fetchGuild(id);
+      object = await Memer.IPC.fetchGuild(id);
       if (!object) {
         name = 'not sure of the server name';
       } else {

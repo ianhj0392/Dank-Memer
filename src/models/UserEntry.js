@@ -295,6 +295,14 @@ class UserEntry {
       this.update({
         notifications: []
       });
+    } else if (typeof type === 'number') {
+      if (!this.props.notifications[type]) {
+        throw new Error(`Invalid index ${type} in notifications array`);
+      }
+      this.props.notifications.splice(type, 1);
+      this.update({
+        notifications: this._client.r.row('notifications').default([]).deleteAt(type)
+      });
     } else {
       for (let i in this.props.notifications) {
         if (type === this.props.notifications[i].type) {

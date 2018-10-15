@@ -18,6 +18,7 @@ const secrets = require('./secrets.json');
 const { Master: Sharder } = require('eris-sharder');
 const { post } = require('./utils/http');
 const r = require('rethinkdbdash')();
+const masterProcess = require('cluster');
 
 // Initiate Eris-Sharder
 
@@ -42,20 +43,30 @@ master.on('stats', res => {
   // TODO: Post stats to endpoint on the webserver
 });
 
+if (master.isMaster()) {
+  masterProcess.on('message', (worker, msg) => {
+    msg = msg || {};
+    if (msg.type === 'restartCluster') {
+      master.restartCluster({ id: msg.data }, 13);
+    }
+  });
+}
+
 // Delete stats data on SIGINT to help prevent problems with some commands
 
 process.on('SIGINT', async () => { // TODO: See if this still needs to happen after disabling automatic db wipes on pls lb/rich/ulb
   await r.table('stats')
     .get(1)
     .delete()
-    .run();
+    .run()
+    .catch(() => {});
 
   process.exit();
 });
 
 // Post guild count to each bot list api
 
-if (require('cluster').isMaster && !config.options.dev) {
+if (master.isMaster() && !config.options.dev) {
   setInterval(async () => {
     const { stats: { guilds } } = await r.table('stats')
       .get(1)
@@ -74,20 +85,22 @@ if (require('cluster').isMaster && !config.options.dev) {
 }
 
 (async () => {
-  const redis = await require('./utils/redisClient.js')(config.redis);
-  const changesStream = await r.table('users').changes({ squash: true, includeInitial: false, includeTypes: true }).run();
-  changesStream.on('data', data => {
-    const pipeline = redis.pipeline();
-    if (data.type === 'remove') {
-      pipeline.zrem('pocket-leaderboard', data.old_val.id);
-      pipeline.zrem('pls-leaderboard', data.old_val.id);
-      pipeline.exec()
-        .catch(console.error);
-    } else {
-      pipeline.zadd('pocket-leaderboard', data.new_val.pocket, data.new_val.id);
-      pipeline.zadd('pls-leaderboard', data.new_val.pls, data.new_val.id);
-      pipeline.exec()
-        .catch(console.error);
-    }
-  });
+  if (master.isMaster()) {
+    const redis = await require('./utils/redisClient.js')(config.redis);
+    const changesStream = await r.table('users').changes({ squash: true, includeInitial: false, includeTypes: true }).run();
+    changesStream.on('data', data => {
+      const pipeline = redis.pipeline();
+      if (data.type === 'remove') {
+        pipeline.zrem('pocket-leaderboard', data.old_val.id);
+        pipeline.zrem('pls-leaderboard', data.old_val.id);
+        pipeline.exec()
+          .catch(console.error);
+      } else {
+        pipeline.zadd('pocket-leaderboard', data.new_val.pocket, data.new_val.id);
+        pipeline.zadd('pls-leaderboard', data.new_val.pls, data.new_val.id);
+        pipeline.exec()
+          .catch(console.error);
+      }
+    });
+  }
 })();

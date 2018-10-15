@@ -84,6 +84,7 @@ class Memer extends Base {
   }
 
   async ready () {
+    this.IPC.sendTo(1, 'memerIPC', { type: 'restartDone', clusterID: this.clusterID });
     const { bot } = this;
     this.lavalink = this.lavalink || new Cluster({
       nodes: this.config.lavalink.nodes.map(node => ({

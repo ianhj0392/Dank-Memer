@@ -64,6 +64,7 @@ class IPCHandler {
     this._handleIncomingMessage = this._handleIncomingMessage.bind(this);
     this.client.ipc.register('memerIPC', this._handleIncomingMessage);
     this._idsGenerated = 0;
+    this._rebootingClusters = {};
   }
 
   /**
@@ -83,11 +84,12 @@ class IPCHandler {
     * @param {String} type The request type
     * @param {*} data Additional data about the request
     * @param {Boolean} [resolveResponses=false] Whether the responses that made it in time should be resolved if the timeout is reached (`undefined` is resolved otherwise), defaults to `false`
+    * @param {Number} [timeout=10000] Time in milliseconds before the request should timeout, defaults to `10000` (10 seconds)
     * @returns {Promise<*>}
     * @memberof IPCHandler
     * @private
     */
-  _createRequest (type, data, resolveResponses = false) {
+  _createRequest (type, data, resolveResponses = false, timeout = 1000 * 10) {
     return new Promise((resolve, reject) => {
       const id = this.uid;
       this.requests.set(id, {
@@ -100,7 +102,7 @@ class IPCHandler {
             request.resolve(resolveResponses ? request.responses : undefined);
             this.requests.delete(id);
           }
-        }, 1000 * 10)
+        }, timeout)
       });
       this.client.ipc.broadcast('memerIPC', {
         type,
@@ -133,38 +135,41 @@ class IPCHandler {
     *
     *
     * @param {String} id The ID of the guild to fetch
+    * @param {Number} [timeout=10000] Time in milliseconds before the request should timeout, defaults to `10000` (10 seconds)
     * @returns {Promise<StringifiedGuild>}
     * @memberof IPCHandler
     */
-  async fetchGuild (id) {
+  async fetchGuild (id, timeout) {
     if (this.client.bot.guilds.has(id)) {
       return this.toJSON(this.client.bot.guilds.get(id));
     }
-    return this._createRequest('fetchGuild', id);
+    return this._createRequest('fetchGuild', id, false, timeout);
   }
 
   /**
     *
     *
     * @param {String} id The ID of the user to fetch
+    * @param {Number} [timeout=10000] Time in milliseconds before the request should timeout, defaults to `10000` (10 seconds)
     * @returns {Promise<BasicUser>}
     * @memberof IPCHandler
     */
-  async fetchUser (id) {
+  async fetchUser (id, timeout) {
     if (this.client.bot.users.has(id)) {
       return this.client.bot.users.get(id).toJSON();
     }
-    return this._createRequest('fetchUser', id);
+    return this._createRequest('fetchUser', id, false, timeout);
   }
 
   /**
     *
     *
     * @param {String} id The ID of the channel to fetch
+    * @param {Number} [timeout=10000] Time in milliseconds before the request should timeout, defaults to `10000` (10 seconds)
     * @returns {Promise<AnyGuildChannel>} As per JSON restrictions, `permissionOverwrites` is an array
     * @memberof IPCHandler
     */
-  async fetchChannel (id) {
+  async fetchChannel (id, timeout) {
     let channel;
     let channelGuild = this.client.bot.guilds.get(this.client.bot.channelGuildMap[id]);
     if (channelGuild) {
@@ -173,7 +178,7 @@ class IPCHandler {
     if (channel) {
       return this.toJSON(channel);
     }
-    return this._createRequest('fetchChannel', id);
+    return this._createRequest('fetchChannel', id, false, timeout);
   }
 
   /**
@@ -212,11 +217,33 @@ class IPCHandler {
   }
 
   /**
-     * Called every time the message event is fired on the process
-     * @param {Object} message - The message
-     * @private
-     * @returns {void}
-     */
+   *
+   *
+   * @param {Number} cluster The ID of the cluster to send this message to
+   * @param {String} type The type of the message
+   * @param {*} [data] Additional data to send
+   * @returns {void}
+   * @memberof IPCHandler
+   */
+  sendTo (cluster, type, data) {
+    this.client.ipc.sendTo(cluster, type, data);
+  }
+
+  /**
+   * Engage a rolling restart
+   * @returns {void}
+   * @memberof IPCHandler
+   */
+  rollingRestart () {
+    this.sendTo(1, 'memerIPC', { type: 'rollingRestart' });
+  }
+
+  /**
+    * Called every time the message event is fired on the process
+    * @param {Object} message - The message
+    * @private
+    * @returns {void}
+    */
   async _handleIncomingMessage (message) {
     if (process.argv.includes('--dev')) {
       this.client.log(`[IPCHandler] - Received the message ${message.type} from cluster ${message.clusterID}: ${JSON.stringify(message, null, 2)}`);
@@ -286,15 +313,35 @@ class IPCHandler {
           clearTimeout(request.timeout);
           return this.requests.delete(message.id);
         }
+        break;
+
+      case 'rollingRestart':
+        if (Object.keys(this._rebootingClusters).length >= 1) {
+          this.client.log(`Received rolling restart order but one is already ongoing, ongoing one will be aborted`, 'warn');
+          this._rebootingClusters = {};
+        }
+        for (let i = this.client.config.sharder.clusters; i >= 1; i--) {
+          process.send({ type: 'restartCluster', data: i });
+          await new Promise(resolve => {
+            this._rebootingClusters[i] = { resolve };
+          });
+        }
+        break;
+
+      case 'restartDone':
+        if (this._rebootingClusters[message.clusterID]) {
+          this._rebootingClusters[message.clusterID].resolve();
+        }
+        break;
     }
   }
 
   /**
-    * Check if all the active clusters responded to a request
-    * @param {String} id - The ID of the request to check if all the clusters answered to
-    * @returns {Boolean} Whether all the clusters responded to the request
-    * @private
-    */
+   * Check if all the active clusters responded to a request
+   * @param {String} id - The ID of the request to check if all the clusters answered to
+   * @returns {Boolean} Whether all the clusters responded to the request
+   * @private
+   */
   _allClustersAnswered (id) {
     return this.requests.get(id).responses.length >= this.client.config.sharder.clusters;
   }
@@ -305,6 +352,7 @@ class IPCHandler {
    * @param {Memer} Memer The Memer instance
    * @param {String} input The code to evaluate
    * @returns {Promise<String>} The error message, or `Success`
+   * @private
    * @memberof IPCHandler
    */
   async _eval (Memer, input) {

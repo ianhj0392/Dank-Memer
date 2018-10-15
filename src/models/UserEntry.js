@@ -267,6 +267,47 @@ class UserEntry {
   }
 
   /**
+   * Updates the user's `notification` object to add a notification
+   * @param {String} type The type of this notification, where it should be grouped
+   * @param {String} [title=type] The title of the notification
+   * @param {String} message The message/content of the notification
+   * @param {Number} [timestamp=Date.now()] The unix epoch timestamp of when this notification was sent. Defaults to right now.
+   * @returns {UserEntry} The user entry, so calls can be chained
+   */
+  sendNotification (type, title, message, timestamp = Date.now()) {
+    if (!title) {
+      title = type;
+    }
+    this.props.notifications.push({ type, title, message, timestamp });
+    this.update({
+      notifications: this._client.r.row('notifications').default([]).append({ type, title, message, timestamp })
+    });
+  }
+
+  /**
+   * Updates the user's `notification` object to dismiss a notification group, or all notifications
+   * @param {String} [type] The type of this notification, where it should be grouped
+   * @returns {UserEntry} The user entry, so calls can be chained
+   */
+  dismissNotification (type) {
+    if (!type) { // dismiss all
+      this.props.notifications = [];
+      this.update({
+        notifications: []
+      });
+    } else {
+      for (let i in this.props.notifications) {
+        if (type === this.props.notifications[i].type) {
+          this.props.notifications.splice(i, 1);
+        }
+      }
+      this.update({
+        notifications: this._client.r.row('notifications').default([]).filter(this._client.r.row('type').eq(type).not())
+      });
+    }
+  }
+
+  /**
    * Updates the user's `daily` streak
    * @param {Number} [timestamp=Date.now()] The unix epoch timestamp of when the user last ran `daily`, defaults to `Date.now()`
    * @param {Number} [streak=this.streak.streak + 1] The user's streak, defaults to their current streak + 1

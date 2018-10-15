@@ -11,13 +11,13 @@ However, we will not give support for selfhosting or purposely make things easy 
 
 #### Developers:
 ##### Melmsie
-> Owner, administrator, and developer - [GitHub Profile](https://github.com/melmsie)
+> Owner and administrator - [GitHub Profile](https://github.com/melmsie)
 
 ##### Blake
-> Developer, currency lead - [Github Profile](https://github.com/zBlakee)
+> Developer and currency lead - [Github Profile](https://github.com/zBlakee)
 
 ##### Paradox
-> Developer, database manager - [Github Profile](https://github.com/ParadoxOrigins)
+> Developer and database manager - [Github Profile](https://github.com/ParadoxOrigins)
 
 ##### Main Contributers
 * **Aetheryx** - [GitHub Profile](https://github.com/Aetheryx)

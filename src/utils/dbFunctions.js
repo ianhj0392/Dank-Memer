@@ -662,8 +662,9 @@ class DatabaseFunctions {
       pocket: 0, // Coins not in bank account
       bank: 0, // Coins in bank account
       experience: 0, // Total experience earned
-      inventory: [], // Items the user has, an array of Item objects
+      inventory: {}, // Items the user has, an object of item ID's with the value being the quantity
       level: 0, // The level the user is currently at
+      notifications: [], // Notifications object
       lost: 0, // Total coins lost
       won: 0, // Total coins won
       shared: 0, // Transferred to other players

@@ -24,7 +24,7 @@ module.exports = {
           if (!category) {
             return `You gotta specify a category to reload stupid`;
           }
-          Memer.ipc.broadcast('reloadCommands', { category });
+          Memer.IPC.broadcast('reloadCommands', { category });
           return `Reloaded command category ${category}`;
         } catch (err) {
           return `We had a hecking error: \n\`\`\`${err.stack || err.message || err}\`\`\``;
@@ -32,21 +32,21 @@ module.exports = {
       case 'command':
         try {
           const command = msg.args.nextArgument(false).toLowerCase();
-          Memer.ipc.broadcast('reloadCommands', command === 'all' ? {} : { command });
+          Memer.IPC.broadcast('reloadCommands', command === 'all' ? {} : { command });
           return `Reloaded ${command === 'all' ? 'all commands' : (command + ' command')}`;
         } catch (err) {
           return `We had a hecking error: \n\`\`\`${err.stack || err.message || err}\`\`\``;
         }
       case 'events':
         try {
-          Memer.ipc.broadcast('reloadListeners', {});
+          Memer.IPC.broadcast('reloadListeners', {});
           return `Reloaded all event listeners`;
         } catch (err) {
           return `We had a hecking error: \n\`\`\`${err.stack || err.message || err}\`\`\``;
         }
       case 'commands':
         try {
-          Memer.ipc.broadcast('reloadCommands', {});
+          Memer.IPC.broadcast('reloadCommands', {});
           return `Reloaded all commands`;
         } catch (err) {
           return `We had a hecking error: \n\`\`\`${err.stack || err.message || err}\`\`\``;
@@ -56,28 +56,28 @@ module.exports = {
           await msg.channel.createMessage(`Preserve connections to lavalink/redis/rethink...? \`y\`/\`n\``);
           let choice = await Memer.MessageCollector.awaitMessage(msg.channel.id, msg.author.id, 5e4);
           choice = (!choice || choice.content.toLowerCase() === 'y');
-          Memer.ipc.broadcast('reloadAll', { preserveConnections: choice });
+          Memer.IPC.broadcast('reloadAll', { preserveConnections: choice });
           return `Reloaded welp everything`;
         } catch (err) {
           return `We had a hecking error: \n\`\`\`${err.stack || err.message || err}\`\`\``;
         }
       case 'config':
         try {
-          Memer.ipc.broadcast('reloadConfig', {});
+          Memer.IPC.broadcast('reloadConfig', {});
           return `Reloaded config`;
         } catch (err) {
           return `We had a hecking error: \n\`\`\`${err.stack || err.message || err}\`\`\``;
         }
       case 'utils':
         try {
-          Memer.ipc.broadcast('reloadUtils', {});
+          Memer.IPC.broadcast('reloadUtils', {});
           return `Reloaded utils`;
         } catch (err) {
           return `We had a hecking error: \n\`\`\`${err.stack || err.message || err}\`\`\``;
         }
       case 'models':
         try {
-          Memer.ipc.broadcast('reloadModels', {});
+          Memer.IPC.broadcast('reloadModels', {});
           return `Reloaded models`;
         } catch (err) {
           return `We had a hecking error: \n\`\`\`${err.stack || err.message || err}\`\`\``;

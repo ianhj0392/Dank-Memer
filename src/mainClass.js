@@ -57,6 +57,7 @@ class Memer extends Base {
     this.lavalink = reload.lavalink;
     this.listeners = {};
     this.cooldowns = new Map();
+    this.IPC = new (require('./utils/IPCHandler.js'))(this);
     this._cooldownsSweep = setInterval(this._sweepCooldowns.bind(this), 1000 * 60 * 30);
     // work-around to benefit from nice documentation and still have misc functions assigned on the Memer instance
     const MiscFunctions = new (require('./utils/misc.js'))();
@@ -83,6 +84,7 @@ class Memer extends Base {
   }
 
   async ready () {
+    this.IPC.sendTo(1, 'memerIPC', { type: 'restartDone', clusterID: this.clusterID });
     const { bot } = this;
     this.lavalink = this.lavalink || new Cluster({
       nodes: this.config.lavalink.nodes.map(node => ({
@@ -128,12 +130,12 @@ class Memer extends Base {
   }
 
   createIPC () {
-    this.ipc.register('reloadCommands', this.reloadCommands.bind(this));
-    this.ipc.register('reloadListeners', this.reloadListeners.bind(this));
-    this.ipc.register('reloadAll', this.reload.bind(this));
-    this.ipc.register('reloadModels', this.reloadModels.bind(this));
-    this.ipc.register('reloadUtils', this.reloadUtils.bind(this));
-    this.ipc.register('reloadConfig', this.reloadConfig.bind(this));
+    this.IPC.register('reloadCommands', this.reloadCommands.bind(this));
+    this.IPC.register('reloadListeners', this.reloadListeners.bind(this));
+    this.IPC.register('reloadAll', this.reload.bind(this));
+    this.IPC.register('reloadModels', this.reloadModels.bind(this));
+    this.IPC.register('reloadUtils', this.reloadUtils.bind(this));
+    this.IPC.register('reloadConfig', this.reloadConfig.bind(this));
   }
 
   reloadUtils () {
@@ -150,6 +152,7 @@ class Memer extends Base {
     MessageCollector = require('./utils/MessageCollector.js');
     this.MessageCollector = new MessageCollector(this.bot);
     this.autopost = new (require('./utils/Autopost.js'))(this);
+    this.IPC = new (require('./utils/IPCHandler.js'))(this);
     const MiscFunctions = new (require('./utils/misc.js'))();
     for (const key of Object.getOwnPropertyNames(Object.getPrototypeOf(MiscFunctions))) {
       if (key !== 'constructor') {

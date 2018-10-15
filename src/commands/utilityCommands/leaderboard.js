@@ -7,7 +7,7 @@ module.exports = new GenericCommand(
     if (stats.clusters[stats.clusters.length - 1].uptime === 0) {
       return 'bot is still loading, hold ur horses damn';
     }
-    const bigmeme = (id) => Memer.IPC.fetchGuild(id).then(g => g || { id });
+    const bigmeme = (id) => Memer.IPC.fetchGuild(id, 2000).then(g => g || { id });
 
     let pls = await Memer.db.topPls();
     let you = await Memer.db.getPls(msg.channel.guild.id);

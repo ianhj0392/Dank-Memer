@@ -116,7 +116,7 @@ module.exports = class Autopost {
           })
           .then(async (message) => {
             // Check if the channel in which the message was sent is NSFW, and if not, removes the channel from the db and try to delete the message
-            let grabbedChannel = await this._fetchChannel(message.channel_id);
+            let grabbedChannel = await this.client.IPC.fetchChannel(message.channel_id, 2000);
             if (!grabbedChannel) {
               grabbedChannel = await this.client.bot.getRESTChannel(message.channel_id)
                 .catch(err => err.code);
@@ -131,14 +131,6 @@ module.exports = class Autopost {
           });
       }
     }
-  }
-
-  async _fetchChannel (id) { // Because eris-sharder sucks hard
-    return new Promise(resolve => {
-      setTimeout(() => resolve({ id }), 2000);
-      this.client.IPC.fetchChannel(id)
-        .then(resolve);
-    });
   }
 
   async post () {

@@ -8,11 +8,7 @@ module.exports = new GenericCommand(
       return 'bot is still loading, hold ur horses damn';
     }
     if (args && args[0] === '-all') {
-      const bigmeme = (id) => new Promise(resolve => {
-        setTimeout(() => resolve({ id }), 1000);
-        Memer.IPC.fetchUser(id)
-          .then(resolve); // this is intentional and also stupid but still intentional
-      });
+      const bigmeme = (id) => Memer.IPC.fetchUser(id, 2000).then(u => u || { id });
       let pls = await Memer.redis.zrevrange(`pls-leaderboard`, 0, 9, 'WITHSCORES');
       pls = Memer.paginateArray(pls, 2).map(entry => {
         return {
@@ -43,7 +39,7 @@ module.exports = new GenericCommand(
       }
       pls = pls.filter(u => u.pls > 0);
       pls = pls.sort((a, b) => b.pls - a.pls).slice(0, 5);
-      pls = await Promise.all(pls.map(g => Memer.IPC.fetchUser(g.id).then(res => { return { ...res, pls: g.pls }; })));
+      pls = await Promise.all(pls.map(g => Memer.IPC.fetchUser(g.id, 2000).then(res => { return { ...res, pls: g.pls }; })));
       return {
         title: `who uses the bot the most`,
         description: pls.map((u, i) => `${emojis[i] || '👏'} ${u.pls} - ${u.username}#${u.discriminator}`).join('\n'),

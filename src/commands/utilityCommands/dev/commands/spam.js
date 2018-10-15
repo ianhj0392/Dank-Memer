@@ -1,7 +1,7 @@
 module.exports = {
   help: 'who spammin',
   fn: async ({ Memer }) => {
-    const bigmeme = (id) => Memer.IPC.fetchUser(id).then(u => u || { id });
+    const bigmeme = (id) => Memer.IPC.fetchUser(id, 2000).then(u => u || { id });
 
     let pls = await Memer.db.topSpam();
     pls = await Promise.all(pls.map(async g => Object.assign(await bigmeme(g.id), { pls: g.spam })));

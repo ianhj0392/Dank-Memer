@@ -1,7 +1,7 @@
 {
   "name": "dank-memer",
   "version": "6.0.0",
-  "description": "A discord entertainment based bot, with an emphasis on memes.",
+  "description": "Discord's favorite meme bot, since January 2017",
   "main": "memer.js",
   "scripts": {
     "linter": "semistandard --fix"
@@ -10,14 +10,9 @@
     "type": "git",
     "url": "git+https://github.com/dank-memer/Dank-Memer.git"
   },
-  "keywords": [
-    "discord",
-    "meme",
-    "bot",
-    "melmsie"
-  ],
-  "author": "melmsie",
-  "license": "AGPL-3.0",
+  "keywords": ["discord"],
+  "author": "Melmsie and the crew",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/dank-memer/Dank-Memer/issues"
   },

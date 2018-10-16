@@ -16,7 +16,7 @@ const AUTORESPONSE_MATRIX = {
   },
   ree: {
     regex: /^(ree)/i,
-    parse: (match) => `R${'E'.repeat(match.input.split(/ +g/)[0].length)}`
+    parse: (match) => `R${'E'.repeat(match.input.split(/ +/g)[0].length)}`
   },
   nou: {
     regex: /^(no (?=u{1,}$))/i,
@@ -203,7 +203,7 @@ function cacheMessage (msg) {
 
 async function updateStats (msg, command, userEntry) {
   if (!userEntry._saved) {
-    userEntry.save();
+    userEntry.save().catch(() => {});
   }
 }
 

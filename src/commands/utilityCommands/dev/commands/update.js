@@ -15,7 +15,7 @@ module.exports = {
     for (const subscriber of subscribers) {
       promises.push(
         Memer.bot.createMessage(subscriber.channelID, args.join(' '))
-          .catch(() => Memer.ipc.fetchGuild(subscriber.id)
+          .catch(() => Memer.IPC.fetchGuild(subscriber.id)
             .then(guild => Memer.bot.getDMChannel(guild.ownerID)
               .then(dm => dm.createMessage(`The Update Channel is deleted or I dont have permissions to talk in the update channel you idiot!!! Anyway here is the update info\n\n ${args.join(' ')}`)
                 .catch(() => Memer.db.deleteDevSubscriber(subscriber.id))

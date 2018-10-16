@@ -32,7 +32,7 @@ const programmers = [
 
 module.exports = new GenericCommand(
   () => ({
-    title: 'Dank Memer Developers',
+    title: 'Dank Memer Contributers',
     description: shuffle(programmers).map(info => `[${info[0]}](https://github.com/${info[1]}) — ${info[2]}`).join('\n')
   }), {
     triggers: ['credits', 'helpers', 'devs', 'developers', 'programmers'],

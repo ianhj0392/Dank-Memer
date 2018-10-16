@@ -5,23 +5,25 @@
 const gifs = require('../assets/arrays/permGifs.json');
 const ArgParser = require('../utils/ArgParser.js');
 
-const AUTORESPONSE_MATRIX = {
-  dad: {
-    regex: /^(im|i['’]m|i am)\s+(.+)/i,
-    parse: (match) => `Hi ${match[2]}, I'm dad`
-  },
-  sec: {
-    regex: /^(one sec$|one second|sec$)/i,
-    parse: () => this.sleep(1000).then(() => 'It\'s been one second')
-  },
-  ree: {
-    regex: /^(ree)/i,
-    parse: (match) => `R${'E'.repeat(match.input.split(/ +/g)[0].length)}`
-  },
-  nou: {
-    regex: /^(no (?=u{1,}$))/i,
-    parse: () => 'no u'
-  }
+const AUTORESPONSE_MATRIX = function () {
+  return {
+    dad: {
+      regex: /^(im|i['’]m|i am)\s+(.+)/i,
+      parse: (match) => `Hi ${match[2]}, I'm dad`
+    },
+    sec: {
+      regex: /^(one sec$|one second|sec$)/i,
+      parse: () => this.sleep(1000).then(() => 'It\'s been one second')
+    },
+    ree: {
+      regex: /^(ree)/i,
+      parse: (match) => `R${'E'.repeat(match.input.split(/ +/g)[0].length)}`
+    },
+    nou: {
+      regex: /^(no (?=u{1,}$))/i,
+      parse: () => 'no u'
+    }
+  };
 };
 const SWEARWORDS = [
   'fuck', 'penis', 'cunt', 'faggot', 'wank', 'nigger', 'nigga', 'slut', 'bastard', 'bitch', 'asshole', 'dick', 'blowjob', 'cock', 'pussy', 'retard', 'ligma', 'sugondese', 'sugandese', 'fricc', 'hecc', 'sugma', 'updog', 'bofa', 'fugma', 'snifma', 'bepis', 'da wae', 'despacito'
@@ -78,7 +80,7 @@ exports.handle = async function (msg) {
   // Auto responses
   for (const autoResponse in gConfig.props.autoResponse) {
     if (gConfig.props.autoResponse[autoResponse]) {
-      const entry = AUTORESPONSE_MATRIX[autoResponse];
+      const entry = AUTORESPONSE_MATRIX.call(this)[autoResponse];
       const match = entry.regex.exec(msg.content);
       if (match) {
         const result = await entry.parse(match);

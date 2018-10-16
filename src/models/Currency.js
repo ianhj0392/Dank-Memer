@@ -127,6 +127,13 @@ const ITEMS = Object.assign({
     type: ItemTypes.TOOL,
     cost: 25e3,
     consumable: true
+  },
+  bread: {
+    name: 'Day old Bread',
+    id: 'bread',
+    type: ItemTypes.COLLECTABLE,
+    cost: 2,
+    consumable: true
   }
 }, BOXES);
 

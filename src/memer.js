@@ -29,7 +29,7 @@ master.on('stats', res => {
   // TODO: Post stats to endpoint on the webserver
 });
 
-if (master.isMaster()) {
+if (masterProcess.isMaster) {
   masterProcess.on('message', (worker, msg) => {
     msg = msg || {};
     if (msg.type === 'restartCluster') {
@@ -52,7 +52,7 @@ process.on('SIGINT', async () => { // TODO: See if this still needs to happen af
 
 // Post guild count to each bot list api
 
-if (master.isMaster() && !config.options.dev) {
+if (masterProcess.isMaster && !config.options.dev) {
   setInterval(async () => {
     const { stats: { guilds } } = await r.table('stats')
       .get(1)
@@ -71,7 +71,7 @@ if (master.isMaster() && !config.options.dev) {
 }
 
 (async () => {
-  if (master.isMaster()) {
+  if (masterProcess.isMaster) {
     const redis = await require('./utils/redisClient.js')(config.redis);
     const changesStream = await r.table('users').changes({ squash: true, includeInitial: false, includeTypes: true }).run();
     changesStream.on('data', data => {

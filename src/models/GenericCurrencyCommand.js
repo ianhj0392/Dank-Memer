@@ -26,7 +26,7 @@ module.exports = class GenericCurrencyCommand {
               userEntry.addPocket(value);
               break;
             case 'multiplier':
-              // TODO: add multiplier case
+              // userEntry.addMultiplier() - multi already exists, need to make function for it
               break;
             case 'items':
               for (const item in value) {
@@ -34,7 +34,7 @@ module.exports = class GenericCurrencyCommand {
               }
               break;
             case 'title':
-              // TODO: add title case
+              // TODO: add title case - need to implement `profile` command first or similar
               break;
           }
         }

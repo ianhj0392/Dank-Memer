@@ -6,8 +6,8 @@ module.exports = {
       msg.channel.createMessage('You haven\'t been stolen from by anybody within the last **2 minutes**.');
       return false;
     } else {
-      Memer.log(stealer)
       const stealer = await Memer.db.getUser(stolen.stealer);
+      Memer.log(stealer);
       if (stealer.props.pocket < stolen.worth) {
         msg.channel.createMessage('damn unlucky, the criminal got away and I wasn\'t able to revert the money back.');
         return false;

@@ -672,6 +672,9 @@ class DatabaseFunctions {
         time: 0, // Time since last daily command
         streak: 0 // Total current streak
       },
+      upgrades: {
+        multi: 0
+      },
       upvoted: false, // DBL voter status
       dblUpvoted: false // discordbotlist.com voter status
     };

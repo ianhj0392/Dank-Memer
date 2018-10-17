@@ -57,6 +57,7 @@ Use \`${guildEntry.props.prefix} whitelist purge\` to remove the entire whitelis
     return response;
   }, {
     triggers: ['whitelist'],
+    usage: '{command} <purge/add/remove> [role]',
     description: 'Use this command to set and manage whitelisted roles of whomst\'ve can use commands'
   }
 );

@@ -680,6 +680,7 @@ class DatabaseFunctions {
       disabledCategories: [],
       disabledCommands: [],
       enabledCommands: [],
+      whitelistRoles: [],
       autoResponse: {
         dad: false,
         ree: false,

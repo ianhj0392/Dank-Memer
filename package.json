@@ -10,7 +10,9 @@
     "type": "git",
     "url": "git+https://github.com/dank-memer/Dank-Memer.git"
   },
-  "keywords": ["discord"],
+  "keywords": [
+    "discord"
+  ],
   "author": "Melmsie and the crew",
   "license": "MIT",
   "bugs": {
@@ -20,6 +22,7 @@
   "dependencies": {
     "asciiart-logo": "^0.1.7",
     "cheerio": "^1.0.0-rc.2",
+    "eris": "^0.9.0",
     "eris-sharder": "github:Discord-Sharders/eris-sharder#dev",
     "ioredis": "^4.0.0",
     "lavalink": "^2.2.2",

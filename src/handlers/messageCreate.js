@@ -151,6 +151,19 @@ exports.handle = async function (msg) {
     return;
   }
 
+  if (gConfig.props.whitelistRoles.length) {
+    if (msg.member) {
+      if (
+        !msg.member.roles.some(id => gConfig.props.whitelistRoles.includes(id)) &&
+        !msg.member.permission.has('administrator') // make sure Dank Memer is still accessible to mods lol
+      ) {
+        // this.ddog.increment(`blockedByWhitelist`);
+        // FIXME implement stats for this?
+        return;
+      }
+    }
+  }
+
   let userEntry = await this.db.getUser(msg.author.id);
   userEntry.addPls().setLastCmd(command.props.triggers[0]);
 

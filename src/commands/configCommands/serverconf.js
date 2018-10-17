@@ -33,6 +33,11 @@ module.exports = new GenericCommand(
           name: 'Enabled Commands',
           value: enabledCommands.map(c => `\`${c}\``).join(', ') || 'No overriding enabled commands',
           inline: true
+        },
+        {
+          name: 'Whitelisted Roles',
+          value: guildEntry.props.whitelistRoles.map(r => `<@&${r}>`).join(', ') || 'Everyone is whitelisted',
+          inline: true
         }
       ]
     };

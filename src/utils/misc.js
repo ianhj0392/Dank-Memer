@@ -138,6 +138,11 @@ class MiscFunctions {
     if (msg.channel.guild.members.has('419254454169108480')) {
       total += 0.5;
     }
+
+    if (Memer.db.checkPremiumGuild(msg.channel.guild.id)) {
+      total += 0.5;
+    }
+
     if (donor || isGlobalPremiumGuild) {
       total += (donor || 20) * 0.5;
     }
@@ -205,13 +210,13 @@ class MiscFunctions {
     }
     if (userDB.upvoted) {
       end.unlocked.total += 1;
-      end.unlocked.list.push('[Voted for the bot](https://discordbots.org/bot/memes/vote)');
+      end.unlocked.list.push('[Voted (DBL.org)](https://discordbots.org/bot/memes/vote)');
     }
     if (userDB.dblUpvoted) {
       end.unlocked.total += 1;
-      end.unlocked.list.push('[Voted for the bot on DBL](https://discordbotlist.com/bots/270904126974590976)');
+      end.unlocked.list.push('[Voted (DBL.com)](https://discordbotlist.com/bots/270904126974590976)');
     }
-    if (msg.channel.guild.members.has('419254454169108480')) {
+    if (Memer.db.checkPremiumGuild(msg.channel.guild.id)) {
       end.unlocked.total += 1;
       end.unlocked.list.push('Premium server');
     }
@@ -236,7 +241,7 @@ class MiscFunctions {
     }
     if (msg.channel.guild.id === '470337009886429194') {
       end.unlocked.total += 1;
-      end.unlocked.list.push('In support server');
+      end.unlocked.list.push('Support server');
     }
     if (date.getMinutes() === 20 && date.getHours() === 4) {
       end.unlocked.total += 1;

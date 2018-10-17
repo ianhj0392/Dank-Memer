@@ -34,27 +34,19 @@ Use \`${guildEntry.props.prefix} whitelist purge\` to remove the entire whitelis
       }
     }
 
-    let response;
-
     switch (args[0]) {
       case 'add':
-        guildEntry.addWhitelistedRole(role.id);
-        response = 'Added that role to the whitelist, welcome to the meme club, kids.';
-        break;
+        await guildEntry.addWhitelistedRole(role.id).save();
+        return 'Added that role to the whitelist, welcome to the meme club, kids.';
       case 'remove':
-        guildEntry.yeetWhitelistedRole(role.id);
-        response = 'Yeeted that role out of the whitelist, if it was even in there.';
-        break;
+        await guildEntry.yeetWhitelistedRole(role.id).save();
+        return 'Yeeted that role out of the whitelist, if it was even in there.';
       case 'purge':
-        guildEntry.purgeWhitelist();
-        response = 'Alright m8, I purged the whole whitelist, all people are free to dab in #general now.';
-        break;
+        await guildEntry.purgeWhitelist().save();
+        return 'Alright m8, I purged the whole whitelist, all people are free to dab in #general now.';
       default:
         return {content: "Oi, that's not a valid command m8, you gotta use `add`, `remove`, or `purge`.", reply: true};
     }
-
-    await guildEntry.save();
-    return response;
   }, {
     triggers: ['whitelist'],
     usage: '{command} <purge/add/remove> [role]',

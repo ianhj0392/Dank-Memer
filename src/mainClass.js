@@ -105,7 +105,7 @@ class Memer extends Base {
     this.musicManager = require('./utils/MusicManager')(this);
     this.log(`Ready: ${process.memoryUsage().rss / 1024 / 1024}MB`);
     this.bot.editStatus(null, {
-      name: 'pls help',
+      name: `${this.config.option.prefix} help`,
       type: 0
     });
 

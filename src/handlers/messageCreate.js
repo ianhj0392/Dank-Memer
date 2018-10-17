@@ -154,7 +154,7 @@ exports.handle = async function (msg) {
   if (gConfig.props.whitelistRoles) {
     if (msg.member) {
       if (
-        !msg.member.roles.some(id => gConfig.whitelistRoles.includes(id)) &&
+        !msg.member.roles.some(id => gConfig.props.whitelistRoles.includes(id)) &&
         !msg.member.permission.has('administrator') // make sure Dank Memer is still accessible to mods lol
       ) {
         // this.ddog.increment(`blockedByWhitelist`);

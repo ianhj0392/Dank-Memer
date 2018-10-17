@@ -151,7 +151,7 @@ exports.handle = async function (msg) {
     return;
   }
 
-  if (gConfig.props.whitelistRoles) {
+  if (gConfig.props.whitelistRoles.length) {
     if (msg.member) {
       if (
         !msg.member.roles.some(id => gConfig.props.whitelistRoles.includes(id)) &&

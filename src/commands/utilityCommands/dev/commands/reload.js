@@ -1,7 +1,7 @@
 /** @typedef {import("../../../../models/GenericCommand").FunctionParams} FunctionParams */
 
 module.exports = {
-  help: 'reload [all | commands | config | command [command|all] | category [command category] | models | utils]',
+  help: 'reload [all | commands | config | command [command|all] | category [command category] | models | utils | events]',
   /** @param {FunctionParams} */
   fn: async ({ Memer, msg, args }) => {
     if (['category', 'command', 'commands', 'all', 'models', 'events', 'utils', 'config'].includes(args[0])) {
@@ -13,7 +13,14 @@ module.exports = {
         return;
       }
     } else {
-      return 'reload [all | commands | config | command [command|all] | category [command category] | models | utils]';
+      return '`reload all` Reloads everything, including the main class\n' +
+      '`reload commands` Reloads all commands, also the only way to reload dev commands\n' +
+      '`reload config` Reloads the config, secrets and package files\n' +
+      '`reload command [command]` Reloads the given command, doesn\'t work with dev commands\n' +
+      '`reload category [category]` Reloads the given command category, use like `reload utility` (doesn\'t work with dev category)' +
+      '`reload models` Reloads models, though due to their nature, the files that requires them (like commands) needs to be reloaded too' +
+      '`reload utils` Reloads utils, except `redisClient`, this one may be reloaded with `all`' +
+      '`reload events` Reloads event listeners, (`src/handlers`)';
     }
 
     const type = msg.args.nextArgument(false).toLowerCase();

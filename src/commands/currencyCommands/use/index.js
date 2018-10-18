@@ -14,20 +14,23 @@ module.exports = new GenericCurrencyCommand(
       return 'You can\'t use this item :thinking:';
     }
     if (await userEntry.isItemActive(item.id)) {
-      return 'You\'ve already used this item!';
+      return 'You can\'t use this item, you\'ve already used it and it\'s active right now!';
     }
     if (item.type === Currency.ItemTypes.BOX) {
       const emoji = item.id === 'normie' ? ':wastebasket:' : item.id === 'meme' ? ':stars:' : ':trident:';
-      msg.channel.createMessage(`${emoji} Opening a ${item.name}... ${emoji}`);
+      const boxmessage = await msg.channel.createMessage(`${emoji} Opening a ${item.name}... ${emoji}`);
       await Memer.sleep(2500);
 
-      const coins = Math.floor(Memer.randomNumber(item.rewards.coins.min, item.rewards.coins.max));
-      const [itemid, amount] = Object.keys(Memer.randomInArray(item.rewards.items))[0];
+      const coins = Math.floor(Memer.randomNumber(item.coins.min, item.coins.max));
       userEntry.addPocket(coins);
-      userEntry.addInventoryItem(itemid, amount);
+      const rewardchance = Math.random() > item.reward.chance;
+      const [itemid, amount] = Object.entries(Memer.randomInArray(item.reward.items))[0];
+      if (rewardchance) {
+        userEntry.addInventoryItem(itemid, amount);
+      }
 
       await userEntry.removeInventoryItem(item.id).save();
-      return `good stuff, you got a solid **${coins}** coins and \`${amount} ${Currency.items[itemid].name}${amount !== 1 ? '\'s' : ''}\`!`;
+      return boxmessage.edit({ content: `good stuff, you got a solid **${coins}** coins${rewardchance ? ` and \`${amount} ${Currency.items[itemid].name}${amount !== 1 ? '\'s' : ''}\`` : ''} from your ${item.name.toLowerCase()}`, reply: true });
     }
 
     const consume = items[item.id].fn({ Memer, msg, userEntry, donor, Currency, isGlobalPremiumGuild });

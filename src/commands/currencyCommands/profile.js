@@ -8,7 +8,7 @@ module.exports = new GenericCurrencyCommand(
     }
     const experience = userEntry.props.experience;
     const level = userEntry.props.level;
-    Memer.log(((experience / (Math.ceil(experience / 100) * 100 - experience)) * 1.6) / 10);
+
     return {
       author:
           {
@@ -29,9 +29,10 @@ module.exports = new GenericCurrencyCommand(
         },
         {
           name: 'Inventory',
-          value: `\`${Object.keys(userEntry.props.inventory).filter(i => userEntry.props.inventory[i] > 0).length}\` items (${Object.values(userEntry.props.inventory).reduce((acc, cur) => acc + cur)} total) worth \`${Object.keys(userEntry.props.inventory)
-            .map(i => Currency.items[i] ? Currency.items[i].cost || 0 : 0)
-            .reduce((acc, cur) => acc + cur)}\` coins`,
+          value: `\`${Object.keys(userEntry.props.inventory).filter(i => userEntry.props.inventory[i] > 0).length}\` items (${Object.values(userEntry.props.inventory)
+            .reduce((acc, cur) => acc + cur)} total) worth \`${Object.keys(userEntry.props.inventory)
+            .map(i => Currency.items[i] ? Currency.items[i].cost * userEntry.props.inventory[i] || 0 : 0)
+            .reduce((acc, cur) => (acc + cur))}\` coins`,
           inline: false
         }
       ]

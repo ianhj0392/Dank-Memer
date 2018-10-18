@@ -673,7 +673,8 @@ class DatabaseFunctions {
         streak: 0 // Total current streak
       },
       upgrades: {
-        multi: 0
+        multi: 0,
+        luck: 0
       },
       upvoted: false, // DBL voter status
       dblUpvoted: false // discordbotlist.com voter status

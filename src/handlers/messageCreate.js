@@ -4,7 +4,6 @@
 
 const gifs = require('../assets/arrays/permGifs.json');
 const ArgParser = require('../utils/ArgParser.js');
-const sleep = require('../utils/misc').sleep;
 
 const AUTORESPONSE_MATRIX = function () {
   return {

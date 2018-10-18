@@ -8,7 +8,7 @@ module.exports = {
 
     let db = userEntry.props;
     donor = donor ? donor.donorAmount : false;
-    let user = await Memer.ipc.fetchUser(id);
+    let user = await Memer.IPC.fetchUser(id);
     let blacklisted = await Memer.db.checkBlocked(id);
     return {
       title: `${user.username}#${user.discriminator} ${id}`,

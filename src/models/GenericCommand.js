@@ -25,6 +25,7 @@
  * @prop {import('eris').Client} bot The eris client instance
  * @prop {import('../utils/Autopost')} autopost The auto-poster
  * @prop {Array<Object>} cmds An array of all the commands
+ * @prop {import('../utils/IPCHandler')} IPC Custom IPC interface, allows a more reliable communication across clusters
  */
 
 /** @typedef {MemerBase & MiscFunctions} Memer */

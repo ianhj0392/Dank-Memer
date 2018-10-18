@@ -48,7 +48,7 @@ module.exports = new GenericCommand(
           let index = 0;
           let tosend = [];
           for (let id of guilds) {
-            const guild = await Memer.ipc.fetchGuild(id);
+            const guild = await Memer.IPC.fetchGuild(id);
             tosend.push(guilds.length ? `\`${index += 1}.\` **${guild.name}** (${id})\n` : 'You have redeemed no premium servers');
           }
           return tosend.join('');

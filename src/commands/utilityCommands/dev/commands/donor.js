@@ -11,7 +11,11 @@ module.exports = {
     }
 
     if (args[0] === 'add') {
-      ids.forEach(id => Memer.db.addDonor(id, parseInt(args[1])));
+      let promises = [];
+      for (const id of ids) {
+        promises.push(Memer.db.addDonor(id, parseInt(args[1])));
+      }
+      await promises;
       const channel = await Memer.bot.getDMChannel(args[2]);
       await channel.createMessage({ embed: {
         color: Memer.randomColor(),

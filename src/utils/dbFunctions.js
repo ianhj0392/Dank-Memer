@@ -386,16 +386,17 @@ class DatabaseFunctions {
    */
   async addDonor (id, donorAmount, donationDate, declineDate, patreonID) {
     return this.client.r.table('donors')
-      .insert({
+      .get(id)
+      .replace({
         id,
         donorAmount,
         guilds: this.client.r.row('donorAmount').default(donorAmount).ge(donorAmount).branch(this.client.r.row('guilds').default([]), []),
         guildRedeems: this.client.r.row('donorAmount').default(donorAmount).ge(donorAmount).branch(this.client.r.row('guildRedeems').default(0), 0),
-        firstDonationDate: donationDate || this.client.r.now(),
+        firstDonationDate: donationDate || this.client.r.row('donationDate').default(this.client.r.now()),
         declinedSince: declineDate || null,
         totalPaid: donorAmount,
-        patreonID
-      }, { conflict: 'update' })
+        patreonID: this.client.r.row('patreonID').default(patreonID || 0)
+      })
       .run();
   }
 

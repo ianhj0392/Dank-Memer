@@ -29,6 +29,11 @@ module.exports = new GenericCurrencyCommand(
       return `You only have ${coins.toLocaleString()} coins, dont bluff me.`;
     }
 
+    // Items
+    if (await userEntry.isItemActive('inviscloak')) {
+      return 'You\'ve got your invisibility cloak equipped! The dealer can\'t see you and you can\'t gamble right now';
+    }
+
     await addCD();
     let blahblah = Math.random();
 

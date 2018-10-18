@@ -43,13 +43,16 @@ module.exports = new GenericCurrencyCommand(
     } else if (donor > 19) { // $20+ gets 95% shields
       victimCoins = victimCoins - (victimCoins * 0.95);
     }
-    await addCD();
 
     // Items
     if (await victim.isItemActive('padlock')) {
       await perp.removePocket(Math.round(min / 2)).save();
       await Memer.redis.del(`activeitems-${user.id}-padlock`);
       return `You try to steal from ${user.username} only to notice that they've got a massive padlock on their pocket! You didn't bring your bolt cutters with you, and ended up getting caught by the police, losing **${Math.round(min / 2)}** coins.`;
+    }
+
+    if (await victim.isItemActive('inviscloak')) {
+      return `You try to steal from ${user.username} but they're invisible! You can't see them or their coins and your big plan to steal fails.`;
     }
 
     await Memer.redis.get(`sand-effect-${msg.author.id}`)
@@ -59,6 +62,8 @@ module.exports = new GenericCurrencyCommand(
           return `${user.username} is a cheeky bastard and has thrown sand directly into your precious eyeballs! You can't steal from them right now.`;
         }
       });
+
+    await addCD();
 
     let stealingOdds = Memer.randomNumber(1, 100);
     let worth;

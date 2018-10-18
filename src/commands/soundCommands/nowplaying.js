@@ -1,4 +1,4 @@
-const { GenericMusicCommand } = require('../../models');
+const GenericMusicCommand = require('../../models/GenericMusicCommand');
 
 module.exports = new GenericMusicCommand(async ({ Memer, music, msg }) => {
   if (!music.player.playing) {
@@ -12,7 +12,7 @@ module.exports = new GenericMusicCommand(async ({ Memer, music, msg }) => {
     fields: [
       { name: 'Author', value: nowPlaying.info.author, inline: true },
       { name: 'Livestream?', value: nowPlaying.info.isStream ? 'Yes' : 'No', inline: true },
-      { name: 'Length', value: nowPlaying.info.isStream ? '∞ (Livestream)' : Memer.format(nowPlaying.info.length / 1000), inline: true }
+      { name: 'Length', value: nowPlaying.info.isStream ? '∞ (Livestream)' : Memer.parseTime(nowPlaying.info.length / 1000), inline: true }
     ]
   };
 }, {

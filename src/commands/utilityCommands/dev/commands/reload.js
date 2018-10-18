@@ -17,9 +17,9 @@ module.exports = {
       '`reload commands` Reloads all commands, also the only way to reload dev commands\n' +
       '`reload config` Reloads the config, secrets and package files\n' +
       '`reload command [command]` Reloads the given command, doesn\'t work with dev commands\n' +
-      '`reload category [category]` Reloads the given command category, use like `reload utility` (doesn\'t work with dev category)' +
-      '`reload models` Reloads models, though due to their nature, the files that requires them (like commands) needs to be reloaded too' +
-      '`reload utils` Reloads utils, except `redisClient`, this one may be reloaded with `all`' +
+      '`reload category [category]` Reloads the given command category, use like `reload utility` (doesn\'t work with dev category)\n' +
+      '`reload models` Reloads models, though due to their nature, the files that requires them (like commands) needs to be reloaded too\n' +
+      '`reload utils` Reloads utils, except `redisClient`, this one may be reloaded with `all`\n' +
       '`reload events` Reloads event listeners, (`src/handlers`)';
     }
 

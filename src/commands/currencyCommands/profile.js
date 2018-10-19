@@ -16,10 +16,11 @@ module.exports = new GenericCurrencyCommand(
             icon_url: user.dynamicAvatarURL()
           },
       color: 3927039,
+      description: '', // title
       fields: [
         {
           name: 'Level',
-          value: `**${level}**\n[${'□'.repeat(((Math.ceil(level / 100) * 100 - level) / 10) / 4).padStart(10, '■')}](https://dankmemer.lol)`,
+          value: `**${level}**\n[${'■'.repeat(((level * 100) / 100) / 4).padEnd(10, '□')}](https://dankmemer.lol)`,
           inline: true
         },
         {

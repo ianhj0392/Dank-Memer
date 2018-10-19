@@ -17,9 +17,12 @@ module.exports = class GenericCurrencyCommand {
     const experience = await userEntry.addExperience(formula).save().then(a => a.props.experience);
     for (const o in Currency.levels) {
       let level = Currency.levels[o];
-      if (experience >= level.exp) {
-        userEntry.setLevel(Math.floor(level.exp / 100));
+      const levelnum = Math.floor(level.exp / 100);
+      if (experience >= level.exp && userEntry.props.level < levelnum && Math.floor(experience / 100) === levelnum) {
+        userEntry.setLevel(levelnum);
         // Perform rewards
+        const randquote = [`Awesome job, ${msg.author.username}.`, `Great stuff ${msg.author.username}.`, `Great work ${msg.author.username}.`, `You're on fire ${msg.author.username}.`];
+        userEntry.sendNotification('level', 'Level up!', `${Memer.randomInArray(randquote)} Congratulations on reaching level ${levelnum}!`);
         for (const { reward, value } in Object.values(level.reward)) {
           switch (reward) {
             case 'coins':

@@ -1,7 +1,7 @@
 const { readdirSync } = require('fs');
 const { join } = require('path');
-const { Base } = global.memeBase || require('eris-sharder');
-const { Cluster } = require('lavalink');
+const { Base } = require('eris-sharder');
+const { PlayerManager } = require('eris-lavalink');
 const cluster = require('cluster');
 const { StatsD } = require('node-dogstatsd');
 
@@ -85,22 +85,21 @@ class Memer extends Base {
 
   async ready () {
     this.IPC.sendTo(1, 'memerIPC', { type: 'restartDone', clusterID: this.clusterID });
-    const { bot } = this;
-    this.lavalink = this.lavalink || new Cluster({
-      nodes: this.config.lavalink.nodes.map(node => ({
-        hosts: { ws: `ws://${node.host}:${node.portWS}`, rest: `http://${node.host}:${node.port}` },
+    if (!(this.bot.voiceConnections instanceof PlayerManager)) {
+      this.bot.voiceConnections = new PlayerManager(this.bot, this.config.lavalink.nodes.map(n => ({
+        ...n,
         password: this.secrets.memerServices.lavalink,
-        shardCount: this.config.sharder.shardCount,
-        userID: this.bot.user.id
-      })),
-      send (guildID, pk) {
-        const shardID = bot.guildShardMap[guildID];
-        const shard = bot.shards.get(shardID);
-        if (!shard) return;
-        const { ws } = shard;
-        return ws.send(JSON.stringify(pk));
-      }
-    });
+        port: n.portWS
+      })), {
+        numShards: this.config.sharder.shardCount, // number of shards
+        userId: this.bot.user.id, // the user id of the bot
+        regions: {
+          eu: ['eu-central', 'amsterdam', 'frankfurt', 'russia', 'hongkong', 'singapore', 'sydney', 'eu-west'],
+          us: ['us-central', 'us-east', 'us-west', 'us-south', 'brazil']
+        },
+        defaultRegion: 'eu'
+      });
+    }
     this.ddog.increment('function.ready');
     this.musicManager = require('./utils/MusicManager')(this);
     this.log(`Ready: ${process.memoryUsage().rss / 1024 / 1024}MB`);

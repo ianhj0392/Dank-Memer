@@ -1,9 +1,7 @@
-/** @typedef {import('lavalink').Player} Player
- * @typedef {import('lavalink').ClusterNode} Node
+/**
  * @typedef {import('eris').Guild} Guild
  * @typedef {import('eris').TextChannel} TextChannel
  * @typedef {import('eris').VoiceChannel} VoiceChannel
- * @typedef {import('lavalink').Status} PlayerStatus
  */
 
 module.exports = class Music {
@@ -88,7 +86,11 @@ module.exports = class Music {
    * @returns {Promise<void>}
    */
   pause (boolean = true) {
-    return this.player.pause(boolean);
+    if (boolean) {
+      this.player.pause();
+    } else {
+      this.player.resume();
+    }
   }
 
   /**
@@ -130,8 +132,12 @@ module.exports = class Music {
   endSession () {
     this._saveQueue();
     this.client.musicManager._map.delete(this.id);
-    this.player.leave();
-    return this.player.destroy();
+    this.leave();
+    return this.player.stop();
+  }
+
+  leave () {
+    return this.client.bot.voiceConnections.leave(this.id);
   }
 
   /**
@@ -278,9 +284,9 @@ module.exports = class Music {
     return this.playing || this.paused || this.preparing;
   }
 
-  /** @type {PlayerStatus} */
-  get status () {
-    return this.player.status;
+  /** @type {Boolean} */
+  get connected () {
+    return this.player.node.connected;
   }
 
   /** @type {Boolean} */
@@ -295,7 +301,7 @@ module.exports = class Music {
 
   /** @type {Player} */
   get player () {
-    return this.client.lavalink.get(this.id);
+    return this.client.bot.voiceConnections.get(this.id);
   }
 
   /** @type {Node} */

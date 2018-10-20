@@ -13,7 +13,7 @@ module.exports = class GenericCurrencyCommand {
   }
 
   async run ({ Memer, msg, addCD, args, userEntry, donor, guildEntry, isGlobalPremiumGuild }) {
-    const formula = ((Math.round(await Memer.calcMultiplier(Memer, msg.author, userEntry.props, null, msg, isGlobalPremiumGuild) / 10)) * Math.floor(Memer.randomNumber(1, 2)));
+    const formula = ((Math.round(await Memer.calcMultiplier(Memer, msg.author, userEntry.props /* TODO: change from .props to userEntry on it's own */, donor, msg, isGlobalPremiumGuild) / 10)) * Math.floor(Memer.randomNumber(1, 2)));
     const experience = await userEntry.addExperience(formula).save().then(a => a.props.experience);
     for (const o in Currency.levels) {
       let level = Currency.levels[o];
@@ -23,21 +23,23 @@ module.exports = class GenericCurrencyCommand {
         // Perform rewards
         const randquote = [`Awesome job, ${msg.author.username}.`, `Great stuff ${msg.author.username}.`, `Great work ${msg.author.username}.`, `You're on fire ${msg.author.username}.`];
         userEntry.sendNotification('level', 'Level up!', `${Memer.randomInArray(randquote)} Congratulations on reaching level ${levelnum}!`);
-        for (const { reward, value } in Object.values(level.reward)) {
+        for (const [ reward, value ] of Object.entries(level.reward)) {
           switch (reward) {
             case 'coins':
               userEntry.addPocket(value);
               break;
             case 'multiplier':
-              // userEntry.addMultiplier() - multi already exists, need to make function for it
+              userEntry.addMultiplier(value);
               break;
             case 'items':
-              for (const item in value) {
-                userEntry.addInventoryItem(item.id, value[item]);
+              for (const item of value) {
+                for (const [ id, amount ] of Object.entries(item)) {
+                  userEntry.addInventoryItem(id, amount);
+                }
               }
               break;
             case 'title':
-              // TODO: add title case - need to implement `profile` command first or similar
+              userEntry.setTitle(value);
               break;
           }
         }

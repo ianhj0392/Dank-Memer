@@ -316,6 +316,17 @@ class UserEntry {
   }
 
   /**
+   * Updates the user's `multi` value
+   * @param {Number} multi The multiplier amount
+   * @returns {UserEntry} The user entry, so calls can be chained
+   */
+  setMultiplier (multi) {
+    this.props.upgrades.multi = multi;
+    this.update({ upgrades: { multi: multi } });
+    return this;
+  }
+
+  /**
    * Updates the user's `daily` streak
    * @param {Number} [timestamp=Date.now()] The unix epoch timestamp of when the user last ran `daily`, defaults to `Date.now()`
    * @param {Number} [streak=this.streak.streak + 1] The user's streak, defaults to their current streak + 1
@@ -369,6 +380,17 @@ class UserEntry {
     this.props.lastRan = cmd;
     this.props.lastCmd = timestamp;
     this.update({ lastCmd: timestamp, lastRan: cmd });
+    return this;
+  }
+
+  /**
+   * Set the user's title
+   * @param {String} title The title to set
+   * @returns {UserEntry} The user entry, so calls can be chained
+   */
+  setTitle (title) {
+    this.props.title = title || '';
+    this.update({ title: title || '' });
     return this;
   }
 

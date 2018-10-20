@@ -666,6 +666,7 @@ class DatabaseFunctions {
       inventory: {}, // Items the user has, an object of item ID's with the value being the quantity
       level: 0, // The level the user is currently at
       notifications: [], // Notifications object
+      title: '', // string
       lost: 0, // Total coins lost
       won: 0, // Total coins won
       shared: 0, // Transferred to other players

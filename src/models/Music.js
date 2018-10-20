@@ -16,7 +16,11 @@ module.exports = class Music {
     this.preparing = false;
     /** @type {Array<Object>} The queue */
     this.queue = [];
-    this.player.on('event', this._handleEvent.bind(this));
+    if (this.player) {
+      this.player.on('end', this._handleEnd.bind(this));
+      this.player.on('error', this._failed.bind(this));
+      this._active = true;
+    }
     /** @type {String} */
     this._channelID = null;
     /** @type {Promise|Boolean} Whether the player is ready */
@@ -40,6 +44,21 @@ module.exports = class Music {
       this.queue.push(song);
     }
     return this._play();
+  }
+
+  /**
+   * Join the given voice channel
+   *
+   * @param {VoiceChannel|String} channel The voice channel to join, or its ID
+   * @returns {Promise}
+   */
+  async join (channel) {
+    let options = {};
+    channel = typeof channel !== 'string' ? channel : this.client.bot.guilds.get(this.id).channels.get(channel);
+    if (channel.guild.region) {
+      options.region = channel.guild.region;
+    }
+    return this.client.bot.joinVoiceChannel(channel.id, options);
   }
 
   /**
@@ -155,6 +174,10 @@ module.exports = class Music {
    * @returns {Promise<void>}
    */
   async _play (options) {
+    if (this.player && !this._active) {
+      this.player.on('end', this._handleEnd.bind(this));
+      this.player.on('error', this._failed.bind(this));
+    }
     if (this.busy || !this.queue.length) {
       return;
     }
@@ -188,15 +211,9 @@ module.exports = class Music {
     return true;
   }
 
-  _handleEvent (event) {
+  _handleEnd (event) {
     const shifted = this.queue.shift();
-    if (event.type === 'TrackEndEvent') {
-      return this._finished(event, shifted);
-    } else if (event.type === 'TrackExceptionEvent') {
-      return this._failed(event);
-    } else {
-      return this._stuck();
-    }
+    return this._finished(event, shifted);
   }
 
   _finished (event, shifted) {

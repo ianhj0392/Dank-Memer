@@ -22,9 +22,9 @@
   "dependencies": {
     "asciiart-logo": "^0.1.7",
     "cheerio": "^1.0.0-rc.2",
+    "eris-lavalink": "^1.0.2",
     "eris-sharder": "github:melmsie/eris-sharder#dev",
     "ioredis": "^4.0.0",
-    "eris-lavalink": "^1.0.2",
     "node-dogstatsd": "0.0.7",
     "programmatic-repl": "^1.1.4",
     "rethinkdbdash": "^2.3.31",

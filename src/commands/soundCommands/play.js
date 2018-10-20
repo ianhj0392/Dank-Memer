@@ -1,15 +1,15 @@
 const GenericMusicCommand = require('../../models/GenericMusicCommand');
-const { LoadType: { TRACK_LOADED, PLAYLIST_LOADED, SEARCH_RESULT, NO_MATCHES, LOAD_FAILED } } = require('lavalink');
 const linkRegEx = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/g;
 
 module.exports = new GenericMusicCommand(async ({ Memer, music, args, msg }) => {
+  const { playlist, track, search, noResult, failed } = Memer.musicManager.loadTypes;
   if (!msg.member.voiceState.channelID) {
     return msg.reply('join a voice channel fam');
   }
 
   const newSession = !music.voiceChannel || false;
   if (!music.voiceChannel) {
-    await music.player.join(msg.member.voiceState.channelID);
+    await music.join(msg.member.voiceState.channelID);
   }
   let response;
   const queryString = msg.args.gather();
@@ -23,27 +23,27 @@ module.exports = new GenericMusicCommand(async ({ Memer, music, args, msg }) => 
     if (!queryString.startsWith('https://www.youtube.com/') && !queryString.startsWith('https://soundcloud.com/')) {
       return 'ok look i don\'t support anything else than youtube and soundcloud';
     }
-    response = await music.node.load(queryString);
+    response = await Memer.musicManager.loadTrack(queryString);
   } else {
-    response = await music.node.load(`ytsearch: ${encodeURIComponent(queryString)}`);
+    response = await Memer.musicManager.loadTrack(`ytsearch: ${encodeURIComponent(queryString)}`);
   }
-
+  Memer.log(response);
   const { loadType, playlistInfo, tracks } = response;
   switch (loadType) {
-    case TRACK_LOADED:
+    case track:
       await music.addSong(tracks[0], music.queue[0] && newSession);
       return `Queued \`${tracks[0].info.title}\``;
-    case PLAYLIST_LOADED:
+    case playlist:
       const promises = [];
       for (const song of tracks) promises.push(music.addSong(song, music.queue[0] && newSession));
       await Promise.all(promises);
       return `Queued **${tracks.length}** songs from **${playlistInfo.name}**, happy now? jeez`;
-    case SEARCH_RESULT:
+    case search:
       await music.addSong(tracks[0], music.queue[0] && newSession);
       return `Queued \`${tracks[0].info.title}\``;
-    case NO_MATCHES:
+    case noResult:
       return 'Unable to find any videos by that query, what are the odds. Pretty high if you are dumb I guess';
-    case LOAD_FAILED:
+    case failed:
       return 'I couldn\'t load that song. This may be because the song has been claimed or it\'s private. How unlucky';
   }
 }, {

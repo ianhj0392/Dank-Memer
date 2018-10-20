@@ -54,7 +54,7 @@ class Memer extends Base {
       err: 0
     };
     this.redis = reload.redis;
-    this.lavalink = reload.lavalink;
+    this.bot.voiceConnections = reload.lavalink || this.bot.voiceConnections;
     this.listeners = {};
     this.cooldowns = new Map();
     this.IPC = new (require('./utils/IPCHandler.js'))(this);
@@ -158,6 +158,7 @@ class Memer extends Base {
         this[key] = MiscFunctions[key];
       }
     }
+    this.log(`Reloaded utils`);
   }
 
   loadCommands () {
@@ -189,13 +190,13 @@ class Memer extends Base {
   }
 
   reloadModels () {
-    const modelsPath = require.resolve(join(__dirname, 'models'));
+    const modelsPath = join(__dirname, 'models');
     for (const path in require.cache) {
       if (path.startsWith(modelsPath)) {
         delete require.cache[path];
       }
     }
-    Memer.log(`Reloaded models`);
+    this.log(`Reloaded models`);
   }
 
   reloadListeners () {
@@ -235,9 +236,10 @@ class Memer extends Base {
       reloadedCmd.category = cmd.category;
       reloadedCmd.description = cmd.description;
       reloadedCmd.path = cmd.path;
+      this.log(this.cmds.findIndex(c => c.props.triggers.includes(msg.command)));
       this.cmds.splice(this.cmds.findIndex(c => c.props.triggers.includes(msg.command), 1));
       this.cmds.push(reloadedCmd);
-      this.log(`Reloaded command ${reloadedCmd.props.triggers[0]}`);
+      this.log(`Reloaded command ${reloadedCmd.props.triggers[0]}, ${this.cmds.length}, ${this.cmds.map(c => c.props.triggers[0])}`);
     } else {
       const commandPath = join(__dirname, 'commands');
       for (const path in require.cache) {
@@ -281,7 +283,7 @@ class Memer extends Base {
       clearInterval(interval);
     }
     const Memer = require(module.filename);
-    new Memer({ bot: this.bot, clusterID: this.clusterID }, msg.preserveConnections ? { r: this.r, lavalink: this.lavalink, redis: this.redis, ddog: this.ddog } : undefined).launch();
+    new Memer({ bot: this.bot, clusterID: this.clusterID }, msg.preserveConnections ? { r: this.r, lavalink: this.bot.voiceConnections, redis: this.redis, ddog: this.ddog } : undefined).launch();
     this.lavalink = null;
     this.r = null;
     this.redis = null;

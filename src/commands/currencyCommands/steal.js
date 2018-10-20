@@ -65,7 +65,7 @@ module.exports = new GenericCurrencyCommand(
 
     await addCD();
 
-    let stealingOdds = Memer.randomNumber(1, 100);
+    let stealingOdds = Memer.randomNumber(1, 100) * (await victim.isItemActive('alcohol') ? 1.5 : 1); // alcohol modifier
     let worth;
     let message;
     if (stealingOdds <= 60) { // fail section

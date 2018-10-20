@@ -331,22 +331,22 @@ class MiscFunctions {
 
   /**
    * @param {Number} time The time in seconds to parse
-   * @returns {String} A string representing the given time
+   * @returns {String} A string representing the given time, in dd:hh:mm:ss format, days and hours are removed if unnecessary
    */
   parseTime (time) {
-    const methods = [
-      { name: 'd', count: 86400 },
-      { name: 'h', count: 3600 },
-      { name: 'm', count: 60 },
-      { name: 's', count: 1 }
+    let fm = [
+      Math.floor(time / 60 / 60 / 24), // DAYS
+      Math.floor(time / 60 / 60) % 24, // HOURS
+      Math.floor(time / 60) % 60, // MINUTES
+      Math.floor(time % 60) // SECONDS
     ];
-
-    const timeStr = [ Math.floor(time / methods[0].count).toString() + methods[0].name ];
-    for (let i = 0; i < 3; i++) {
-      timeStr.push(Math.floor(time % methods[i].count / methods[i + 1].count).toString() + methods[i + 1].name);
+    if (!fm[1] && !fm[0]) {
+      fm.splice(1, 1);
     }
-
-    return timeStr.filter(g => !g.startsWith('0')).join(', ');
+    if (!fm[0]) {
+      fm.splice(0, 1);
+    }
+    return fm.map(v => { return ((v < 10) ? '0' : '') + v; }).join(':');
   }
 
   async punish (Memer, id, type, reason, optionalBlock = true, optionalWipe = true) {
@@ -444,23 +444,6 @@ class MiscFunctions {
       j = j + (size || 10);
     }
     return result;
-  }
-
-  /**
-   * Format the given seconds into a hours:minutes:seconds string format
-   * @param {Number} seconds The seconds to format
-   * @returns {String} A hours:minutes:seconds string format
-   */
-  format (seconds) {
-    function pad (seconds) {
-      return (seconds < 10 ? '0' : '') + seconds;
-    }
-
-    let hours = Math.floor(seconds / (60 * 60));
-    let minutes = Math.floor(seconds % (60 * 60) / 60);
-    let seconds2 = Math.floor(seconds % 60);
-
-    return `${pad(hours)}:${pad(minutes)}:${pad(seconds2)}`;
   }
 
   /**

@@ -64,6 +64,12 @@ module.exports = new GenericCurrencyCommand(
     const payout = Math.floor(result ? Number(bet * result) : 0);
     let message = `**>** ${slotPositions[0].icon}    ${slotPositions[1].icon}    ${slotPositions[2].icon} **<**\n`;
 
+    if (payout) {
+      await userEntry.addPocket(payout).save();
+    } else {
+      await userEntry.removePocket(bet).save();
+    }
+
     msg.channel.createMessage({ embed: {
       author:
           {
@@ -71,7 +77,7 @@ module.exports = new GenericCurrencyCommand(
             icon_url: user.dynamicAvatarURL()
           },
       description: payout
-        ? `You won **${payout.toLocaleString()}** coins. \n**Multiplier**: ${multi}% | **Percent of bet won**: ${payout.toFixed(2) * 100}%`
+        ? `You won **${payout.toLocaleString()}** coins. \n**Multiplier** ${multi}% | **Percent of bet won** ${(payout / bet) * 100}%`
         : `You lost **${Number(bet).toLocaleString()}** coins.`,
       fields: [
         {
@@ -81,12 +87,6 @@ module.exports = new GenericCurrencyCommand(
       ]
     }
     });
-
-    if (payout) {
-      await userEntry.addPocket(payout).save();
-    } else {
-      await userEntry.removePocket(bet).save();
-    }
   },
   {
     triggers: ['slots', 'slotmachine'],

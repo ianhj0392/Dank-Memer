@@ -1,17 +1,6 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 let min = 500;
 
-const dmStolenUser = async (Memer, user, msg, worth) => {
-  if (!user.bot) {
-    try {
-      const channel = await Memer.bot.getDMChannel(user.id);
-      await channel.createMessage(`**${msg.author.username}#${msg.author.discriminator}** has stolen **${worth.toLocaleString()}** coins from you!`);
-    } catch (err) {
-      await msg.channel.createMessage(`${user.mention}, **${msg.author.username}#${msg.author.discriminator}** just stole **${worth.toLocaleString()}** coins from you!`);
-    }
-  }
-};
-
 module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, args, addCD, userEntry, donor }) => {
     let user = msg.args.resolveUser(true);
@@ -90,8 +79,8 @@ module.exports = new GenericCurrencyCommand(
     }
     Memer.redis.set(`stolen-${user.id}`, JSON.stringify({ amount: worth, stealer: perp.id }), 'EX', 120);
     await perp.addPocket(worth).save();
-    await victim.removePocket(worth).save();
-    await dmStolenUser(Memer, user, msg, worth);
+    victim.removePocket(worth);
+    await victim.sendNotification('steal', 'You have been stolen from!', `**${msg.author.username}#${msg.author.discriminator}** has stolen **${worth.toLocaleString()}** coins from you!`).save();
     return message;
   },
   {

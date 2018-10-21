@@ -1,7 +1,7 @@
 const GenericCommand = require('../../models/GenericCommand');
 
 module.exports = new GenericCommand(
-  async ({ Memer, msg, addCD }) => {
+  async ({ Memer, msg, addCD, userEntry }) => {
     let patrons = [];
     const user = Memer.config.options.developers.includes(msg.author.id) ? (msg.args.resolveUser() || msg.author) : msg.author;
 
@@ -57,7 +57,9 @@ module.exports = new GenericCommand(
             }
           ] : null,
           footer: { text: 'ur a cool person' }
-        }});
+        }}).catch(async () => {
+          await userEntry.sendNotification('link', 'You now have donor perks', 'Thanks for your donation! Most donor perks are automatic. If you want to redeem your coins, use `pls redeem`.').save();
+        });
         return 'You\'ve successfully linked your Discord account with Patreon. Enjoy your perks!\nFor more assistance, you can visit our support server (https://discord.gg/Wejhbd4)';
       }
     }

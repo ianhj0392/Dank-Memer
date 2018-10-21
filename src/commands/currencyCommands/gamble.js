@@ -35,33 +35,48 @@ module.exports = new GenericCurrencyCommand(
     }
 
     await addCD();
-    let blahblah = Math.random();
 
-    if (blahblah > 0.95) {
-      let winAmount = Math.random() + 0.8;
-      let random = Math.round(Math.random());
-      winAmount = winAmount + random;
-      let winnings = Math.round(bet * winAmount);
-      winnings = winnings + Math.round(winnings * (multi / 100));
-      if (winnings === bet) {
-        return 'You broke even. This means you\'re lucky I think?';
-      }
+    const roll = {
+      bot: Number(Math.floor(Math.random() * 12) + 1),
+      user: Number(Math.floor(Math.random() * 12) + 1)
+    };
 
-      await userEntry.addPocket(winnings).save();
-      return `You won **${winnings.toLocaleString()}** coins. \n**Multiplier**: ${multi}% | **Percent of bet won**: ${winnings.toFixed(2) * 100}%`;
-    } else if (blahblah > 0.65) {
-      let winAmount = Math.random() + 0.4;
-      let winnings = Math.round(bet * winAmount);
+    let winAmount = Math.random() + 0.4;
+    let winnings = 0;
+
+    if ((roll.user - 1) > roll.bot) {
+      winnings = Math.round(bet * winAmount);
       winnings = winnings + Math.round(winnings * (multi / 100));
-      if (winnings === bet) {
-        return 'You broke even. This means you\'re lucky I think?';
-      }
       await userEntry.addPocket(winnings).save();
-      return `You won **${winnings.toLocaleString()}** coins. \n**Multiplier**: ${multi}% | **Percent of bet won**: ${winAmount.toFixed(2) * 100}%`;
     } else {
       await userEntry.removePocket(bet).save();
-      return `You lost **${Number(bet).toLocaleString()}** coins.`;
     }
+
+    msg.channel.createMessage({ embed: {
+      author:
+          {
+            name: `${user.username}'s gambling game`,
+            icon_url: user.dynamicAvatarURL()
+          },
+      color: 12216520,
+      description: winnings
+        ? `You won **${winnings.toLocaleString()}** coins. \n**Multiplier** ${multi}% | **Percent of bet won** ${(winnings / bet) * 100}%`
+        : `You lost **${Number(bet).toLocaleString()}** coins.`,
+      fields: [
+        {
+          name: msg.author.username,
+          value: roll.user,
+          inline: true
+        },
+        {
+          name: Memer.bot.user.username,
+          value: roll.bot,
+          inline: true
+        }
+      ],
+      footer: { text: !winnings ? 'Your number has to be at least 1 higher than your opponent.' : '' }
+    }
+    });
   },
   {
     triggers: ['gamble', 'bet'],

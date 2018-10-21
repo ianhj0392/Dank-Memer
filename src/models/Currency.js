@@ -146,4 +146,17 @@ const SHOP = Object.keys(ITEMS)
     return obj;
   }, {});
 
-module.exports = { shop: SHOP, levels: LEVELS, boxes: BOXES, items: ITEMS, ItemTypes };
+const CONSTANTS = {
+  MAX_SAFE_COIN_AMOUNT: 50e6, // The maximum amount of coins one user can hold at a time
+  MAX_SAFE_BET_AMOUNT: 25e3, // The maximum amount of coins that can be bet at one time
+  MAX_SAFE_COMMAND_AMOUNT: 1e6 // The amount of coins before someone can no longer use gamble commands
+};
+
+module.exports = {
+  shop: SHOP,
+  levels: LEVELS,
+  boxes: BOXES,
+  items: ITEMS,
+  ItemTypes,
+  constants: CONSTANTS
+};

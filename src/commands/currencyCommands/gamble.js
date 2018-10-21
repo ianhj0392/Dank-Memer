@@ -1,10 +1,14 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
 module.exports = new GenericCurrencyCommand(
-  async ({ Memer, msg, addCD, isGlobalPremiumGuild, donor, userEntry }) => {
+  async ({ Memer, msg, addCD, isGlobalPremiumGuild, Currency, donor, userEntry }) => {
     let user = msg.author;
     let multi = await Memer.calcMultiplier(Memer, user, userEntry.props, donor ? donor.donorAmount : 0, msg, isGlobalPremiumGuild);
     let coins = userEntry.props.pocket;
+
+    if (coins >= Currency.constants.MAX_SAFE_COMMAND_AMOUNT) {
+      return 'You are too rich to gamble! Why don\'t you go and do something with your coins smh';
+    }
 
     let bet = msg.args.args[0];
     if (!bet) {
@@ -18,6 +22,9 @@ module.exports = new GenericCurrencyCommand(
       } else {
         return 'You have to bet actual coins, dont try to break me.';
       }
+    }
+    if (bet >= Currency.constants.MAX_SAFE_BET_AMOUNT) {
+      return 'You can\'t bet this much at once!';
     }
     if (bet < 1 || !Number.isInteger(Number(bet))) {
       return 'Needs to be a whole number greater than 0';

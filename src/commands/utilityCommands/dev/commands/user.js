@@ -13,7 +13,7 @@ module.exports = {
     return {
       title: `${user.username}#${user.discriminator} ${id}`,
       fields: [
-        { name: 'Currency', value: `Pocket: ${db.pocket.toLocaleString()}\nBank: ${db.bank.toLocaleString()}\nGained: ${db.won.toLocaleString()}\nShared: ${db.shared.toLocaleString()}\nStreak: ${db.streak.streak.toLocaleString()}`, inline: true },
+        { name: 'Currency', value: `Wallet: ${db.pocket.toLocaleString()}\nBank: ${db.bank.toLocaleString()}\nGained: ${db.won.toLocaleString()}\nShared: ${db.shared.toLocaleString()}\nStreak: ${db.streak.streak.toLocaleString()}`, inline: true },
         { name: 'User', value: `Usage: ${db.pls.toLocaleString()}\nBlacklisted: ${blacklisted}\nLast Ran: ${db.lastRan}\nSpam: ${db.spam.toLocaleString()}\nUpvoted: ${db.upvoted}\nUpvoted on DBL: ${db.dblUpvoted || 'false'}\nDonor: ${!donor ? 'false' : `$${donor}`}`, inline: true }
       ]
     };

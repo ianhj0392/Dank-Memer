@@ -6,7 +6,7 @@ module.exports = new GenericCurrencyCommand(
     if (user) {
       userEntry = await Memer.db.getUser(user.id);
     }
-    const text = [user ? `Here is ${user.username}'s balance` : `Here is your balance, ${msg.author.username}`, user ? `**Their Pocket**` : `**Your Pocket**`];
+    const text = [user ? `Here is ${user.username}'s balance` : `Here is your balance, ${msg.author.username}`, user ? `**Their wallet**` : `**Your wallet**`];
     await addCD();
     return {
       title: text[0],

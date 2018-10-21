@@ -19,7 +19,7 @@ module.exports = new GenericCurrencyCommand(
             await userEntry.addBank(amount).save();
             return `${amount} coin${amount === 1 ? '' : 's'} deposited.`;
           } else {
-            return `Your second argument should be a number and no more than what you have in your pocket (${userEntry.props.pocket})`;
+            return `Your second argument should be a number and no more than what you have in your wallet (${userEntry.props.pocket})`;
           }
         case 'withdraw':
           if (amount && amount <= userEntry.props.bank) {

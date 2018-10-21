@@ -16,7 +16,7 @@ module.exports = new GenericCurrencyCommand(
             icon_url: user.dynamicAvatarURL()
           },
       color: 3927039,
-      description: '', // title
+      description: userEntry.props.title || '', // title
       fields: [
         {
           name: 'Level',

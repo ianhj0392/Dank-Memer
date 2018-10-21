@@ -29,7 +29,7 @@ module.exports = class GenericCurrencyCommand {
               userEntry.addPocket(value);
               break;
             case 'multiplier':
-              userEntry.addMultiplier(value);
+              userEntry.setMultiplier(userEntry.props.upgrades.multi + value);
               break;
             case 'items':
               for (const item of value) {

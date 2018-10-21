@@ -17,7 +17,7 @@ module.exports = new GenericCurrencyCommand(
     await addCD();
     const item = Currency.shop[query];
     await userEntry.removeInventoryItem(item.id, quantity);
-    // Sell an item for a third of what it's worth
+    // Sell an item for a third of what it's worth unless it's a collectable
     const worth = Math.floor((item.cost / item.type === Currency.ItemTypes.COLLECTABLE ? 3 : 1.66) * quantity);
     await userEntry.addPocket(worth).save();
 
@@ -27,7 +27,7 @@ module.exports = new GenericCurrencyCommand(
           name: 'Successful sale',
           icon_url: msg.author.dynamicAvatarURL()
         },
-      description: `You successfully sold ${quantity} **${item.name}**${quantity !== 1 ? '\'s' : ''} and gained \`${worth} coin${worth !== 1 ? '\'s' : ''}\``,
+      description: `You successfully sold ${quantity} **${item.name}**${quantity !== 1 ? '\'s' : ''} and gained \`${worth} coin${worth !== 1 ? 's' : ''}\``,
       color: 16740419
     };
   },

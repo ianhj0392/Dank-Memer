@@ -4,6 +4,9 @@ module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, args, addCD, Currency, userEntry, guildEntry }) => {
     const page = Number(msg.args.nextArgument) || 1;
     const user = msg.args.resolveUser() || msg.author;
+    if (user && user.id !== msg.author.id) {
+      userEntry = await Memer.db.getUser(user.id);
+    }
     const userItems = userEntry.props.inventory;
     const items = [];
     for (const i in userItems) {
@@ -26,7 +29,7 @@ module.exports = new GenericCurrencyCommand(
           },
         color: 7964363
       },
-      pageLength: 7
+      pageLength: 5
     }, page);
   },
   {

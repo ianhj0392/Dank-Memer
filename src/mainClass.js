@@ -56,6 +56,8 @@ class Memer extends Base {
     this.redis = reload.redis;
     this.bot.voiceConnections = reload.lavalink || this.bot.voiceConnections;
     this.listeners = {};
+    this.cmds = new Map();
+    this.aliases = new Map();
     this.cooldowns = new Map();
     this.IPC = new (require('./utils/IPCHandler.js'))(this);
     this._cooldownsSweep = setInterval(this._sweepCooldowns.bind(this), 1000 * 60 * 30);
@@ -171,7 +173,13 @@ class Memer extends Base {
         command.category = category.name;
         command.description = category.description;
         command.path = join(__dirname, 'commands', categoryPath, command.props.triggers[0]);
-        this.cmds.push(command);
+        this.cmds.set(command.props.triggers[0], command);
+        if (command.props.triggers[1]) {
+          const aliases = command.props.triggers.slice(1);
+          for (const alias of aliases) {
+            this.aliases.set(alias, command.props.triggers[0]);
+          }
+        }
       }
     }
   }
@@ -220,26 +228,48 @@ class Memer extends Base {
       }
       const category = require(categoryPath);
       let reloadedCmds = [];
+      // Delete old aliases
+      for (const [key, value] of this.aliases) {
+        if (this.cmds.has(value) && this.cmds.get(value).includes(`${msg.category}Commands`)) {
+          this.aliases.delete(key);
+        }
+      }
       for (const command of category.commands) {
         command.category = category.name;
         command.description = category.description;
         command.path = require.resolve(`${categoryPath}/${command.props.triggers[0]}`);
-        reloadedCmds.push(command);
+        this.cmds.set(command.props.triggers[0], command);
+        if (command.props.triggers[1]) {
+          const aliases = command.props.triggers.slice(1);
+          for (const alias of aliases) {
+            this.aliases.set(alias, command.props.triggers[0]);
+          }
+        }
       }
-      this.cmds = this.cmds.filter(c => !c.path.includes(`${msg.category}Commands`)).concat(reloadedCmds);
       this.log(`Reloaded command category ${msg.category}`);
     } else if (msg.command) {
-      const cmd = this.cmds.find(c => c.props.triggers.includes(msg.command));
+      const cmd = this.cmds.get(msg.command) || this.aliases.get(msg.command);
       const cmdPath = require.resolve(cmd.path);
       delete require.cache[cmdPath];
       const reloadedCmd = require(cmdPath);
       reloadedCmd.category = cmd.category;
       reloadedCmd.description = cmd.description;
       reloadedCmd.path = cmd.path;
-      this.log(this.cmds.findIndex(c => c.props.triggers.includes(msg.command)));
-      this.cmds.splice(this.cmds.findIndex(c => c.props.triggers.includes(msg.command), 1));
-      this.cmds.push(reloadedCmd);
-      this.log(`Reloaded command ${reloadedCmd.props.triggers[0]}, ${this.cmds.length}, ${this.cmds.map(c => c.props.triggers[0])}`);
+      this.cmds.delete(cmd.props.triggers[0]);
+      // Delete aliases too
+      for (const [key, value] of this.aliases) {
+        if (value === cmd.props.triggers[0]) {
+          this.aliases.delete(key);
+        }
+      }
+      this.cmds.set(reloadedCmd.props.triggers[0]);
+      if (reloadedCmd.props.triggers[1]) {
+        const aliases = reloadedCmd.props.triggers.slice(1);
+        for (const alias of aliases) {
+          this.aliases.set(alias, reloadedCmd.props.triggers[0]);
+        }
+      }
+      this.log(`Reloaded command ${reloadedCmd.props.triggers[0]}`);
     } else {
       const commandPath = join(__dirname, 'commands');
       for (const path in require.cache) {

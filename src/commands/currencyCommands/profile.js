@@ -8,7 +8,7 @@ module.exports = new GenericCurrencyCommand(
     }
     const experience = userEntry.props.experience || 0;
     const level = userEntry.props.level || 0;
-    Memer.log(userEntry.props);
+
     return {
       author:
           {

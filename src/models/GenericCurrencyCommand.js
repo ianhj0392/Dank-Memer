@@ -49,9 +49,12 @@ module.exports = class GenericCurrencyCommand {
       }
     }
 
-    await userEntry.save();
-
-    return this.fn({ Memer, msg, args, addCD, Currency, userEntry, donor, guildEntry });
+    return this.fn({ Memer, msg, args, addCD, Currency, userEntry, donor, guildEntry })
+      .then(() => {
+        if (!userEntry._saved) {
+          userEntry.save();
+        }
+      });
   }
 
   get props () {

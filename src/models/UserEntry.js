@@ -137,7 +137,7 @@ class UserEntry {
    * @returns {UserEntry} The user entry, so calls can be chained
    */
   addExperience (amount) {
-    if (!amount) {
+    if (amount === undefined) {
       throw new Error('Missing mandatory "amount" parameter');
     }
     amount = typeof amount !== 'number' ? Number(amount) : amount;

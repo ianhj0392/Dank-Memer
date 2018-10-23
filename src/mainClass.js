@@ -227,7 +227,6 @@ class Memer extends Base {
         delete require.cache[require.resolve(`${categoryPath}/${file}`)];
       }
       const category = require(categoryPath);
-      let reloadedCmds = [];
       // Delete old aliases
       for (const [key, value] of this.aliases) {
         if (this.cmds.has(value) && this.cmds.get(value).includes(`${msg.category}Commands`)) {

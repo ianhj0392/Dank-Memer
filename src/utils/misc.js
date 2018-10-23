@@ -109,7 +109,7 @@ class MiscFunctions {
   async calcMultiplier (Memer, user, userDB, donor, msg, isGlobalPremiumGuild) {
     // calculates total multiplier based on multiple variables
     let guildMember = msg.channel.guild.members.get(msg.author.id);
-    const items = [] || userDB.getActiveItems();
+    const items = await userDB.getActiveItems();
     let date = new Date(msg.timestamp);
     let day;
     let time;
@@ -121,7 +121,7 @@ class MiscFunctions {
       total += await Memer.redis.get(`activeitems-${user.id}-tidepod`) || 0;
     }
 
-    total = userDB.upgrades ? userDB.upgrades.multi : 0;
+    total = userDB.props.upgrades ? userDB.props.upgrades.multi : 0;
     if (Memer.config.options.developers.includes(user.id)) {
       total += 5;
     }
@@ -137,10 +137,10 @@ class MiscFunctions {
     if (msg.channel.name.toLowerCase().includes('dank-memer')) {
       total += 0.5;
     }
-    if (userDB.upvoted) {
+    if (userDB.props.upvoted) {
       total += 0.5;
     }
-    if (userDB.dblUpvoted) {
+    if (userDB.props.dblUpvoted) {
       total += 0.5;
     }
     if (msg.channel.guild.members.has('419254454169108480')) {
@@ -149,10 +149,10 @@ class MiscFunctions {
     if (donor || isGlobalPremiumGuild) {
       total += (donor || 20) * 0.5;
     }
-    if (userDB.spam < 25) {
+    if (userDB.props.spam < 25) {
       total += 0.5;
     }
-    if (userDB.streak.streak >= 15) {
+    if (userDB.props.streak.streak >= 15) {
       total += 0.5;
     }
     if (user.username.toLowerCase().includes('dank')) {
@@ -193,7 +193,7 @@ class MiscFunctions {
     let end = {
       locked: 0,
       unlocked: { total: 0, list: [] },
-      bought: userDB.upgrades ? userDB.upgrades.multi : 0
+      bought: userDB.props.upgrades ? userDB.props.upgrades.multi : 0
     };
     if (Memer.config.options.developers.includes(user.id)) {
       end.unlocked.total += 1;
@@ -211,11 +211,11 @@ class MiscFunctions {
       end.unlocked.total += 1;
       end.unlocked.list.push('[Channel is dank-memer](http://your-stupidity.needs-to-s.top/9bf273.png)');
     }
-    if (userDB.upvoted) {
+    if (userDB.props.upvoted) {
       end.unlocked.total += 1;
       end.unlocked.list.push('[Voted for the bot](https://discordbots.org/bot/memes/vote)');
     }
-    if (userDB.dblUpvoted) {
+    if (userDB.props.dblUpvoted) {
       end.unlocked.total += 1;
       end.unlocked.list.push('[Voted for the bot on DBL](https://discordbotlist.com/bots/270904126974590976)');
     }
@@ -230,11 +230,11 @@ class MiscFunctions {
       end.unlocked.total += 1;
       end.unlocked.list.push('On a premium guild redeemed by a 20$+ [donor](https://www.patreon.com/dankmemerbot)');
     }
-    if (userDB.spam < 25) {
+    if (userDB.props.spam < 25) {
       end.unlocked.total += 1;
       end.unlocked.list.push('Doesn\'t spam the bot');
     }
-    if (userDB.streak.streak >= 15) {
+    if (userDB.props.streak.streak >= 15) {
       end.unlocked.total += 1;
       end.unlocked.list.push('15+ daily streak');
     }

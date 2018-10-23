@@ -17,7 +17,7 @@ module.exports = class GenericVoiceCommand {
     let response = await Memer.redis.get(`cachedplaylist-${this.cmdProps.dir}`)
       .then(res => res ? JSON.parse(res) : undefined);
     if (!response) {
-      response = await Memer.musicManager.loadTrack(encodeURIComponent(`${Memer.config.links.youtube[this.cmdProps.dir]}`));
+      response = await Memer.musicManager.loadTrack(Memer.config.links.youtube[this.cmdProps.dir]});
       Memer.redis.set(`cachedplaylist-${this.cmdProps.dir}`, JSON.stringify(response));
     }
 

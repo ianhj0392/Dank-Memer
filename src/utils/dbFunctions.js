@@ -474,6 +474,13 @@ class DatabaseFunctions {
       .then(d => d.changes.map(o => o.old_val));
   }
 
+  async checkDonor (id) {
+    return this.client.r.table('donors')
+      .get(id)('donorAmount')
+      .default(false)
+      .run();
+  }
+
   /**
    * Check if the given guild is a premium guild redeemed by a 20$+ donor
    * @param {String} id The ID of the guild to check
@@ -655,12 +662,21 @@ class DatabaseFunctions {
       spam: 0, // Spam means 2 commands in less than 1s
       pocket: 0, // Coins not in bank account
       bank: 0, // Coins in bank account
+      experience: 0, // Total experience earned
+      inventory: {}, // Items the user has, an object of item ID's with the value being the quantity
+      level: 0, // The level the user is currently at
+      notifications: [], // Notifications object
+      title: '', // string
       lost: 0, // Total coins lost
       won: 0, // Total coins won
       shared: 0, // Transferred to other players
       streak: {
         time: 0, // Time since last daily command
         streak: 0 // Total current streak
+      },
+      upgrades: {
+        multi: 0,
+        luck: 0
       },
       upvoted: false, // DBL voter status
       dblUpvoted: false // discordbotlist.com voter status

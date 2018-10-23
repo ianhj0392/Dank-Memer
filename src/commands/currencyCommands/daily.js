@@ -1,6 +1,6 @@
-const GenericCommand = require('../../models/GenericCommand');
+const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
-module.exports = new GenericCommand(
+module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, addCD, userEntry }) => {
     if (Date.now() - userEntry.props.streak.time > 172800000) { // 24 hours, 2 days because one-day cooldown
       userEntry.resetStreak();
@@ -21,7 +21,7 @@ module.exports = new GenericCommand(
 
     return {
       title: `Here are your daily coins, ${msg.author.username}`,
-      description: `**${coinsEarned} coins** were placed in your pocket.\n\nYou can get another 250 coins by voting! ([Click Here](https://discordbots.org/bot/memes/vote) and [here](https://discordbotlist.com/bots/270904126974590976))`,
+      description: `**${coinsEarned} coins** were placed in your wallet.\n\nYou can get another 250 coins by voting! ([Click Here](https://discordbots.org/bot/memes/vote) and [here](https://discordbotlist.com/bots/270904126974590976))`,
       thumbnail: {url: 'http://www.dank-memer-is-lots-of.fun/coin.png'},
       footer: {text: `Streak: ${(userEntry.props.streak.streak - 1) < 0 ? 0 : userEntry.props.streak.streak - 1} days (+${streakBonus} coins)`}
     };

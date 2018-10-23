@@ -1,6 +1,6 @@
-const GenericCommand = require('../../models/GenericCommand');
+const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
-module.exports = new GenericCommand(
+module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, addCD, userEntry }) => {
     if (userEntry.props.pocket === 0) {
       return { title: 'You have no coins.' };

@@ -1,18 +1,7 @@
-const GenericCommand = require('../../models/GenericCommand');
+const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 let min = 500;
 
-const dmStolenUser = async (Memer, user, msg, worth) => {
-  if (!user.bot) {
-    try {
-      const channel = await Memer.bot.getDMChannel(user.id);
-      await channel.createMessage(`**${msg.author.username}#${msg.author.discriminator}** has stolen **${worth.toLocaleString()}** coins from you!`);
-    } catch (err) {
-      await msg.channel.createMessage(`${user.mention}, **${msg.author.username}#${msg.author.discriminator}** just stole **${worth.toLocaleString()}** coins from you!`);
-    }
-  }
-};
-
-module.exports = new GenericCommand(
+module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, args, addCD, userEntry, donor }) => {
     let user = msg.args.resolveUser(true);
     if (!user) {
@@ -43,9 +32,29 @@ module.exports = new GenericCommand(
     } else if (donor > 19) { // $20+ gets 95% shields
       victimCoins = victimCoins - (victimCoins * 0.95);
     }
-    await addCD();
-    let stealingOdds = Memer.randomNumber(1, 100);
 
+    // Items
+    if (await victim.isItemActive('padlock')) {
+      await perp.removePocket(Math.round(min / 2)).save();
+      await Memer.redis.del(`activeitems-${user.id}-padlock`);
+      return `You try to steal from ${user.username} only to notice that they've got a massive padlock on their wallet! You didn't bring your bolt cutters with you, and ended up getting caught by the police, losing **${Math.round(min / 2)}** coins.`;
+    }
+
+    if (await victim.isItemActive('inviscloak')) {
+      return `You try to steal from ${user.username} but they're invisible! You can't see them or their coins and your big plan to steal fails.`;
+    }
+
+    await Memer.redis.get(`sand-effect-${msg.author.id}`)
+      .then(res => {
+        res = JSON.parse(res) || undefined;
+        if (res && res.perpetrator === user.id) {
+          return `${user.username} is a cheeky bastard and has thrown sand directly into your precious eyeballs! You can't steal from them right now.`;
+        }
+      });
+
+    await addCD();
+
+    let stealingOdds = Memer.randomNumber(1, 100) * (await victim.isItemActive('alcohol') ? 1.5 : 1); // alcohol modifier
     let worth;
     let message;
     if (stealingOdds <= 60) { // fail section
@@ -68,9 +77,11 @@ module.exports = new GenericCommand(
       worth = Math.round(victimCoins);
       message = `You managed to steal a TON before leaving! 🤑\nYour payout was **${worth.toLocaleString()}** coins.`;
     }
+    Memer.redis.set(`stolen-${user.id}`, JSON.stringify({ amount: worth, stealer: perp.id }), 'EX', 120);
     await perp.addPocket(worth).save();
-    await victim.removePocket(worth).save();
-    await dmStolenUser(Memer, user, msg, worth);
+    victim.removePocket(worth);
+    victim.sendNotification('steal', 'You have been stolen from!', `**${msg.author.username}#${msg.author.discriminator}** has stolen **${worth.toLocaleString()}** coins from you!`);
+    await victim.save();
     return message;
   },
   {

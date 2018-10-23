@@ -25,19 +25,20 @@ module.exports = new GenericCurrencyCommand(
       userEntry.addPocket(coins);
       const rewardchance = Math.random() > item.reward.chance;
       const [itemid, amount] = Object.entries(Memer.randomInArray(item.reward.items))[0];
+      const finalamount = Math.floor(Memer.randomNumber(1, amount));
       if (rewardchance) {
-        userEntry.addInventoryItem(itemid, amount);
+        userEntry.addInventoryItem(itemid, finalamount);
       }
 
       await userEntry.removeInventoryItem(item.id).save();
-      return boxmessage.edit({ content: `good stuff, you got a solid **${coins}** coins${rewardchance ? ` and \`${amount} ${Currency.items[itemid].name}${amount !== 1 ? '\'s' : ''}\`` : ''} from your ${item.name.toLowerCase()}`, reply: true });
+      return boxmessage.edit({ content: `good stuff, you got a solid **${coins}** coins${rewardchance ? ` and \`${finalamount} ${Currency.items[itemid].name}${finalamount !== 1 ? '\'s' : ''}\`` : ''} from your ${item.name.toLowerCase()}`, reply: true });
     }
 
-    const consume = items[item.id].fn({ Memer, msg, userEntry, donor, Currency, isGlobalPremiumGuild });
+    const consume = await items[item.id].fn({ Memer, msg, userEntry, donor, Currency, isGlobalPremiumGuild });
     if (consume) {
       await userEntry.removeInventoryItem(item.id).save();
     }
-    return consume;
+    return `${Currency.emoji[item.id]} ${consume}`;
   }, {
     triggers: ['use', 'consume'],
     usage: '{command} [item]',

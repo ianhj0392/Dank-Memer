@@ -5,6 +5,7 @@ const { Currency, GenericCommand } = require('.');
 module.exports = class GenericCurrencyCommand {
   /**
    * Creates a new instance of GenericCurrencyCommand
+   * @param {import('./GenericCommand').CommandCallback} fn The function
    * @param {CommandProps} cmdProps - The command properties
    */
   constructor (fn, cmdProps) {

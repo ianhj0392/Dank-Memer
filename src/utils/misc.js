@@ -5,6 +5,7 @@
  * @typedef {import('eris').EmbedBase} EmbedBase
  * @typedef {import('../models/UserEntry').UserData} UserData
  * @typedef {import('../utils/dbFunctions').DonorData} DonorData
+ * @typedef {import('../models/UserEntry')} UserEntry
  */
 
 const config = require('../config.json');
@@ -101,7 +102,7 @@ class MiscFunctions {
   /**
    * @param {Memer} Memer The Memer instance
    * @param {User} user The user
-   * @param {UserData} userDB The user database entry
+   * @param {UserEntry} userDB The user database entry
    * @param {DonorData} [donor] The donor object, if any
    * @param {Message} msg The message
    * @returns {Number} The total multiplier for this user
@@ -113,15 +114,13 @@ class MiscFunctions {
     let date = new Date(msg.timestamp);
     let day;
     let time;
-    let total;
+    let total = 0;
     if (items.includes('spinner')) {
       total += await Memer.redis.get(`activeitems-${user.id}-spinner`) || 0;
     }
     if (items.includes('tidepod')) {
       total += await Memer.redis.get(`activeitems-${user.id}-tidepod`) || 0;
     }
-
-    total = userDB.props.upgrades ? userDB.props.upgrades.multi : 0;
     if (Memer.config.options.developers.includes(user.id)) {
       total += 5;
     }
@@ -150,9 +149,8 @@ class MiscFunctions {
     if (Memer.db.checkPremiumGuild(msg.channel.guild.id)) {
       total += 0.5;
     }
-
     if (donor || isGlobalPremiumGuild) {
-      total += (donor || 20) * 0.5;
+      total += (donor ? donor.donorAmount : 20) * 0.5;
     }
     if (userDB.props.spam < 25) {
       total += 0.5;

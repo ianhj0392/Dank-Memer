@@ -49,8 +49,6 @@ module.exports = class GenericCurrencyCommand {
       }
     }
 
-    await userEntry.save();
-
     return this.fn({ Memer, msg, args, addCD, Currency, userEntry, donor, guildEntry });
   }
 

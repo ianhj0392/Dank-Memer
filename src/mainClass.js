@@ -190,7 +190,7 @@ class Memer extends Base {
   }
 
   reloadModels () {
-    const modelsPath = require.resolve(join(__dirname, 'models'));
+    const modelsPath = join(__dirname, 'models');
     for (const path in require.cache) {
       if (path.startsWith(modelsPath)) {
         delete require.cache[path];

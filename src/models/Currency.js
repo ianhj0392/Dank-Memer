@@ -8,21 +8,21 @@
   * title (string)
 */
 const LEVELS = {
-  1: { reward: { coins: 500 }, exp: 100 },
+  1: { reward: { coins: 500, title: 'Normie' }, exp: 100 },
   3: { reward: { coins: 1500 }, exp: 300 },
-  5: { reward: { multiplier: 2.5 }, exp: 500 },
+  5: { reward: { multiplier: 2.5, title: 'Reposter' }, exp: 500 },
   7: { reward: { coins: 4e3, items: [{ tidepod: 2 }] }, exp: 700 },
   9: { reward: { coins: 4e3, items: [{ spinner: 3 }] }, exp: 900 },
-  10: { reward: { multiplier: 5 }, exp: 1000 },
+  10: { reward: { multiplier: 5, title: 'Memer' }, exp: 1000 },
   11: { reward: { items: [{ reversal: 1 }] }, exp: 1100 },
   13: { reward: { coins: 5e3, items: [{ inviscloak: 3 }] }, exp: 1300 },
-  15: { reward: { multiplier: 5 }, exp: 1500 },
+  15: { reward: { multiplier: 5, title: 'Original Memer' }, exp: 1500 },
   17: { reward: { coins: 5e3 }, exp: 1700 },
-  19: { reward: { coins: 7e3 }, exp: 1900 },
-  20: { reward: { coins: 1e4 }, exp: 2000 },
-  21: { reward: { coins: 500 }, exp: 2100 },
-  23: { reward: { coins: 500 }, exp: 2300 },
-  25: { reward: { multiplier: 7.5 }, exp: 2500 }
+  19: { reward: { coins: 7e3, items: [{ sand: 1 }] }, exp: 1900 },
+  20: { reward: { coins: 1e4, title: 'Legendary Memer' }, exp: 2000 },
+  21: { reward: { coins: 1e3, items: [{ alcohol: 1 }] }, exp: 2100 },
+  23: { reward: { coins: 5e3, items: [{ padlock: 2 }] }, exp: 2300 },
+  25: { reward: { multiplier: 7.5, title: 'God of Memes' }, exp: 2500 }
 };
 
 const ItemTypes = {
@@ -47,7 +47,7 @@ const BOXES = {
     description: 'Can\'t get more basic than this',
     consumable: true,
     coins: { min: 50, max: 500 },
-    reward: { chance: 0.2, items: [{ sand: 1 }, { reversal: 1 }] }
+    reward: { chance: 0.2, items: [{ sand: 1 }, { reversal: 1 }, { bread: 10 }] }
   },
   meme: { // 1000 to 3000 coins, 60% chance to get a medium item
     id: 'meme',
@@ -56,7 +56,7 @@ const BOXES = {
     description: 'Something actually worth opening',
     consumable: true,
     coins: { min: 1e3, max: 3e3 },
-    items: { chance: 0.6, items: [{ phone: 1 }, { tidepod: 1 }] }
+    items: { chance: 0.6, items: [{ phone: 1 }, { tidepod: 2 }, { sand: 3 }, { spinner: 2 }] }
   },
   dank: { // 7500 to 10000 coins, 90% chance to get one amazing item, multiple medium items
     id: 'dank',
@@ -65,7 +65,7 @@ const BOXES = {
     description: 'Dank rewards for a dank donator',
     consumable: true,
     coins: { min: 7.5e3, max: 1e4 },
-    items: { chance: 0.9, items: [{ inviscloak: 1 }, { reversal: 1 }, { tidepod: 3 }, { alcohol: 1 }, { phone: 2 }] }
+    items: { chance: 0.9, items: [{ inviscloak: 2 }, { reversal: 4 }, { tidepod: 3 }, { alcohol: 3 }, { phone: 2 }, { sand: 6 }, { spinner: 5 }] }
   }
 };
 
@@ -138,6 +138,18 @@ const ITEMS = Object.assign({
   }
 }, BOXES);
 
+const EMOJI = {
+  tidepod: '<:tidepod:503930556875145226>',
+  inviscloak: '<:inviscloak:503934949804736547>',
+  reversal: '<:reversal:503922321904500736> ',
+  spinner: '<:spinner:503934921086074890>',
+  pepe: '<:pepe:503930579176390676> ',
+  sand: '<:sand:503934827112693771> ',
+  padlock: '<:padlock:503924798284496907> ',
+  bread: '<:bread:503922290791284736> ',
+  alcohol: '<:alcohol:503922160549625866>'
+};
+
 // Shop items are only visible in the shop if they have a cost. All items are purchasable by default unless their cost is undefined or 0.
 const SHOP = Object.keys(ITEMS)
   .filter(key => ITEMS[key].cost)
@@ -157,6 +169,7 @@ module.exports = {
   levels: LEVELS,
   boxes: BOXES,
   items: ITEMS,
+  emoji: EMOJI,
   ItemTypes,
   constants: CONSTANTS
 };

@@ -14,7 +14,7 @@ const slots = [
 module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, addCD, Currency, isGlobalPremiumGuild, donor, userEntry }) => {
     let user = msg.author;
-    let multi = await Memer.calcMultiplier(Memer, user, userEntry, donor ? donor.donorAmount : 0, msg, isGlobalPremiumGuild);
+    let multi = await Memer.calcMultiplier(Memer, user, userEntry, donor, msg, isGlobalPremiumGuild);
     let coins = userEntry.props.pocket;
 
     if (coins >= Currency.constants.MAX_SAFE_COMMAND_AMOUNT) {

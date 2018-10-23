@@ -10,7 +10,7 @@ module.exports = new GenericCurrencyCommand(
     if (!userEntry.hasInventoryItem(item.id)) {
       return 'You don\'t own this item??';
     }
-    if (!item.consumable) {
+    if (!item.consumable && item.usable === false) {
       return 'You can\'t use this item :thinking:';
     }
     if (await userEntry.isItemActive(item.id)) {
@@ -35,7 +35,7 @@ module.exports = new GenericCurrencyCommand(
     }
 
     const consume = await items[item.id].fn({ Memer, msg, userEntry, donor, Currency, isGlobalPremiumGuild });
-    if (consume) {
+    if (consume && item.consumable) {
       await userEntry.removeInventoryItem(item.id).save();
     }
     return `${Currency.emoji[item.id]} ${consume}`;

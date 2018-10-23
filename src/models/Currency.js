@@ -135,6 +135,14 @@ const ITEMS = Object.assign({
     type: ItemTypes.ITEM,
     cost: 20e3,
     consumable: true
+  },
+  phone: {
+    name: 'Cell Phone',
+    id: 'phone',
+    type: ItemTypes.ITEM,
+    cost: 15e3,
+    consumable: false,
+    usable: true
   }
 }, BOXES);
 
@@ -147,7 +155,8 @@ const EMOJI = {
   sand: '<:sand:503934827112693771> ',
   padlock: '<:padlock:503924798284496907> ',
   bread: '<:bread:503922290791284736> ',
-  alcohol: '<:alcohol:503922160549625866>'
+  alcohol: '<:alcohol:503922160549625866>',
+  phone: '<:phone:504177049812992000>'
 };
 
 // Shop items are only visible in the shop if they have a cost. All items are purchasable by default unless their cost is undefined or 0.

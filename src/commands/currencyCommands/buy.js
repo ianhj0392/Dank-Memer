@@ -3,9 +3,12 @@ const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, args, addCD, Currency, userEntry }) => {
     const query = msg.args.args[0];
-    const quantity = msg.args.args[1] || 1;
+    const quantity = Number(msg.args.args[1]) || 1;
     if (!Currency.shop[query]) {
       return 'what are you thinking tbh that item isn\'t even in the shop';
+    }
+    if (!quantity || !Number.isInteger(quantity) || isNaN(quantity)) {
+      return 'Yeah, can you try that again but with a *valid* quantity';
     }
     if (quantity < 1) {
       return 'Are you stupid you can\'t buy less than 1 of something lol';
@@ -14,7 +17,6 @@ module.exports = new GenericCurrencyCommand(
       return 'Look let\'s try and keep the quantity under 10 so the shop doesn\'t go out of business';
     }
 
-    await addCD();
     const item = Currency.shop[query];
     if (quantity > 1 && userEntry.props.pocket < (item.cost * quantity)) {
       return 'Far out, you don\'t have enough money to buy that much!!';
@@ -23,7 +25,9 @@ module.exports = new GenericCurrencyCommand(
       return 'You don\'t have enough money to buy that item silly';
     }
 
-    await userEntry.addInventoryItem(item, quantity);
+    await addCD();
+
+    userEntry.addInventoryItem(item, quantity);
     await userEntry.removePocket(Math.round(item.cost * quantity)).save();
 
     return {

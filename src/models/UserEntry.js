@@ -153,7 +153,7 @@ class UserEntry {
    * @returns {UserEntry} The user entry, so calls can be chained
    */
   setLevel (level) {
-    if (level === undefined) {
+    if (!level && level !== 0) {
       throw new Error('Missing mandatory "level" parameter');
     }
     level = typeof level !== 'number' ? Number(level) : level;

@@ -63,7 +63,7 @@ class UserEntry {
    * @returns {UserEntry} The user entry, so calls can be chained
    */
   addPocket (amount) {
-    if (!amount) {
+    if (!Number.isInteger(Number(amount)) || amount === undefined) {
       throw new Error('Missing mandatory "amount" parameter');
     }
     amount = typeof amount !== 'number' ? Number(amount) : amount;

@@ -135,6 +135,13 @@ const ITEMS = Object.assign({
     type: ItemTypes.ITEM,
     cost: 20e3,
     consumable: true
+  },
+  phone: {
+    name: 'Cell Phone',
+    id: 'phone',
+    type: ItemTypes.ITEM,
+    cost: 15e3,
+    consumable: true
   }
 }, BOXES);
 

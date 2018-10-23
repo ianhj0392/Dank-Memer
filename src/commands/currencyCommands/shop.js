@@ -23,6 +23,7 @@ module.exports = new GenericCurrencyCommand(
   },
   {
     triggers: ['shop', 'store'],
+    description: 'See what\'s in store',
     cooldown: 5e3,
     donorCD: 3e3,
     perms: ['embedLinks']

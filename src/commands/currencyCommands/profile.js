@@ -30,11 +30,11 @@ module.exports = new GenericCurrencyCommand(
         },
         {
           name: 'Inventory',
-          value: 'no', /* Object.values(userEntry.props.inventory).length
+          value: Object.values(userEntry.props.inventory).length
             ? `\`${Object.keys(userEntry.props.inventory).filter(i => userEntry.props.inventory[i] > 0).length}\` items (${
               Object.values(userEntry.props.inventory).reduce((acc, cur) => acc + cur)} total) worth \`${Object.keys(userEntry.props.inventory)
               .map(i => Currency.items[i] ? Currency.items[i].cost * userEntry.props.inventory[i] || 0 : 0)
-              .reduce((acc, cur) => (acc + cur))}\` coins` : '0 items worth 0 coins' */
+              .reduce((acc, cur) => (acc + cur))}\` coins` : '0 items worth 0 coins',
           inline: false
         }
       ]

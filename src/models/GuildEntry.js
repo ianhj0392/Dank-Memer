@@ -7,6 +7,7 @@
  * @prop {Array<String>} disabledCategories An array of disabled command categories on this guild
  * @prop {Array<String>} disabledCommands An array of disabled commands on this guild
  * @prop {Array<String>} enabledCommands An array of commands enabled on this guild, overrides the disabled categories
+ * @prop {Array<String>} whitelistRoles An array of roles to whitelist with commands, will allow @everyone when empty
  * @prop {Object} autoResponse The autoresponse settings
  * @prop {Boolean} autoResponse.dad Whether dad mode is enabled
  * @prop {Boolean} autoResponse.ree Whether auto responses to "ree+" are enabled
@@ -136,6 +137,46 @@ class GuildEntry {
     }
     this.props.disabledCommands.push(command);
     this.update({ disabledCommands: this._client.r.row('disabledCommands').default([]).append(command) });
+    return this;
+  }
+
+  /**
+   * Add a whitelist role
+   * @param {String} role The id of the role to add
+   * @returns {GuildEntry} The guild entry, so calls can be chained
+   */
+  addWhitelistedRole (role) {
+    if (typeof role !== 'string') {
+      throw new Error(`Expected type string, received type ${typeof role}`);
+    }
+
+    this.props.whitelistRoles = this.props.whitelistRoles.concat([role]);
+    this.update({ whitelistRoles: this._client.r.row('whitelistRoles').default([]).setUnion([role]) });
+    return this;
+  }
+
+  /**
+   * Remove a whitelist role
+   * @param {String} role The id of the role to remove
+   * @returns {GuildEntry} The guild entry, so calls can be chained
+   */
+  yeetWhitelistedRole (role) {
+    if (typeof role !== 'string') {
+      throw new Error(`Expected type string, received type ${typeof role}`);
+    }
+
+    this.props.whitelistRoles = this.props.whitelistRoles.filter(c => c !== role);
+    this.update({ whitelistRoles: this._client.r.row('whitelistRoles').default([]).difference([role]) });
+    return this;
+  }
+
+  /**
+   * Purge the entire whitelist
+   * @returns {GuildEntry} The guild entry, so calls can be chained
+   */
+  purgeWhitelist () {
+    this.props.whitelistRoles = [];
+    this.update({ whitelistRoles: [] });
     return this;
   }
 

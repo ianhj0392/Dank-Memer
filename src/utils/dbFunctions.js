@@ -123,7 +123,7 @@ class DatabaseFunctions {
     if (!pCommand) {
       return;
     }
-    const isDonor = isGlobalPremiumGuild || await this.checkDonor(userID);
+    const isDonor = isGlobalPremiumGuild || await this.getDonor(userID);
     let cooldown;
     if (isDonor) {
       cooldown = pCommand.props.donorCD;
@@ -162,7 +162,7 @@ class DatabaseFunctions {
     if (!pCommand) {
       return;
     }
-    const isDonor = isGlobalPremiumGuild || await this.checkDonor(userID);
+    const isDonor = isGlobalPremiumGuild || await this.getDonor(userID);
     const cooldown = isDonor ? pCommand.props.donorCD : pCommand.props.cooldown;
     if (cooldown < 20000) {
       return this.client.cooldowns.set(userID, { id: userID, cooldowns: [ { [command]: Date.now() + cooldown } ] });
@@ -696,6 +696,7 @@ class DatabaseFunctions {
       disabledCategories: [],
       disabledCommands: [],
       enabledCommands: [],
+      whitelistRoles: [],
       autoResponse: {
         dad: false,
         ree: false,

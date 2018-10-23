@@ -146,6 +146,11 @@ class MiscFunctions {
     if (msg.channel.guild.members.has('419254454169108480')) {
       total += 0.5;
     }
+
+    if (Memer.db.checkPremiumGuild(msg.channel.guild.id)) {
+      total += 0.5;
+    }
+
     if (donor || isGlobalPremiumGuild) {
       total += (donor || 20) * 0.5;
     }
@@ -213,13 +218,13 @@ class MiscFunctions {
     }
     if (userDB.props.upvoted) {
       end.unlocked.total += 1;
-      end.unlocked.list.push('[Voted for the bot](https://discordbots.org/bot/memes/vote)');
+      end.unlocked.list.push('[Voted (DBL.org)](https://discordbots.org/bot/memes/vote)');
     }
     if (userDB.props.dblUpvoted) {
       end.unlocked.total += 1;
-      end.unlocked.list.push('[Voted for the bot on DBL](https://discordbotlist.com/bots/270904126974590976)');
+      end.unlocked.list.push('[Voted (DBL.com)](https://discordbotlist.com/bots/270904126974590976)');
     }
-    if (msg.channel.guild.members.has('419254454169108480')) {
+    if (Memer.db.checkPremiumGuild(msg.channel.guild.id)) {
       end.unlocked.total += 1;
       end.unlocked.list.push('Premium server');
     }
@@ -244,7 +249,7 @@ class MiscFunctions {
     }
     if (msg.channel.guild.id === '470337009886429194') {
       end.unlocked.total += 1;
-      end.unlocked.list.push('In support server');
+      end.unlocked.list.push('Support server');
     }
     if (date.getMinutes() === 20 && date.getHours() === 4) {
       end.unlocked.total += 1;
@@ -334,22 +339,22 @@ class MiscFunctions {
 
   /**
    * @param {Number} time The time in seconds to parse
-   * @returns {String} A string representing the given time
+   * @returns {String} A string representing the given time, in dd:hh:mm:ss format, days and hours are removed if unnecessary
    */
   parseTime (time) {
-    const methods = [
-      { name: 'd', count: 86400 },
-      { name: 'h', count: 3600 },
-      { name: 'm', count: 60 },
-      { name: 's', count: 1 }
+    let fm = [
+      Math.floor(time / 60 / 60 / 24), // DAYS
+      Math.floor(time / 60 / 60) % 24, // HOURS
+      Math.floor(time / 60) % 60, // MINUTES
+      Math.floor(time % 60) // SECONDS
     ];
-
-    const timeStr = [ Math.floor(time / methods[0].count).toString() + methods[0].name ];
-    for (let i = 0; i < 3; i++) {
-      timeStr.push(Math.floor(time % methods[i].count / methods[i + 1].count).toString() + methods[i + 1].name);
+    if (!fm[1] && !fm[0]) {
+      fm.splice(1, 1);
     }
-
-    return timeStr.filter(g => !g.startsWith('0')).join(', ');
+    if (!fm[0]) {
+      fm.splice(0, 1);
+    }
+    return fm.map(v => { return ((v < 10) ? '0' : '') + v; }).join(':');
   }
 
   async punish (Memer, id, type, reason, optionalBlock = true, optionalWipe = true) {

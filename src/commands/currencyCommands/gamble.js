@@ -3,7 +3,7 @@ const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, addCD, isGlobalPremiumGuild, Currency, donor, userEntry }) => {
     let user = msg.author;
-    let multi = await Memer.calcMultiplier(Memer, user, userEntry, donor ? donor.donorAmount : 0, msg, isGlobalPremiumGuild);
+    let multi = await Memer.calcMultiplier(Memer, user, userEntry, donor, msg, isGlobalPremiumGuild);
     let coins = userEntry.props.pocket;
 
     if (coins >= Currency.constants.MAX_SAFE_COMMAND_AMOUNT) {
@@ -51,7 +51,7 @@ module.exports = new GenericCurrencyCommand(
     let winAmount = Math.random() + 0.4;
     let winnings = 0;
 
-    if ((roll.user - 1) > roll.bot) {
+    if (roll.user > roll.bot) {
       winnings = Math.round(bet * winAmount);
       winnings = winnings + Math.round(winnings * (multi / 100));
       await userEntry.addPocket(winnings).save();

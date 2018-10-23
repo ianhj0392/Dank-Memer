@@ -153,7 +153,7 @@ class UserEntry {
    * @returns {UserEntry} The user entry, so calls can be chained
    */
   setLevel (level) {
-    if (!level) {
+    if (level === undefined) {
       throw new Error('Missing mandatory "level" parameter');
     }
     level = typeof level !== 'number' ? Number(level) : level;
@@ -188,6 +188,9 @@ class UserEntry {
         throw new Error(`${item} is not a valid shop item`);
       }
       item = item.id;
+      if (!this.props.inventory[item]) {
+        this.props.inventory[item] = 0;
+      }
       this.props.inventory[item] += quantity;
     }
     this.update({

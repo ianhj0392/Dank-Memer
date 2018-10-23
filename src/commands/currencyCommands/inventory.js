@@ -34,6 +34,7 @@ module.exports = new GenericCurrencyCommand(
   },
   {
     triggers: ['inventory', 'inv'],
+    description: 'Check out your inventory/items or see another users',
     cooldown: 5e3,
     donorCD: 3e3,
     perms: ['embedLinks']

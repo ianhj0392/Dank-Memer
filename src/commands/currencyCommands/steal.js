@@ -80,7 +80,7 @@ module.exports = new GenericCurrencyCommand(
     Memer.redis.set(`stolen-${user.id}`, JSON.stringify({ amount: worth, stealer: perp.id }), 'EX', 120);
     await perp.addPocket(worth).save();
     victim.removePocket(worth);
-    victim.sendNotification('steal', 'You have been stolen from!', `**${msg.author.username}#${msg.author.discriminator}** has stolen **${worth.toLocaleString()}** coins from you!`)
+    victim.sendNotification('steal', 'You have been stolen from!', `**${msg.author.username}#${msg.author.discriminator}** has stolen **${worth.toLocaleString()}** coins from you!`);
     await victim.save();
     return message;
   },

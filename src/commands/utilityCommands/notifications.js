@@ -29,7 +29,7 @@ module.exports = new GenericCommand(
       return `Alright, removed ${value ? (Number.isInteger(index) ? `notification #${index + 1}` : `any notifications grouped under ${index}`) : 'all notifications'}`;
     } else {
       for (let notif in notifications) {
-        fields.push(`**${Number(notif) + 1}.** **\`${notifications[notif].title}\`**\n${notifications[notif].message}\n`);
+        fields.push(`**${Number(notif) + 1}.** **\`${notifications[notif].title}\`**\n${notifications[notif].message.length > 64 ? `${notifications[notif].message.slice(0, 64)}...` : notifications[notif].message}\n`);
       }
 
       return Memer.paginationMenu(!fields.length ? ['No notifications, sad :cry:'] : fields, {

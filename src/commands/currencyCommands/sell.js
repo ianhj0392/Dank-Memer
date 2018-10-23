@@ -36,6 +36,7 @@ module.exports = new GenericCurrencyCommand(
   },
   {
     triggers: ['sell'],
+    description: 'Sell one of your items',
     cooldown: 5e3,
     donorCD: 3e3,
     perms: ['embedLinks']

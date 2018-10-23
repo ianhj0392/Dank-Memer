@@ -13,17 +13,20 @@ module.exports = class GenericCurrencyCommand {
   }
 
   async run ({ Memer, msg, addCD, args, userEntry, donor, guildEntry, isGlobalPremiumGuild }) {
-    const formula = ((Math.round(await Memer.calcMultiplier(Memer, msg.author, userEntry.props /* TODO: change from .props to userEntry on it's own */, donor, msg, isGlobalPremiumGuild) / 10)) * Math.floor(Memer.randomNumber(1, 2)));
-    const experience = await userEntry.addExperience(formula).save().then(a => a.props.experience);
-    for (const o in Currency.levels) {
-      let level = Currency.levels[o];
-      const levelnum = Math.floor(level.exp / 100);
-      if (experience >= level.exp && userEntry.props.level < levelnum && Math.floor(experience / 100) === levelnum) {
-        userEntry.setLevel(levelnum);
-        // Perform rewards
-        const randquote = [`Awesome job, ${msg.author.username}.`, `Great stuff ${msg.author.username}.`, `Great work ${msg.author.username}.`, `You're on fire ${msg.author.username}.`];
-        userEntry.sendNotification('level', 'Level up!', `${Memer.randomInArray(randquote)} Congratulations on reaching level ${levelnum}!`);
-        for (const [ reward, value ] of Object.entries(level.reward)) {
+    const formula = ((Math.round(await Memer.calcMultiplier(Memer, msg.author, userEntry, donor, msg, isGlobalPremiumGuild) / 10)) * Math.floor(Memer.randomNumber(1, 2)));
+    const experience = userEntry.addExperience(formula).props.experience || 0;
+
+    // Level will always go up in 10's, however level rewards will skip every second level
+    if (userEntry.props.level !== Math.floor(experience / 100)) {
+      const level = Math.floor(experience / 100);
+      const rewlevel = Currency.levels[level];
+      userEntry.setLevel(Math.floor(experience / 100));
+      // Send notification on level up, rewards are handled separately
+      const randquote = [`Awesome job, ${msg.author.username}.`, `Great stuff ${msg.author.username}.`, `Great work ${msg.author.username}.`, `You're on fire ${msg.author.username}.`];
+      userEntry.sendNotification('level', 'Level up!', `${Memer.randomInArray(randquote)} Congratulations on reaching level ${level}!`);
+
+      if (rewlevel && experience >= rewlevel.exp) {
+        for (const [ reward, value ] of Object.entries(rewlevel.reward)) {
           switch (reward) {
             case 'coins':
               userEntry.addPocket(value);
@@ -43,9 +46,10 @@ module.exports = class GenericCurrencyCommand {
               break;
           }
         }
-        await userEntry.save();
       }
     }
+
+    await userEntry.save();
 
     return this.fn({ Memer, msg, args, addCD, Currency, userEntry, donor, guildEntry });
   }

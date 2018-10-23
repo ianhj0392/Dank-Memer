@@ -10,7 +10,7 @@ module.exports = new GenericCurrencyCommand(
     await addCD();
     return {
       title: text[0],
-      description: `${text[1]}: ${userEntry.props.pocket.toLocaleString()} coins.\n**Bank Account**: ${userEntry.props.bank.toLocaleString()} coins`,
+      description: `${text[1]}: ${userEntry.props.pocket.toLocaleString()} coins\n**Bank account**: ${userEntry.props.bank.toLocaleString()} coins`,
       thumbnail: {url: 'http://www.dank-memer-is-lots-of.fun/coin.png'},
       footer: { text: 'to see what upgrades they have, use the upgrades command' }
     };

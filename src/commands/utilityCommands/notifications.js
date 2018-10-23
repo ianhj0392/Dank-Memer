@@ -26,7 +26,7 @@ module.exports = new GenericCommand(
       let index = value ? isNaN(Number(value) - 1) || !Number.isInteger(Number(value) - 1) ? value : Number(value) - 1 : null;
       userEntry.dismissNotification(index);
       await userEntry.save();
-      return `Alright, removed ${value ? (Number.isInteger(index) ? `notification #${index}` : `any notifications grouped under ${index}`) : 'all notifications'}`;
+      return `Alright, removed ${value ? (Number.isInteger(index) ? `notification #${index + 1}` : `any notifications grouped under ${index}`) : 'all notifications'}`;
     } else {
       for (let notif in notifications) {
         fields.push(`**${Number(notif) + 1}.** **\`${notifications[notif].title}\`**\n${notifications[notif].message}\n`);

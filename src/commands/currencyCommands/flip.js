@@ -1,8 +1,9 @@
-const GenericCommand = require('../../models/GenericCommand');
+const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
-module.exports = new GenericCommand(
+module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, addCD, userEntry }) => {
-    if (userEntry.props.pocket === 0) {
+    let { pocket } = await Memer.db.getUser(msg.author.id);
+    if (pocket.coin === 0) {
       return { title: 'You have no coins.' };
     }
     let coinFlip = Memer.randomNumber(1, 2);

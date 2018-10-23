@@ -1,13 +1,24 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
+const slots = [
+  { icon: '💔', multiplier: 2.2 },
+  { icon: '💗', multiplier: 2.4 },
+  { icon: '💛', multiplier: 2.6 },
+  { icon: '💚', multiplier: 2.8 },
+  { icon: '💙', multiplier: 3.2 },
+  { icon: '💜', multiplier: 3.5 },
+  { icon: '💖', multiplier: 4 },
+  { icon: '💝', multiplier: 5 },
+  { icon: '🔱', multiplier: 8 } ];
+
 module.exports = new GenericCurrencyCommand(
-  async ({ Memer, msg, addCD, isGlobalPremiumGuild, Currency, donor, userEntry }) => {
+  async ({ Memer, msg, addCD, Currency, isGlobalPremiumGuild, donor, userEntry }) => {
     let user = msg.author;
     let multi = await Memer.calcMultiplier(Memer, user, userEntry, donor ? donor.donorAmount : 0, msg, isGlobalPremiumGuild);
     let coins = userEntry.props.pocket;
 
     if (coins >= Currency.constants.MAX_SAFE_COMMAND_AMOUNT) {
-      return 'You are too rich to gamble! Why don\'t you go and do something with your coins smh';
+      return 'You are too rich to use the slot machine! Why don\'t you go and do something with your coins smh';
     }
 
     let bet = msg.args.args[0];
@@ -42,19 +53,26 @@ module.exports = new GenericCurrencyCommand(
     }
 
     await addCD();
-
-    const roll = {
-      bot: Number(Math.floor(Math.random() * 12) + 1),
-      user: Number(Math.floor(Math.random() * 12) + 1)
+    const generate = () => {
+      return slots[Number(Math.floor(Math.random() * slots.length))];
     };
+    const slotPositions = [generate(), generate(), generate()];
 
-    let winAmount = Math.random() + 0.4;
-    let winnings = 0;
+    let result = 0;
+    const amount = slotPositions.filter((i, e) => slotPositions.indexOf(i) !== e);
+    for (let i in amount) {
+      if (amount.length > 1) {
+        result = amount[i].multiplier * 2;
+      } else if (amount.length > 0) {
+        result = amount[i].multiplier;
+      }
+    }
 
-    if ((roll.user - 1) > roll.bot) {
-      winnings = Math.round(bet * winAmount);
-      winnings = winnings + Math.round(winnings * (multi / 100));
-      await userEntry.addPocket(winnings).save();
+    const payout = Math.floor(result ? Number(bet * result) : 0);
+    let message = `**>** ${slotPositions[0].icon}    ${slotPositions[1].icon}    ${slotPositions[2].icon} **<**\n`;
+
+    if (payout) {
+      await userEntry.addPocket(payout).save();
     } else {
       await userEntry.removePocket(bet).save();
     }
@@ -62,34 +80,26 @@ module.exports = new GenericCurrencyCommand(
     msg.channel.createMessage({ embed: {
       author:
           {
-            name: `${user.username}'s gambling game`,
+            name: `${user.username}'s slot machine`,
             icon_url: user.dynamicAvatarURL()
           },
-      color: 12216520,
-      description: winnings
-        ? `You won **${winnings.toLocaleString()}** coins. \n**Multiplier** ${multi}% | **Percent of bet won** ${(winnings / bet) * 100}%`
+      description: payout
+        ? `You won **${payout.toLocaleString()}** coins. \n**Multiplier** ${multi}% | **Percent of bet won** ${(payout / bet) * 100}%`
         : `You lost **${Number(bet).toLocaleString()}** coins.`,
       fields: [
         {
-          name: msg.author.username,
-          value: roll.user,
-          inline: true
-        },
-        {
-          name: Memer.bot.user.username,
-          value: roll.bot,
-          inline: true
+          name: 'Outcome',
+          value: message
         }
-      ],
-      footer: { text: !winnings ? 'Your number has to be at least 1 higher than your opponent.' : '' }
+      ]
     }
     });
   },
   {
-    triggers: ['gamble', 'bet'],
+    triggers: ['slots', 'slotmachine'],
     cooldown: 5 * 1000,
     donorCD: 2 * 1000,
-    description: 'Take your chances at gambling. Warning, I am very good at stealing your money.',
+    description: 'Take your chances at a slot machine. Warning, I am very good at stealing your money.',
     cooldownMessage: 'If I let you bet whenever you wanted, you\'d be a lot more poor. Wait ',
     missingArgs: 'You gotta gamble some of ur coins bro, `pls gamble #/all/half` for example, dummy'
   }

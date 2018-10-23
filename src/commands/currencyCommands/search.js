@@ -1,5 +1,6 @@
-const GenericCommand = require('../../models/GenericCommand');
+const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 let message;
+
 let places = {
   home: {
     couch: {
@@ -342,7 +343,8 @@ let places = {
     }
   }
 };
-module.exports = new GenericCommand(
+
+module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, addCD, userEntry }) => {
     const chances = Memer.randomNumber(0, 5);
     if (chances === 0) {

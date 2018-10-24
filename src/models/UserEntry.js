@@ -406,7 +406,7 @@ class UserEntry {
       .insert(this._client.r.table('users').get(this.props.id).default(this._client.db.getDefaultUser(this.props.id)).merge(this._changes), { conflict: 'update', returnChanges: 'always' }).run()
       .then(c => {
         this._saved = this._saved + 1;
-        this.props = c.changes[0].new_val;
+        this.props = { ...this._client.db.getDefaultUser(this.props.id), ...c.changes[0].new_val };
         return new UserEntry(c.changes[0].new_val, this._client);
       });
   }

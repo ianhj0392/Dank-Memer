@@ -52,6 +52,7 @@ module.exports = new GenericCurrencyCommand(
     let winnings = 0;
 
     if ((roll.user - 1) >= roll.bot) {
+      // Accounts for multipliers
       winnings = Math.round(bet * winAmount);
       winnings = winnings + Math.round(winnings * (multi / 100));
       await userEntry.addPocket(winnings).save();

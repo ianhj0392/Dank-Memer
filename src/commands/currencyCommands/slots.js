@@ -1,15 +1,15 @@
 const GenericCurrencyCommand = require('../../models/GenericCurrencyCommand');
 
 const slots = [
-  { icon: '💔', multiplier: 2.2 },
-  { icon: '💗', multiplier: 2.4 },
-  { icon: '💛', multiplier: 2.6 },
-  { icon: '💚', multiplier: 2.8 },
-  { icon: '💙', multiplier: 3.2 },
-  { icon: '💜', multiplier: 3.5 },
-  { icon: '💖', multiplier: 4 },
-  { icon: '💝', multiplier: 5 },
-  { icon: '🔱', multiplier: 8 } ];
+  { icon: '💔', multiplier: 1 },
+  { icon: '💗', multiplier: 1.25 },
+  { icon: '💛', multiplier: 1.5 },
+  { icon: '💚', multiplier: 1.75 },
+  { icon: '💙', multiplier: 2 },
+  { icon: '💜', multiplier: 2.25 },
+  { icon: '💖', multiplier: 2.5 },
+  { icon: '💝', multiplier: 2.75 },
+  { icon: '🔱', multiplier: 3 } ];
 
 module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, addCD, Currency, isGlobalPremiumGuild, donor, userEntry }) => {
@@ -68,7 +68,8 @@ module.exports = new GenericCurrencyCommand(
       }
     }
 
-    const payout = Math.floor(result ? Number(bet * result) : 0);
+    // Accounts for multipliers
+    const payout = Math.floor(result ? Number(bet * result + ((bet * result) / 100) * result) : 0);
     let message = `**>** ${slotPositions[0].icon}    ${slotPositions[1].icon}    ${slotPositions[2].icon} **<**\n`;
 
     if (payout) {
@@ -84,7 +85,7 @@ module.exports = new GenericCurrencyCommand(
             icon_url: user.dynamicAvatarURL()
           },
       description: payout
-        ? `You won **${payout.toLocaleString()}** coins. \n**Multiplier** ${multi}% | **Percent of bet won** ${(payout / bet) * 100}%`
+        ? `You won **${payout.toLocaleString()}** coins. \n**Multiplier** ${multi}% | **Percent of bet won** ${Math.floor((payout / bet) * 100)}%`
         : `You lost **${Number(bet).toLocaleString()}** coins.`,
       fields: [
         {

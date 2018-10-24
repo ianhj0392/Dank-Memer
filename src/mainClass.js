@@ -78,6 +78,7 @@ class Memer extends Base {
     this.loadListeners();
     global.memeBase || this.ready();
     this.autopost = new (require('./utils/Autopost.js'))(this);
+    this.currency = require('./models/Currency.js');
     if (cluster.worker.id === 1) {
       this._autopostInterval = setInterval(() => { this.autopost.post(); }, 3e5); // 5 minutes
     }

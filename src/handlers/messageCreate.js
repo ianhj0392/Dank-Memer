@@ -322,16 +322,14 @@ async function runCommand (command, msg, args, cleanArgs, updateCooldowns, userE
 async function reportError (e, msg, command, cleanArgs) {
   this.ddog.increment('function.reportError');
   let date = new Date();
-  this.stats.errReported++;
   let message = await this.errorMessages(e);
   let randNum = Math.floor(Math.random() * 99999);
   const channel = this.config.options.errorChannel || '470338254848262154';
-  this.log(`Command error:\n\tCommand: ${command.props.triggers[0]}\n\tSupplied arguments: ${cleanArgs.join(' ')}\n\tServer ID: ${msg.channel.guild.id}\n\tError: ${e.stack}`, 'error');
   if (!message) {
-    msg.channel.createMessage(`Something went wrong lol\nError: \`${command.props.triggers[0]}.${this.clusterID}.${msg.channel.guild.shard.id}.${date.getHours()}:${date.getMinutes()}.err${randNum}\``);
+    this.Raven.captureException(e); // Logged to sentry
+    msg.channel.createMessage(`**OH NO**\nSomething went wrong <:peepono:489926319195422720>\nError Code: \`${command.props.triggers[0]}.${this.clusterID}.err${randNum}\``);
     await this.bot.createMessage(channel, `**Error: ${e.message}**\nCode: \`err${randNum}\`\nCommand Ran: ${command.props.triggers[0]}\nDate: ${date.toLocaleTimeString('en-US')}\nSupplied arguments: ${cleanArgs.join(' ')}\nServer ID: ${msg.channel.guild.id}\nCluster ${this.clusterID} | Shard ${msg.channel.guild.shard.id}\n\`\`\` ${e.stack} \`\`\``);
   } else {
     msg.channel.createMessage(message);
-    await this.bot.createMessage(channel, `**Error: ${e.message}**\nCommand Ran: ${command.props.triggers[0]}\nDate: ${date.toLocaleTimeString('en-US')}\nSupplied arguments: ${cleanArgs.join(' ')}\nServer ID: ${msg.channel.guild.id}\nCluster ${this.clusterID} | Shard ${msg.channel.guild.shard.id}\n\`\`\` ${e.stack} \`\`\``);
   }
 }

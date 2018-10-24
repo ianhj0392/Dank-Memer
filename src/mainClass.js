@@ -53,6 +53,7 @@ class Memer extends Base {
       errReported: 0,
       err: 0
     };
+    this.Raven = require('raven');
     this.redis = reload.redis;
     this.lavalink = reload.lavalink;
     this.listeners = {};
@@ -81,6 +82,9 @@ class Memer extends Base {
     this.currency = require('./models/Currency.js');
     if (cluster.worker.id === 1) {
       this._autopostInterval = setInterval(() => { this.autopost.post(); }, 3e5); // 5 minutes
+    }
+    if (!this.config.options.dev) {
+      this.Raven.config(this.config.sentry).install();
     }
   }
 

@@ -75,6 +75,7 @@ const BOXES = {
 const ITEMS = Object.assign({
   tidepod: {
     name: 'Tidepod',
+    description: 'Risking your life for a couple of views? Sounds great!',
     id: 'tidepod',
     type: ItemTypes.ITEM,
     cost: 15e3,
@@ -82,6 +83,7 @@ const ITEMS = Object.assign({
   },
   inviscloak: {
     name: 'Invisibility Cloak',
+    description: 'Vanish to the world',
     id: 'inviscloak',
     type: ItemTypes.POWERUP,
     cost: 35e3,
@@ -89,6 +91,7 @@ const ITEMS = Object.assign({
   },
   reversal: {
     name: 'Reversal Card',
+    description: 'Somebody steal from you? No problem. Use this within 5 minutes of being stolen, and you can reverse that steal like nothing ever happened',
     id: 'reversal',
     type: ItemTypes.POWERUP,
     cost: 20e3,
@@ -96,6 +99,7 @@ const ITEMS = Object.assign({
   },
   spinner: {
     name: 'Fidget Spinner',
+    description: 'Gain a temporary multiplier depending on how long you can spin your fidget spinner',
     id: 'spinner',
     type: ItemTypes.POWERUP,
     cost: 20e3,
@@ -103,6 +107,7 @@ const ITEMS = Object.assign({
   },
   pepe: {
     name: 'Rare Pepe',
+    description: 'It\'s rare and it\'s good',
     id: 'pepe',
     type: ItemTypes.COLLECTABLE,
     cost: 1e5,
@@ -110,6 +115,7 @@ const ITEMS = Object.assign({
   },
   sand: {
     name: 'Box of Sand',
+    description: 'Chuck some sand in someone\'s face to prevent them from robbing you',
     id: 'sand',
     type: ItemTypes.TOOL,
     cost: 4e3,
@@ -117,6 +123,7 @@ const ITEMS = Object.assign({
   },
   padlock: {
     name: 'Padlock',
+    description: 'Lock a padlock on your wallet to prevent people from robbing you',
     id: 'padlock',
     type: ItemTypes.TOOL,
     cost: 25e3,
@@ -124,6 +131,7 @@ const ITEMS = Object.assign({
   },
   bread: {
     name: 'Day old Bread',
+    description: 'I wouldn\'t eat it personally but you can if you want',
     id: 'bread',
     type: ItemTypes.COLLECTABLE,
     cost: 2,
@@ -131,6 +139,7 @@ const ITEMS = Object.assign({
   },
   alcohol: {
     name: 'Alcohol',
+    description: 'Down some alcohol and maybe you\'ll get lucky! Maybe.',
     id: 'alcohol',
     type: ItemTypes.ITEM,
     cost: 20e3,
@@ -138,6 +147,7 @@ const ITEMS = Object.assign({
   },
   phone: {
     name: 'Cell Phone',
+    description: 'Text your friends! Fun for the entire family',
     id: 'phone',
     type: ItemTypes.ITEM,
     cost: 15e3,

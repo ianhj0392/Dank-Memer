@@ -3,7 +3,7 @@ const items = require('./items');
 
 module.exports = new GenericCurrencyCommand(
   async ({ Memer, msg, userEntry, donor, Currency, isGlobalPremiumGuild }) => {
-    const item = Currency.items[msg.args.nextArgument()];
+    const item = Currency.search(msg.args.gather()) || Currency.search(msg.args.nextArgument());
     if (!item) {
       return 'That item doesn\'t even exist what are you doing';
     }

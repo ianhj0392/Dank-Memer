@@ -173,6 +173,17 @@ const CONSTANTS = {
   MAX_SAFE_COMMAND_AMOUNT: 1e6 // The amount of coins before someone can no longer use gamble commands
 };
 
+const search = (query, shopOnly = true) => {
+  const target = shopOnly ? SHOP : ITEMS;
+  for (let item in target) {
+    let lookup = target[item].name.toLowerCase().includes(query.toLowerCase()) || target[item].id.includes(query.toLowerCase());
+    if (lookup) {
+      return target[item];
+    }
+  }
+  return false; // no item found
+};
+
 module.exports = {
   shop: SHOP,
   levels: LEVELS,
@@ -180,5 +191,6 @@ module.exports = {
   items: ITEMS,
   emoji: EMOJI,
   ItemTypes,
-  constants: CONSTANTS
+  constants: CONSTANTS,
+  search
 };

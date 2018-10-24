@@ -230,7 +230,7 @@ class Memer extends Base {
       const category = require(categoryPath);
       // Delete old aliases
       for (const [key, value] of this.aliases) {
-        if (this.cmds.has(value) && this.cmds.get(value).includes(`${msg.category}Commands`)) {
+        if (this.cmds.has(value) && this.cmds.get(value).path.includes(`${msg.category}Commands`)) {
           this.aliases.delete(key);
         }
       }
@@ -262,7 +262,7 @@ class Memer extends Base {
           this.aliases.delete(key);
         }
       }
-      this.cmds.set(reloadedCmd.props.triggers[0]);
+      this.cmds.set(reloadedCmd.props.triggers[0], reloadedCmd);
       if (reloadedCmd.props.triggers[1]) {
         const aliases = reloadedCmd.props.triggers.slice(1);
         for (const alias of aliases) {
@@ -299,12 +299,9 @@ class Memer extends Base {
       this.r.getPoolMaster().drain();
       this.redis.disconnect();
       this.ddog.close();
-      for (const node of this.lavalink.nodes) {
-        for (const player of node.players) {
-          node.players.get(player).destroy();
-        }
+      for (const node of this.bot.voiceConnections.nodes) {
         try {
-          node.connection.ws.close();
+          node.destroy();
         } catch (err) {}
       }
     }

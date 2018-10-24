@@ -19,7 +19,7 @@ module.exports = new GenericCommand(
 
     args = Memer.removeDuplicates(args
       .map(cmd => {
-        return (Memer.cmds.has(cmd.toLowerCase()) || !Memer.cmds.has(Memer.aliases.get(cmd.toLowerCase())) || { props: { triggers: [cmd] } }).props.triggers[0];
+        return (Memer.cmds.get(cmd.toLowerCase()) || !Memer.cmds.get(Memer.aliases.get(cmd.toLowerCase())) || { props: { triggers: [cmd] } }).props.triggers[0];
       }));
 
     const alreadyDisabled = args.filter(cmd => guildEntry.props.disabledCommands.includes(cmd) || guildEntry.props.disabledCategories.includes(cmd));

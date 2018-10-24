@@ -13,18 +13,18 @@ module.exports = new GenericCommand(
     }
 
     const categories = Memer.cmds.map(c => c.category.split(' ')[1].toLowerCase());
-    if (args.some(cmd => !Memer.cmds.find(c => c.props.triggers.includes(cmd)) && !categories.includes(cmd))) {
+    if (args.some(cmd => !Memer.cmds.has(cmd.toLowerCase()) && !Memer.cmds.has(Memer.aliases.get(cmd.toLowerCase())) && !categories.includes(cmd))) {
       return `The following commands or categories are invalid: \n\n${args.filter(cmd => !Memer.cmds.find(c => c.props.triggers.includes(cmd)) && !categories.includes(cmd)).map(cmd => `\`${cmd}\``).join(', ')}\n\nPlease make sure all of your commands are valid and try again.`;
     }
 
     args = Memer.removeDuplicates(args
       .map(cmd => {
-        return (Memer.cmds.find(c => c.props.triggers.includes(cmd)) || { props: { triggers: [cmd] } }).props.triggers[0];
+        return (Memer.cmds.has(cmd.toLowerCase()) || Memer.cmds.has(Memer.aliases.get(cmd.toLowerCase())) || { props: { triggers: [cmd] } }).props.triggers[0];
       }));
 
     const arentDisabled = args.filter(cmd => (!guildEntry.props.disabledCommands.includes(cmd) && !guildEntry.props.disabledCategories.includes(cmd)) ||
       (guildEntry.props.enabledCommands.includes(cmd)) ||
-      (Memer.cmds.find(c => c.props.triggers.includes(cmd)) && guildEntry.props.disabledCategories.includes(Memer.cmds.find(c => c.props.triggers.includes(cmd)).category)));
+      ((Memer.cmds.has(cmd.toLowerCase()) || Memer.cmds.has(Memer.aliases.get(cmd.toLowerCase()))) && guildEntry.props.disabledCategories.includes((Memer.cmds.get(cmd.toLowerCase()) || Memer.cmds.get(Memer.aliases.get(cmd.toLowerCase()))).category)));
     if (arentDisabled[0]) {
       return `These commands/categories aren't disabled:\n\n${arentDisabled.map(c => `\`${c}\``).join(', ')}\n\nHow tf do you plan to enable already enabled stuff??`;
     }

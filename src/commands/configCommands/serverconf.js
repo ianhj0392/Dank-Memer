@@ -2,7 +2,7 @@ const GenericCommand = require('../../models/GenericCommand');
 
 module.exports = new GenericCommand(
   async ({Memer, msg, guildEntry}) => {
-    const enabledCommands = guildEntry.props.enabledCommands.filter(cmd => guildEntry.props.disabledCategories.includes(Memer.cmds.find(c => c.props.triggers.includes(cmd)).category.split(' ')[1].toLowerCase()));
+    const enabledCommands = guildEntry.props.enabledCommands.filter(cmd => guildEntry.props.disabledCategories.includes((Memer.cmds.get(cmd.toLowerCase()) || Memer.cmds.get(Memer.aliases.get(cmd.toLowerCase()))).category.split(' ')[1].toLowerCase()));
     return {
       author:
         { name: `Server Config for ${msg.channel.guild.name}`,

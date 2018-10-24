@@ -24,7 +24,8 @@
  * @prop {import('../utils/MusicManager')} musicManager The music manager
  * @prop {import('eris').Client} bot The eris client instance
  * @prop {import('../utils/Autopost')} autopost The auto-poster
- * @prop {Array<Object>} cmds An array of all the commands
+ * @prop {import('eris').Collection<String, Object>} cmds A map of all the commands
+ * @prop {import('eris').Collection<String, String>} aliases A map linking aliases to their command's name
  * @prop {import('../utils/IPCHandler')} IPC Custom IPC interface, allows a more reliable communication across clusters
  */
 

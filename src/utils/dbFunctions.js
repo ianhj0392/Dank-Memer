@@ -119,7 +119,7 @@ class DatabaseFunctions {
    * @returns {Promise<void>}
    */
   async updateCooldowns (command, userID, isGlobalPremiumGuild) {
-    const pCommand = this.client.cmds.find(c => c.props.triggers.includes(command.toLowerCase()));
+    const pCommand = this.client.cmds.get(command.toLowerCase()) || this.client.cmds.get(this.aliases.get(command.toLowerCase()));
     if (!pCommand) {
       return;
     }
@@ -158,7 +158,7 @@ class DatabaseFunctions {
    * @returns {Promise<void>}
    */
   async createCooldowns (command, userID, isGlobalPremiumGuild) {
-    const pCommand = this.client.cmds.find(c => c.props.triggers.includes(command.toLowerCase()));
+    const pCommand = this.client.cmds.get(command.toLowerCase()) || this.client.cmds.get(this.aliases.get(command.toLowerCase()));
     if (!pCommand) {
       return;
     }

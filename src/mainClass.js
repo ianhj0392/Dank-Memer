@@ -4,6 +4,7 @@ const { Base } = require('eris-sharder');
 const { PlayerManager } = require('eris-lavalink');
 const cluster = require('cluster');
 const { StatsD } = require('node-dogstatsd');
+const { Collection } = require('eris');
 
 let MessageCollector = require('./utils/MessageCollector.js');
 let botPackage = require('../package.json');
@@ -56,8 +57,8 @@ class Memer extends Base {
     this.redis = reload.redis;
     this.bot.voiceConnections = reload.lavalink || this.bot.voiceConnections;
     this.listeners = {};
-    this.cmds = new Map();
-    this.aliases = new Map();
+    this.cmds = new Collection();
+    this.aliases = new Collection();
     this.cooldowns = new Map();
     this.IPC = new (require('./utils/IPCHandler.js'))(this);
     this._cooldownsSweep = setInterval(this._sweepCooldowns.bind(this), 1000 * 60 * 30);

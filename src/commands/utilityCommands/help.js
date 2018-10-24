@@ -26,7 +26,7 @@ module.exports = new GenericCommand(
       };
     }
 
-    const command = Memer.cmds.find(c => c.props.triggers.includes(args[0].toLowerCase()));
+    const command = Memer.cmds.get(args[0].toLowerCase()) || Memer.cmds.get(Memer.aliases.get(args[0].toLowerCase()));
     const categorySearch = Memer.cmds.find(c => c.category.split(' ')[1].toLowerCase() === args[0].toLowerCase());
 
     await addCD();

@@ -11,16 +11,15 @@ module.exports = new GenericCommand(
       \nYou can also disable categories by specifying the category name, for example: \`${guildEntry.props.prefix} disable nsfw\``,
       reply: true };
     }
-
     const categories = Memer.cmds.map(c => c.category.split(' ')[1].toLowerCase());
-    const invalid = args.filter(cmd => (!Memer.cmds.find(c => c.props.triggers.includes(cmd)) && !categories.includes(cmd)) || ['disable', 'enable'].includes(cmd));
+    const invalid = args.filter(cmd => (!Memer.cmds.has(cmd.toLowerCase()) && !Memer.cmds.has(Memer.aliases.get(cmd.toLowerCase())) && !categories.includes(cmd)) || ['disable', 'enable'].includes(cmd));
     if (invalid.length) {
       return { content: `The following commands or categories are invalid: \n\n${invalid.map(cmd => `\`${cmd.toLowerCase()}\``).join(', ')}\n\nPlease make sure all of your commands or categories are valid (case-sensitive!) and try again.`, reply: true };
     }
 
     args = Memer.removeDuplicates(args
       .map(cmd => {
-        return (Memer.cmds.find(c => c.props.triggers.includes(cmd)) || { props: { triggers: [cmd] } }).props.triggers[0];
+        return (Memer.cmds.has(cmd.toLowerCase()) || !Memer.cmds.has(Memer.aliases.get(cmd.toLowerCase())) || { props: { triggers: [cmd] } }).props.triggers[0];
       }));
 
     const alreadyDisabled = args.filter(cmd => guildEntry.props.disabledCommands.includes(cmd) || guildEntry.props.disabledCategories.includes(cmd));

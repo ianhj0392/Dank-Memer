@@ -66,7 +66,7 @@ exports.handle = async function (msg) {
     passed = true;
   } else if (slicedMessage.length > 1) {
     for (const possibleCommand of slicedMessage) {
-      if (this.cmds.get(possibleCommand.toLowerCase()) || this.tags[possibleCommand.toLowerCase()] || this.aliases.get(possibleCommand.toLowerCase())) {
+      if (this.cmds.get(possibleCommand.toLowerCase()) || this.tags[possibleCommand.toLowerCase()] || this.cmds.get(this.aliases.get(possibleCommand.toLowerCase()))) {
         passed = true;
       }
     }

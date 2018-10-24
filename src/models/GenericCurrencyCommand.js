@@ -14,7 +14,7 @@ module.exports = class GenericCurrencyCommand {
   }
 
   async run ({ Memer, msg, addCD, args, userEntry, donor, guildEntry, isGlobalPremiumGuild }) {
-    const formula = ((Math.round(await Memer.calcMultiplier(Memer, msg.author, userEntry, donor, msg, isGlobalPremiumGuild) / 10)) * 1);
+    const formula = ((Math.ceil(await Memer.calcMultiplier(Memer, msg.author, userEntry, donor, msg, isGlobalPremiumGuild) / 10)) * 1) || 1;
     const experience = Math.random() > 0.6 ? userEntry.addExperience(formula).props.experience : userEntry.props.experience;
 
     // Level will always go up in 10's, however level rewards will skip every second level

@@ -110,15 +110,16 @@ class MiscFunctions {
   async calcMultiplier (Memer, user, userDB, donor, msg, isGlobalPremiumGuild) {
     // calculates total multiplier based on multiple variables
     let guildMember = msg.channel.guild.members.get(msg.author.id);
-    const items = await userDB.getActiveItems();
     let date = new Date(msg.timestamp);
     let day;
     let time;
-    let total = 0;
-    if (items.includes('spinner')) {
+    let total;
+
+    total = userDB.props.upgrades ? userDB.props.upgrades.multi : 0;
+    if (await userDB.isItemActive('spinner')) {
       total += await Memer.redis.get(`activeitems-${user.id}-spinner`) || 0;
     }
-    if (items.includes('tidepod')) {
+    if (await userDB.isItemActive('tidepod')) {
       total += await Memer.redis.get(`activeitems-${user.id}-tidepod`) || 0;
     }
     if (Memer.config.options.developers.includes(user.id)) {
